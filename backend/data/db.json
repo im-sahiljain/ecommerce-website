@@ -1,0 +1,230 @@
+{
+  "categories": [
+    {
+      "id": "cat-1",
+      "name": "Painting Kits",
+      "slug": "painting-kits",
+      "description": "Complete ready-to-paint plaster craft kits"
+    },
+    {
+      "id": "cat-2",
+      "name": "Party Packs",
+      "slug": "party-packs",
+      "description": "Group activity packs for birthday parties & events"
+    },
+    {
+      "id": "cat-3",
+      "name": "Plaster Sets",
+      "slug": "plaster-sets",
+      "description": "Detailed plaster molds & acrylic paint bundles"
+    },
+    {
+      "id": "cat-4",
+      "name": "New Arrivals",
+      "slug": "new-arrivals",
+      "description": "Latest released creative craft kits"
+    }
+  ],
+  "themes": [
+    {
+      "id": "theme-1",
+      "name": "Space Adventures",
+      "slug": "space-adventures",
+      "description": "Rockets, planets, astronauts and galaxy fun",
+      "icon": "🚀"
+    },
+    {
+      "id": "theme-2",
+      "name": "Secret Garden (Floral)",
+      "slug": "secret-garden",
+      "description": "Butterflies, flowers and magical nature",
+      "icon": "🌸"
+    },
+    {
+      "id": "theme-3",
+      "name": "Fairytale Magic",
+      "slug": "fairytale-magic",
+      "description": "Unicorns, royal castles and magical worlds",
+      "icon": "🦄"
+    },
+    {
+      "id": "theme-4",
+      "name": "Wild Kingdom",
+      "slug": "wild-kingdom",
+      "description": "Lions, elephants, safari adventures",
+      "icon": "🦁"
+    }
+  ],
+  "ageGroups": [
+    {
+      "id": "age-1",
+      "name": "Ages 2-4",
+      "slug": "ages-2-4"
+    },
+    {
+      "id": "age-2",
+      "name": "Ages 4+",
+      "slug": "ages-4-plus"
+    },
+    {
+      "id": "age-3",
+      "name": "Ages 8+",
+      "slug": "ages-8-plus"
+    }
+  ],
+  "users": [
+    {
+      "id": "usr-1",
+      "identifier": "demo@littlecreators.com",
+      "name": "Demo Artist",
+      "password": "password123",
+      "createdAt": "2026-07-25T14:34:14.296Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "prod-1",
+      "name": "Galaxy Rocket Kit",
+      "price": 19.99,
+      "originalPrice": 24.99,
+      "theme": "Space Adventures",
+      "category": "Painting Kits",
+      "ageGroup": "Ages 4+",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500&auto=format&fit=crop&q=80",
+      "description": "Inspire future astronauts with this ready-to-paint plaster rocket & astronaut set. Complete with 6 vibrant non-toxic paints and dual brushes.",
+      "inStock": true,
+      "featured": true
+    },
+    {
+      "id": "prod-2",
+      "name": "Planet Explorer Set",
+      "price": 24.99,
+      "originalPrice": 29.99,
+      "theme": "Space Adventures",
+      "category": "Painting Kits",
+      "ageGroup": "Ages 4+",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=500&auto=format&fit=crop&q=80",
+      "description": "Paint the solar system! Includes 8 plaster planets, orbital display stand, glow-in-the-dark paint accents, and painting guide.",
+      "inStock": true,
+      "featured": true
+    },
+    {
+      "id": "prod-3",
+      "name": "Butterfly & Bloom Kit",
+      "price": 19.99,
+      "originalPrice": 22.99,
+      "theme": "Secret Garden (Floral)",
+      "category": "Painting Kits",
+      "ageGroup": "Ages 4+",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80",
+      "description": "Bring garden butterflies and blooming flowers to life with custom pastel paint colors and glitter gel pens.",
+      "inStock": true,
+      "featured": true
+    },
+    {
+      "id": "prod-4",
+      "name": "Enchanted Floral Set",
+      "price": 24.99,
+      "originalPrice": 27.99,
+      "theme": "Secret Garden (Floral)",
+      "category": "Painting Kits",
+      "ageGroup": "Ages 4+",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=500&auto=format&fit=crop&q=80",
+      "description": "A deluxe floral craft collection featuring plaster flower pots, seed starter kits, and weather-resistant acrylic paint.",
+      "inStock": true,
+      "featured": true
+    },
+    {
+      "id": "prod-5",
+      "name": "Unicorn Dreams Kit",
+      "price": 19.99,
+      "originalPrice": 24.99,
+      "theme": "Fairytale Magic",
+      "category": "Painting Kits",
+      "ageGroup": "Ages 4+",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=80",
+      "description": "Sparkly unicorn craft set featuring plaster unicorns, rainbow cloud stands, metallic paints, and stick-on jewels.",
+      "inStock": true,
+      "featured": true
+    },
+    {
+      "id": "prod-6",
+      "name": "Royal Castle Set",
+      "price": 14.99,
+      "originalPrice": 19.99,
+      "theme": "Fairytale Magic",
+      "category": "Painting Kits",
+      "ageGroup": "Ages 4+",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=500&auto=format&fit=crop&q=80",
+      "description": "Paint your own fairytale castle! Comes with pre-cast plaster towers, royal crowns, and metallic gold paint.",
+      "inStock": true,
+      "featured": true
+    },
+    {
+      "id": "prod-7",
+      "name": "Safari Lion Kit",
+      "price": 19.99,
+      "originalPrice": 24.99,
+      "theme": "Wild Kingdom",
+      "category": "Painting Kits",
+      "ageGroup": "Ages 4+",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1534567153574-2b12153a87f0?w=500&auto=format&fit=crop&q=80",
+      "description": "King of the craft room! Friendly plaster lion and cub set with earthy jungle paint tones and fluffy mane fibers.",
+      "inStock": true,
+      "featured": true
+    },
+    {
+      "id": "prod-8",
+      "name": "Elephant Parade Set",
+      "price": 24.99,
+      "originalPrice": 28.99,
+      "theme": "Wild Kingdom",
+      "category": "Painting Kits",
+      "ageGroup": "Ages 4+",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=500&auto=format&fit=crop&q=80",
+      "description": "Adorable elephant family plaster set with custom washable paint, mixing palette, and safari background scene.",
+      "inStock": true,
+      "featured": true
+    }
+  ],
+  "orders": [
+    {
+      "id": "ord-1001",
+      "orderNumber": "LC-9824",
+      "userIdentifier": "demo@littlecreators.com",
+      "customerName": "Sarah Jenkins",
+      "shippingAddress": "742 Evergreen Terrace, Springfield",
+      "phone": "555-0199",
+      "items": [
+        {
+          "productId": "prod-1",
+          "productName": "Galaxy Rocket Kit",
+          "price": 19.99,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500&auto=format&fit=crop&q=80"
+        },
+        {
+          "productId": "prod-5",
+          "productName": "Unicorn Dreams Kit",
+          "price": 19.99,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=80"
+        }
+      ],
+      "subtotal": 39.98,
+      "shipping": 0,
+      "total": 39.98,
+      "status": "Shipped",
+      "createdAt": "2026-07-23T14:34:14.297Z",
+      "trackingNumber": "TRK-88492019"
+    }
+  ]
+}
