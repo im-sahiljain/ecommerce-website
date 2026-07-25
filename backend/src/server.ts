@@ -4,14 +4,26 @@ import dotenv from 'dotenv';
 import { db } from './db';
 import { requireCustomerAuth, generateUserToken, AuthenticatedRequest } from './middleware/auth';
 import { uploadToCloudinary } from './utils/cloudinary';
+import { redisCacheMiddleware } from './middleware/redisCache';
+import { orderQueue } from './queues/orderQueue';
+import { initOrderWorker } from './queues/orderWorker';
+
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './swagger';
 
 dotenv.config();
+
+// Initialize BullMQ worker process
+initOrderWorker();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// Swagger UI API Documentation Route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Auth / Login Route
 app.post('/api/users/login', (req, res) => {
@@ -58,8 +70,8 @@ app.post('/api/upload', async (req, res) => {
   }
 });
 
-// Products Routes
-app.get('/api/products', (req, res) => {
+// Products Routes (Optimized with O(1) Redis Caching Layer)
+app.get('/api/products', redisCacheMiddleware(300), (req, res) => {
   const { theme, category, ageGroup, search } = req.query;
   let products = db.getProducts();
 
@@ -231,6 +243,17 @@ app.post('/api/orders', requireCustomerAuth, (req: AuthenticatedRequest, res) =>
     subtotal: Number(subtotal),
     shipping: Number(shipping || 0),
     total: Number(total)
+  });
+
+  // Offload post-purchase processing (email/PDF/ERP) asynchronously to BullMQ queue worker
+  orderQueue.add('process-post-purchase', {
+    orderId: newOrder.id,
+    customerName: newOrder.customerName,
+    customerEmail: newOrder.userIdentifier,
+    items: newOrder.items,
+    totalAmount: newOrder.total,
+  }).catch((err) => {
+    console.warn('⚠️ BullMQ queue push failed (Queue offline):', err.message);
   });
 
   res.status(201).json(newOrder);

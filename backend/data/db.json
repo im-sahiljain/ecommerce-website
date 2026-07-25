@@ -79,6 +79,13 @@
       "name": "Demo Artist",
       "password": "password123",
       "createdAt": "2026-07-25T14:34:14.296Z"
+    },
+    {
+      "id": "usr-1784999486596",
+      "identifier": "In totam dolorem quo",
+      "name": "Suscipit anim enim r",
+      "password": "Pa$$w0rd!",
+      "createdAt": "2026-07-25T17:11:26.596Z"
     }
   ],
   "products": [
@@ -196,6 +203,43 @@
     }
   ],
   "orders": [
+    {
+      "userIdentifier": "In totam dolorem quo",
+      "customerName": "A corrupti aut ut n",
+      "shippingAddress": "Esse do do incidunt",
+      "phone": "Aliquip cumque quasi",
+      "items": [
+        {
+          "productId": "prod-4",
+          "productName": "Enchanted Floral Set",
+          "price": 24.99,
+          "quantity": 2,
+          "image": "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=500&auto=format&fit=crop&q=80"
+        },
+        {
+          "productId": "prod-3",
+          "productName": "Butterfly & Bloom Kit",
+          "price": 19.99,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80"
+        },
+        {
+          "productId": "prod-1",
+          "productName": "Galaxy Rocket Kit",
+          "price": 19.99,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500&auto=format&fit=crop&q=80"
+        }
+      ],
+      "subtotal": 89.96,
+      "shipping": 0,
+      "total": 89.96,
+      "id": "ord-1784999503847",
+      "orderNumber": "LC-2586",
+      "createdAt": "2026-07-25T17:11:43.847Z",
+      "status": "Processing",
+      "trackingNumber": "TRK-83055747"
+    },
     {
       "id": "ord-1001",
       "orderNumber": "LC-9824",

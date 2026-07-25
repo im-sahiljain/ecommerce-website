@@ -19,6 +19,7 @@ This document tracks implemented features, active modules, and production enhanc
 - [x] **Auth-Protected Ordering APIs** (`POST /api/orders`, `GET /api/orders/my-orders`)
 - [x] Order Status Management API (`PATCH /api/orders/:id/status`)
 - [x] Admin Dashboard Analytics API (`/api/admin/stats`)
+- [x] **Swagger UI Interactive API Documentation** (`/api-docs`)
 
 ### 2. Storefront Website (`website/`)
 - [x] Next.js 14 App Router on port 3000

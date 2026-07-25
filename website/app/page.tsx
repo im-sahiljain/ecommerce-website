@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useCart } from "../context/CartContext";
 import { useAppSelector } from "../store/hooks";
+import type { RootState } from "../store/store";
 
 interface Product {
   id: string;
@@ -40,7 +41,7 @@ interface ThemeSectionConfig {
 
 export default function HomePage() {
   const { addToCart } = useCart();
-  const products = useAppSelector((state) => state.products.items);
+  const products = useAppSelector((state: RootState) => state.products.items);
 
   const getThemeProducts = (themeKeyword: string) => {
     return products

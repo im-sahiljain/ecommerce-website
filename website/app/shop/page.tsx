@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useCart } from '../../context/CartContext';
 import { useAppSelector } from '../../store/hooks';
+import type { RootState } from '../../store/store';
 import { Filter, ShieldCheck, Sparkles, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 
 interface Product {
@@ -26,7 +27,7 @@ function ShopContent() {
   const initialAge = searchParams.get('ageGroup') || '';
 
   const { addToCart } = useCart();
-  const reduxProducts = useAppSelector((state) => state.products.items);
+  const reduxProducts = useAppSelector((state: RootState) => state.products.items);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedTheme, setSelectedTheme] = useState(initialTheme);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
