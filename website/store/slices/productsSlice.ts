@@ -10,9 +10,12 @@ export interface Product {
   ageGroup: string;
   isNonToxic: boolean;
   image: string;
+  images?: string[];
   description: string;
   inStock?: boolean;
   featured?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface ProductsState {

@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useState } from "react";
+import Link from "next/link";
 
 export default function Footer() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
       setSubscribed(true);
-      setEmail('');
+      setEmail("");
     }
   };
 
   return (
     <>
       {/* Newsletter Section matching home.html */}
-      <section className="bg-gray-50 py-20 font-quicksand">
+      {/* <section className="bg-gray-50 py-20 font-quicksand">
         <div className="container mx-auto px-6 text-center max-w-2xl">
           <h2 className="text-3xl font-bold text-[#3C2A21] mb-4">Ready to Start the Fun?</h2>
           <p className="text-gray-600 mb-8">Join our community of little artists! Get 10% off your first order and exclusive craft ideas!</p>
@@ -61,35 +61,73 @@ export default function Footer() {
             </form>
           )}
         </div>
-      </section>
+      </section> */}
 
       {/* Main Footer matching home.html */}
       <footer className="bg-white pt-16 pb-8 border-t border-gray-100 font-quicksand">
         <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-1">
-            <h3 className="font-bold text-xl mb-4 text-[#3C2A21]">Little Creators</h3>
+            <h3 className="font-bold text-xl mb-4 text-[#3C2A21]">
+              Little Creators
+            </h3>
             <p className="text-gray-500 text-sm leading-relaxed">
-              Sparking joy through painting kits. Safe, fun, and creative plaster kits for kids.
+              Sparking joy through painting kits. Safe, fun, and creative
+              plaster kits for kids.
             </p>
           </div>
 
           <div>
             <h4 className="font-bold mb-4 text-[#3C2A21]">Shop</h4>
             <ul className="text-gray-500 text-sm space-y-2">
-              <li><Link href="/shop" className="hover:text-[#3C2A21] transition">All Kits</Link></li>
-              <li><Link href="/shop?category=Party Packs" className="hover:text-[#3C2A21] transition">Party Packs</Link></li>
-              <li><Link href="/shop" className="hover:text-[#3C2A21] transition">Gift Cards</Link></li>
+              <li>
+                <Link href="/shop" className="hover:text-[#3C2A21] transition">
+                  All Kits
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/shop?category=Party Packs"
+                  className="hover:text-[#3C2A21] transition"
+                >
+                  Party Packs
+                </Link>
+              </li>
+              <li>
+                <Link href="/shop" className="hover:text-[#3C2A21] transition">
+                  Gift Cards
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-bold mb-4 text-[#3C2A21]">Support</h4>
             <ul className="text-gray-500 text-sm space-y-2">
-              <li><a href="#" className="hover:text-[#3C2A21] transition">Safety Certifications</a></li>
-              <li><a href="#" className="hover:text-[#3C2A21] transition">Customer Support</a></li>
-              <li><a href="#" className="hover:text-[#3C2A21] transition">Shipping Policy</a></li>
-              <li><a href="#" className="hover:text-[#3C2A21] transition">Join the Creators Club</a></li>
-              <li><a href="#" className="hover:text-[#3C2A21] transition">Privacy Policy</a></li>
+              <li>
+                <a href="#" className="hover:text-[#3C2A21] transition">
+                  Safety Certifications
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-[#3C2A21] transition">
+                  Customer Support
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-[#3C2A21] transition">
+                  Shipping Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-[#3C2A21] transition">
+                  Join the Creators Club
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-[#3C2A21] transition">
+                  Privacy Policy
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -107,15 +145,32 @@ export default function Footer() {
             </div>
 
             <div className="flex space-x-3 mt-6">
-              <a className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-yellow-100 text-xs text-gray-700 font-bold" href="#">f</a>
-              <a className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-yellow-100 text-xs text-gray-700 font-bold" href="#">ig</a>
-              <a className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-yellow-100 text-xs text-gray-700 font-bold" href="#">p</a>
+              <a
+                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-yellow-100 text-xs text-gray-700 font-bold"
+                href="#"
+              >
+                f
+              </a>
+              <a
+                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-yellow-100 text-xs text-gray-700 font-bold"
+                href="#"
+              >
+                ig
+              </a>
+              <a
+                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-yellow-100 text-xs text-gray-700 font-bold"
+                href="#"
+              >
+                p
+              </a>
             </div>
           </div>
         </div>
 
         <div className="container mx-auto px-6 pt-8 border-t border-gray-50 text-center md:text-left">
-          <p className="text-gray-400 text-xs">© 2024 Little Creators. Sparking joy through painting kits.</p>
+          <p className="text-gray-400 text-xs">
+            © 2024 Little Creators. Sparking joy through painting kits.
+          </p>
         </div>
       </footer>
     </>

@@ -4,6 +4,12 @@ export interface User {
   id: string;
   identifier: string;
   name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
 }
 
 interface AuthState {
@@ -28,6 +34,14 @@ export const authSlice = createSlice({
       if (typeof window !== 'undefined') {
         localStorage.setItem('lc_token', action.payload.token);
         localStorage.setItem('lc_user', JSON.stringify(action.payload.user));
+      }
+    },
+    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('lc_user', JSON.stringify(state.user));
+        }
       }
     },
     logout: (state) => {
@@ -61,6 +75,6 @@ export const authSlice = createSlice({
   },
 });
 
-export const { setUser, logout, setIsAuthOpen, toggleAuth, initializeAuthFromStorage } = authSlice.actions;
+export const { setUser, updateUser, logout, setIsAuthOpen, toggleAuth, initializeAuthFromStorage } = authSlice.actions;
 
 export default authSlice.reducer;

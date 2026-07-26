@@ -6,7 +6,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET || 'secret'
 });
 
-export const uploadToCloudinary = async (imageString: string): Promise<string> => {
+export const uploadToCloudinary = async (
+  imageString: string,
+  folderPath: string = 'Ecommerce/Products/General'
+): Promise<string> => {
   // If image is already an HTTP URL, return as is
   if (imageString.startsWith('http://') || imageString.startsWith('https://')) {
     return imageString;
@@ -14,7 +17,7 @@ export const uploadToCloudinary = async (imageString: string): Promise<string> =
 
   try {
     const uploadRes = await cloudinary.uploader.upload(imageString, {
-      folder: 'little_creators_products'
+      folder: folderPath
     });
     return uploadRes.secure_url;
   } catch (err) {

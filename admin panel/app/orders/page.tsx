@@ -124,7 +124,7 @@ export default function OrdersPage() {
                       <img src={item.image} alt={item.productName} className="w-10 h-10 rounded-md object-cover" />
                       <div>
                         <p className="font-bold text-slate-800 line-clamp-1">{item.productName}</p>
-                        <p className="text-slate-500">{item.quantity} x ${item.price.toFixed(2)}</p>
+                        <p className="text-slate-500">{item.quantity} x ₹{item.price.toFixed(2)}</p>
                       </div>
                     </div>
                   ))}
@@ -133,7 +133,7 @@ export default function OrdersPage() {
 
               <div className="pt-2 border-t flex justify-between items-center text-xs font-bold">
                 <span className="text-slate-500">Tracking Code: <strong className="text-slate-800">{order.trackingNumber || 'TRK-88492019'}</strong></span>
-                <span className="text-sm font-extrabold text-slate-900">Total: ${order.total.toFixed(2)}</span>
+                <span className="text-sm font-extrabold text-slate-900">Total: ₹{order.total.toFixed(2)}</span>
               </div>
             </div>
           ))

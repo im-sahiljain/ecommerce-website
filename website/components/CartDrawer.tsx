@@ -41,7 +41,7 @@ export default function CartDrawer() {
                 <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover" />
                 <div className="flex-1">
                   <h4 className="font-bold text-sm text-slate-800">{item.name}</h4>
-                  <p className="text-xs text-pink-500 font-bold mt-0.5">${item.price.toFixed(2)}</p>
+                  <p className="text-xs text-pink-500 font-bold mt-0.5">₹{item.price.toFixed(2)}</p>
                   <div className="flex items-center space-x-2 mt-2">
                     <button
                       onClick={() => updateQuantity(item.id, -1)}
@@ -74,7 +74,7 @@ export default function CartDrawer() {
           <div className="p-6 border-t border-slate-100 bg-slate-50/50 space-y-3">
             <div className="flex justify-between items-center text-sm font-bold">
               <span className="text-slate-600">Subtotal:</span>
-              <span className="text-slate-800 text-base">${totalPrice.toFixed(2)}</span>
+              <span className="text-slate-800 text-base">₹{totalPrice.toFixed(2)}</span>
             </div>
             <Link
               href="/checkout"

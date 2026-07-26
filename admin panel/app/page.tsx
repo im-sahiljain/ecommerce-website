@@ -70,7 +70,7 @@ export default function AdminDashboardPage() {
               <DollarSign className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-3xl font-extrabold text-slate-800">${stats.totalRevenue.toFixed(2)}</p>
+          <p className="text-3xl font-extrabold text-slate-800">₹{stats.totalRevenue.toFixed(2)}</p>
           <p className="text-[11px] text-emerald-600 font-semibold flex items-center space-x-1">
             <ArrowUpRight className="w-3.5 h-3.5" />
             <span>Calculated from orders</span>

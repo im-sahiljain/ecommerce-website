@@ -1,28 +1,125 @@
 {
+  "productLines": [
+    {
+      "id": "line-1",
+      "name": "POP Painting Figurines",
+      "slug": "pop-painting-figurines",
+      "description": "Non-toxic plaster craft sets for endless creative fun.",
+      "icon": "\ud83c\udfa8",
+      "isVisible": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "line-2",
+      "name": "Wax Candles",
+      "slug": "wax-candles",
+      "description": "Aesthetic scented & unscented hand-poured mood candles.",
+      "icon": "\ud83d\udd6f\ufe0f",
+      "isVisible": true,
+      "sortOrder": 2
+    },
+    {
+      "name": "Dignissimos placeat",
+      "slug": "dignissimos-placeat",
+      "description": "Qui ullam voluptatib",
+      "coverImage": "",
+      "icon": "\ud83d\udce6",
+      "isVisible": true,
+      "sortOrder": 3,
+      "id": "line-1785009288040"
+    }
+  ],
   "categories": [
     {
       "id": "cat-1",
       "name": "Painting Kits",
       "slug": "painting-kits",
+      "productLineId": "line-1",
       "description": "Complete ready-to-paint plaster craft kits"
     },
     {
       "id": "cat-2",
       "name": "Party Packs",
       "slug": "party-packs",
+      "productLineId": "line-1",
       "description": "Group activity packs for birthday parties & events"
     },
     {
       "id": "cat-3",
       "name": "Plaster Sets",
       "slug": "plaster-sets",
+      "productLineId": "line-1",
       "description": "Detailed plaster molds & acrylic paint bundles"
     },
     {
       "id": "cat-4",
-      "name": "New Arrivals",
-      "slug": "new-arrivals",
-      "description": "Latest released creative craft kits"
+      "name": "Scented Candles",
+      "slug": "scented-candles",
+      "productLineId": "line-2",
+      "description": "Aromatic soy & beeswax candles infused with essential oils"
+    },
+    {
+      "id": "cat-5",
+      "name": "Unscented Candles",
+      "slug": "unscented-candles",
+      "productLineId": "line-2",
+      "description": "Sculptural aesthetic & pillar candles for home decor"
+    }
+  ],
+  "facets": [
+    {
+      "id": "facet-1",
+      "name": "For Kids",
+      "slug": "for-kids",
+      "productLineId": "line-1",
+      "facetGroup": "Age Group",
+      "isVisible": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "facet-3",
+      "name": "Scented",
+      "slug": "scented",
+      "productLineId": "line-2",
+      "facetGroup": "Scent",
+      "isVisible": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "facet-5",
+      "name": "Aesthetic",
+      "slug": "aesthetic",
+      "productLineId": "line-2",
+      "facetGroup": "Theme",
+      "isVisible": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "facet-2",
+      "name": "For Adults",
+      "slug": "for-adults",
+      "productLineId": "line-1",
+      "facetGroup": "Age Group",
+      "isVisible": true,
+      "sortOrder": 2
+    },
+    {
+      "id": "facet-4",
+      "name": "Unscented",
+      "slug": "unscented",
+      "productLineId": "line-2",
+      "facetGroup": "Scent",
+      "isVisible": true,
+      "sortOrder": 2
+    },
+    {
+      "id": "facet-6",
+      "name": "Classic",
+      "slug": "classic",
+      "productLineId": "line-2",
+      "facetGroup": "Theme",
+      "isVisible": true,
+      "sortOrder": 2
     }
   ],
   "themes": [
@@ -31,28 +128,28 @@
       "name": "Space Adventures",
       "slug": "space-adventures",
       "description": "Rockets, planets, astronauts and galaxy fun",
-      "icon": "🚀"
+      "icon": "\ud83d\ude80"
     },
     {
       "id": "theme-2",
       "name": "Secret Garden (Floral)",
       "slug": "secret-garden",
       "description": "Butterflies, flowers and magical nature",
-      "icon": "🌸"
+      "icon": "\ud83c\udf38"
     },
     {
       "id": "theme-3",
       "name": "Fairytale Magic",
       "slug": "fairytale-magic",
       "description": "Unicorns, royal castles and magical worlds",
-      "icon": "🦄"
+      "icon": "\ud83e\udd84"
     },
     {
       "id": "theme-4",
       "name": "Wild Kingdom",
       "slug": "wild-kingdom",
       "description": "Lions, elephants, safari adventures",
-      "icon": "🦁"
+      "icon": "\ud83e\udd81"
     }
   ],
   "ageGroups": [
@@ -79,21 +176,16 @@
       "name": "Demo Artist",
       "password": "password123",
       "createdAt": "2026-07-25T14:34:14.296Z"
-    },
-    {
-      "id": "usr-1784999486596",
-      "identifier": "In totam dolorem quo",
-      "name": "Suscipit anim enim r",
-      "password": "Pa$$w0rd!",
-      "createdAt": "2026-07-25T17:11:26.596Z"
     }
   ],
   "products": [
     {
       "id": "prod-1",
+      "sku": "POP-GXY-01",
       "name": "Galaxy Rocket Kit",
-      "price": 19.99,
-      "originalPrice": 24.99,
+      "price": 499,
+      "originalPrice": 599,
+      "productLineId": "line-1",
       "theme": "Space Adventures",
       "category": "Painting Kits",
       "ageGroup": "Ages 4+",
@@ -101,13 +193,20 @@
       "image": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500&auto=format&fit=crop&q=80",
       "description": "Inspire future astronauts with this ready-to-paint plaster rocket & astronaut set. Complete with 6 vibrant non-toxic paints and dual brushes.",
       "inStock": true,
-      "featured": true
+      "stockQuantity": 25,
+      "isOrderingEnabled": true,
+      "status": "Published",
+      "featured": true,
+      "createdAt": "2026-07-25T14:30:00.000Z",
+      "updatedAt": "2026-07-25T14:30:00.000Z"
     },
     {
       "id": "prod-2",
+      "sku": "POP-PLN-02",
       "name": "Planet Explorer Set",
-      "price": 24.99,
-      "originalPrice": 29.99,
+      "price": 699,
+      "originalPrice": 799,
+      "productLineId": "line-1",
       "theme": "Space Adventures",
       "category": "Painting Kits",
       "ageGroup": "Ages 4+",
@@ -115,13 +214,20 @@
       "image": "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=500&auto=format&fit=crop&q=80",
       "description": "Paint the solar system! Includes 8 plaster planets, orbital display stand, glow-in-the-dark paint accents, and painting guide.",
       "inStock": true,
-      "featured": true
+      "stockQuantity": 15,
+      "isOrderingEnabled": true,
+      "status": "Published",
+      "featured": true,
+      "createdAt": "2026-07-25T14:31:00.000Z",
+      "updatedAt": "2026-07-25T14:31:00.000Z"
     },
     {
       "id": "prod-3",
+      "sku": "POP-FLR-03",
       "name": "Butterfly & Bloom Kit",
-      "price": 19.99,
-      "originalPrice": 22.99,
+      "price": 499,
+      "originalPrice": 599,
+      "productLineId": "line-1",
       "theme": "Secret Garden (Floral)",
       "category": "Painting Kits",
       "ageGroup": "Ages 4+",
@@ -129,146 +235,655 @@
       "image": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80",
       "description": "Bring garden butterflies and blooming flowers to life with custom pastel paint colors and glitter gel pens.",
       "inStock": true,
-      "featured": true
+      "stockQuantity": 30,
+      "isOrderingEnabled": true,
+      "status": "Published",
+      "featured": true,
+      "createdAt": "2026-07-25T14:32:00.000Z",
+      "updatedAt": "2026-07-25T14:32:00.000Z"
     },
     {
-      "id": "prod-4",
-      "name": "Enchanted Floral Set",
-      "price": 24.99,
-      "originalPrice": 27.99,
-      "theme": "Secret Garden (Floral)",
-      "category": "Painting Kits",
+      "id": "candle-1",
+      "sku": "CND-LAV-01",
+      "name": "French Lavender Soy Candle",
+      "price": 499,
+      "originalPrice": 649,
+      "productLineId": "line-2",
+      "theme": "Aesthetic",
+      "category": "Scented Candles",
+      "ageGroup": "For Adults",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500&auto=format&fit=crop&q=80",
+      "description": "Hand-poured 100% natural soy wax candle infused with organic Provencal lavender essential oils. 45-hour clean burn time.",
+      "inStock": true,
+      "stockQuantity": 40,
+      "isOrderingEnabled": true,
+      "status": "Published",
+      "featured": true,
+      "attributes": {
+        "Scent": "French Lavender & Vanilla",
+        "Burn Time": "45 Hours",
+        "Wax Type": "100% Natural Soy Wax"
+      },
+      "createdAt": "2026-07-25T14:33:00.000Z",
+      "updatedAt": "2026-07-25T14:33:00.000Z"
+    },
+    {
+      "id": "candle-2",
+      "sku": "CND-VAN-02",
+      "name": "Vanilla Bean Ribbed Pillar Candle",
+      "price": 699,
+      "originalPrice": 849,
+      "productLineId": "line-2",
+      "theme": "Classic",
+      "category": "Scented Candles",
+      "ageGroup": "For Adults",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500&auto=format&fit=crop&q=80",
+      "description": "Sculptural ribbed pillar candle with rich Madagascar vanilla bean scent. A stunning centerpiece for any living space.",
+      "inStock": true,
+      "stockQuantity": 20,
+      "isOrderingEnabled": true,
+      "status": "Published",
+      "featured": true,
+      "attributes": {
+        "Scent": "Madagascar Vanilla Bean",
+        "Burn Time": "60 Hours",
+        "Wax Type": "Beeswax Blend"
+      },
+      "createdAt": "2026-07-25T14:34:00.000Z",
+      "updatedAt": "2026-07-25T14:34:00.000Z"
+    },
+    {
+      "id": "candle-3",
+      "sku": "CND-ARC-03",
+      "name": "Minimalist Arch Unscented Decorative Candle",
+      "price": 399,
+      "originalPrice": 499,
+      "productLineId": "line-2",
+      "theme": "Aesthetic",
+      "category": "Unscented Candles",
+      "ageGroup": "For Adults",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&auto=format&fit=crop&q=80",
+      "description": "Modern architectural arch candle crafted from smokeless unscented soy wax. Designed for elegant shelf & coffee table decor.",
+      "inStock": true,
+      "stockQuantity": 18,
+      "isOrderingEnabled": true,
+      "status": "Published",
+      "featured": true,
+      "attributes": {
+        "Scent": "Unscented",
+        "Burn Time": "25 Hours",
+        "Wax Type": "Pure Soy Wax"
+      },
+      "createdAt": "2026-07-25T14:35:00.000Z",
+      "updatedAt": "2026-07-25T14:35:00.000Z"
+    },
+    {
+      "name": "Nostrud consectetur ",
+      "price": 6,
+      "originalPrice": 95,
+      "theme": "Fairytale Magic",
+      "category": "Plaster Sets",
       "ageGroup": "Ages 4+",
       "isNonToxic": true,
-      "image": "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=500&auto=format&fit=crop&q=80",
-      "description": "A deluxe floral craft collection featuring plaster flower pots, seed starter kits, and weather-resistant acrylic paint.",
+      "image": "https://www.nokequci.ca",
+      "description": "Ullam ex minima opti",
       "inStock": true,
-      "featured": true
+      "featured": false,
+      "id": "prod-1785012930492",
+      "sku": "SKU-259822",
+      "productLineId": "line-1",
+      "isOrderingEnabled": true,
+      "stockQuantity": 10,
+      "createdAt": "2026-07-25T14:36:00.000Z",
+      "updatedAt": "2026-07-25T14:36:00.000Z"
     },
     {
-      "id": "prod-5",
-      "name": "Unicorn Dreams Kit",
-      "price": 19.99,
-      "originalPrice": 24.99,
+      "name": "Planet Explorer Set (Copy)",
+      "price": 699,
+      "originalPrice": 799,
       "theme": "Fairytale Magic",
       "category": "Painting Kits",
       "ageGroup": "Ages 4+",
       "isNonToxic": true,
-      "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=80",
-      "description": "Sparkly unicorn craft set featuring plaster unicorns, rainbow cloud stands, metallic paints, and stick-on jewels.",
+      "image": "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=500&auto=format&fit=crop&q=80",
+      "description": "Paint the solar system! Includes 8 plaster planets, orbital display stand, glow-in-the-dark paint accents, and painting guide.",
       "inStock": true,
-      "featured": true
+      "featured": false,
+      "id": "prod-1785013080808",
+      "createdAt": "2026-07-25T14:37:00.000Z",
+      "updatedAt": "2026-07-25T14:37:00.000Z"
     },
     {
-      "id": "prod-6",
-      "name": "Royal Castle Set",
-      "price": 14.99,
-      "originalPrice": 19.99,
+      "name": "Planet Explorer Set (Copy)",
+      "price": 699,
+      "originalPrice": 799,
       "theme": "Fairytale Magic",
       "category": "Painting Kits",
       "ageGroup": "Ages 4+",
       "isNonToxic": true,
-      "image": "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=500&auto=format&fit=crop&q=80",
-      "description": "Paint your own fairytale castle! Comes with pre-cast plaster towers, royal crowns, and metallic gold paint.",
+      "image": "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=500&auto=format&fit=crop&q=80",
+      "description": "Paint the solar system! Includes 8 plaster planets, orbital display stand, glow-in-the-dark paint accents, and painting guide.",
       "inStock": true,
-      "featured": true
+      "featured": false,
+      "id": "prod-1785013135943",
+      "createdAt": "2026-07-25T14:38:00.000Z",
+      "updatedAt": "2026-07-25T14:38:00.000Z"
     },
     {
-      "id": "prod-7",
-      "name": "Safari Lion Kit",
-      "price": 19.99,
-      "originalPrice": 24.99,
+      "name": "Planet Explorer Set (Copy)",
+      "price": 699,
+      "originalPrice": 799,
+      "theme": "Fairytale Magic",
+      "category": "Painting Kits",
+      "ageGroup": "Ages 4+",
+      "isNonToxic": true,
+      "image": "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=500&auto=format&fit=crop&q=80",
+      "description": "Paint the solar system! Includes 8 plaster planets, orbital display stand, glow-in-the-dark paint accents, and painting guide.",
+      "inStock": true,
+      "featured": false,
+      "id": "prod-1785013214751",
+      "createdAt": "2026-07-25T14:39:00.000Z",
+      "updatedAt": "2026-07-25T14:39:00.000Z"
+    },
+    {
+      "name": "Nostrud consectetur  (Copy)",
+      "price": 6,
+      "originalPrice": 95,
+      "theme": "Fairytale Magic",
+      "category": "Plaster Sets",
+      "ageGroup": "Ages 4+",
+      "isNonToxic": true,
+      "image": "https://www.nokequci.ca",
+      "description": "Ullam ex minima opti",
+      "inStock": true,
+      "featured": false,
+      "id": "prod-1785013244674",
+      "createdAt": "2026-07-25T14:40:00.000Z",
+      "updatedAt": "2026-07-25T14:40:00.000Z"
+    },
+    {
+      "name": "Owl",
+      "price": 200,
+      "originalPrice": 350,
       "theme": "Wild Kingdom",
       "category": "Painting Kits",
       "ageGroup": "Ages 4+",
       "isNonToxic": true,
-      "image": "https://images.unsplash.com/photo-1534567153574-2b12153a87f0?w=500&auto=format&fit=crop&q=80",
-      "description": "King of the craft room! Friendly plaster lion and cub set with earthy jungle paint tones and fluffy mane fibers.",
+      "image": "https://res.cloudinary.com/dagkrnoap/image/upload/v1785058298/Ecommerce/Products/General/crixpffwupu5ebqkpgwd.png",
+      "images": [
+        "https://res.cloudinary.com/dagkrnoap/image/upload/v1785058298/Ecommerce/Products/General/crixpffwupu5ebqkpgwd.png",
+        "https://res.cloudinary.com/dagkrnoap/image/upload/v1785058322/Ecommerce/Products/General/bb4dlpemox0ijm6jhbpn.png",
+        "https://res.cloudinary.com/dagkrnoap/image/upload/v1785058325/Ecommerce/Products/General/aaaflax6wjjnvqv8usfm.png",
+        "https://res.cloudinary.com/dagkrnoap/image/upload/v1785058328/Ecommerce/Products/General/zprfakyfta5fsdp61j9f.png"
+      ],
+      "description": "Beautiful Owl",
       "inStock": true,
-      "featured": true
-    },
-    {
-      "id": "prod-8",
-      "name": "Elephant Parade Set",
-      "price": 24.99,
-      "originalPrice": 28.99,
-      "theme": "Wild Kingdom",
-      "category": "Painting Kits",
-      "ageGroup": "Ages 4+",
-      "isNonToxic": true,
-      "image": "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=500&auto=format&fit=crop&q=80",
-      "description": "Adorable elephant family plaster set with custom washable paint, mixing palette, and safari background scene.",
-      "inStock": true,
-      "featured": true
+      "featured": false,
+      "id": "prod-1785058348001",
+      "createdAt": "2026-07-26T09:32:28.001Z",
+      "updatedAt": "2026-07-26T09:32:28.001Z"
     }
   ],
-  "orders": [
+  "orders": [],
+  "addresses": [],
+  "bundleRules": [
     {
-      "userIdentifier": "In totam dolorem quo",
-      "customerName": "A corrupti aut ut n",
-      "shippingAddress": "Esse do do incidunt",
-      "phone": "Aliquip cumque quasi",
-      "items": [
+      "id": "rule-4",
+      "name": "Secret Garden Floral Duo",
+      "description": "Select exactly 2 items from the Secret Garden Floral theme.",
+      "applicableScope": "theme",
+      "scopeValue": "Secret Garden (Floral)",
+      "requirementMode": "exact",
+      "tiers": [
         {
-          "productId": "prod-4",
-          "productName": "Enchanted Floral Set",
-          "price": 24.99,
           "quantity": 2,
-          "image": "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=500&auto=format&fit=crop&q=80"
-        },
-        {
-          "productId": "prod-3",
-          "productName": "Butterfly & Bloom Kit",
-          "price": 19.99,
-          "quantity": 1,
-          "image": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80"
-        },
-        {
-          "productId": "prod-1",
-          "productName": "Galaxy Rocket Kit",
-          "price": 19.99,
-          "quantity": 1,
-          "image": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500&auto=format&fit=crop&q=80"
+          "discountType": "percentage",
+          "discountValue": 10
         }
       ],
-      "subtotal": 89.96,
-      "shipping": 0,
-      "total": 89.96,
-      "id": "ord-1784999503847",
-      "orderNumber": "LC-2586",
-      "createdAt": "2026-07-25T17:11:43.847Z",
-      "status": "Processing",
-      "trackingNumber": "TRK-83055747"
+      "isActive": true,
+      "priority": 4
     },
     {
-      "id": "ord-1001",
-      "orderNumber": "LC-9824",
-      "userIdentifier": "demo@littlecreators.com",
-      "customerName": "Sarah Jenkins",
-      "shippingAddress": "742 Evergreen Terrace, Springfield",
-      "phone": "555-0199",
-      "items": [
+      "id": "rule-3",
+      "name": "Aesthetic Wax Candles Collection Pack",
+      "description": "Buy at least 2 candles from the Wax Candles line for 12% OFF!",
+      "applicableScope": "productLine",
+      "scopeValue": "line-2",
+      "requirementMode": "min_threshold",
+      "tiers": [
         {
-          "productId": "prod-1",
-          "productName": "Galaxy Rocket Kit",
-          "price": 19.99,
-          "quantity": 1,
-          "image": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500&auto=format&fit=crop&q=80"
+          "quantity": 2,
+          "discountType": "percentage",
+          "discountValue": 12
         },
         {
-          "productId": "prod-5",
-          "productName": "Unicorn Dreams Kit",
-          "price": 19.99,
-          "quantity": 1,
-          "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=80"
+          "quantity": 4,
+          "discountType": "percentage",
+          "discountValue": 18
         }
       ],
-      "subtotal": 39.98,
-      "shipping": 0,
-      "total": 39.98,
-      "status": "Shipped",
-      "createdAt": "2026-07-23T14:34:14.297Z",
-      "trackingNumber": "TRK-88492019"
+      "isActive": true,
+      "priority": 3
+    },
+    {
+      "id": "rule-2",
+      "name": "Space Explorer 3-Pack Deal",
+      "description": "Select exactly 3 items from the Space Adventures theme for 15% OFF!",
+      "applicableScope": "theme",
+      "scopeValue": "Space Adventures",
+      "requirementMode": "exact",
+      "tiers": [
+        {
+          "quantity": 3,
+          "discountType": "percentage",
+          "discountValue": 15
+        }
+      ],
+      "isActive": true,
+      "priority": 2
+    },
+    {
+      "id": "rule-1",
+      "name": "Storewide Craft & Candle Trio",
+      "description": "Select exactly 3 or 5 items across any category or product line.",
+      "applicableScope": "all",
+      "requirementMode": "exact",
+      "tiers": [
+        {
+          "quantity": 3,
+          "discountType": "percentage",
+          "discountValue": 10
+        },
+        {
+          "quantity": 5,
+          "discountType": "percentage",
+          "discountValue": 15
+        }
+      ],
+      "isActive": true,
+      "priority": 1
     }
-  ]
+  ],
+  "stockLogs": [],
+  "analytics": {
+    "prod-3": {
+      "productId": "prod-3",
+      "views": 2,
+      "likes": 0,
+      "wishlistedBy": [],
+      "unitsOrdered": 0,
+      "totalRevenue": 0
+    },
+    "prod-1785013080808": {
+      "productId": "prod-1785013080808",
+      "views": 2,
+      "likes": 0,
+      "wishlistedBy": [],
+      "unitsOrdered": 0,
+      "totalRevenue": 0
+    },
+    "prod-1785058348001": {
+      "productId": "prod-1785058348001",
+      "views": 3,
+      "likes": 1,
+      "wishlistedBy": [
+        "guest"
+      ],
+      "unitsOrdered": 0,
+      "totalRevenue": 0
+    }
+  },
+  "settings": {
+    "isGlobalOrderingEnabled": true,
+    "whatsappNumber": "+919876543210",
+    "whatsappMessageTemplate": "Hi! I am interested in {productName} ({productUrl}). Can you help me with availability & pricing?",
+    "isWhatsappEnabled": true,
+    "siteTitle": "Little Creators Craft & Candle Hub",
+    "defaultMetaDescription": "Handcrafted POP painting figurines and aesthetic scented wax candles."
+  },
+  "homepageSections": [
+    {
+      "id": "hero",
+      "type": "hero",
+      "title": "Paint Your World with Little Creators!",
+      "subtitle": "Complete ready-to-paint plaster craft kits designed for curious young minds.",
+      "bgColor": "#EFF6FF",
+      "textColor": "#3C2A21",
+      "layoutTemplate": "hero",
+      "isVisible": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "space",
+      "type": "themeShowcase",
+      "title": "Space Adventures",
+      "themeKeyword": "Space",
+      "titleLayout": "left",
+      "bgColor": "#2D366D",
+      "textColor": "#FFFFFF",
+      "topDividerFill": "white",
+      "cardSize": "large",
+      "layoutTemplate": "themeShowcase",
+      "isVisible": true,
+      "sortOrder": 3,
+      "decorations": [
+        {
+          "id": "s1",
+          "type": "emoji",
+          "content": "\ud83e\ude90",
+          "style": {
+            "top": "15%",
+            "left": "5%",
+            "fontSize": "48px",
+            "opacity": 0.9,
+            "transform": "rotate(-15deg)"
+          }
+        },
+        {
+          "id": "s2",
+          "type": "emoji",
+          "content": "\u2b50",
+          "style": {
+            "top": "8%",
+            "left": "30%",
+            "fontSize": "18px",
+            "opacity": 0.8
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "s3",
+          "type": "emoji",
+          "content": "\u2728",
+          "style": {
+            "top": "12%",
+            "right": "8%",
+            "fontSize": "14px",
+            "opacity": 0.7
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "s4",
+          "type": "emoji",
+          "content": "\u2b50",
+          "style": {
+            "top": "5%",
+            "right": "15%",
+            "fontSize": "20px",
+            "opacity": 0.8
+          }
+        },
+        {
+          "id": "s5",
+          "type": "emoji",
+          "content": "\ud83c\udf0d",
+          "style": {
+            "top": "25%",
+            "right": "3%",
+            "fontSize": "42px",
+            "opacity": 0.85
+          },
+          "className": "hidden md:block"
+        },
+        {
+          "id": "s6",
+          "type": "emoji",
+          "content": "\ud83d\ude80",
+          "style": {
+            "bottom": "30%",
+            "left": "8%",
+            "fontSize": "36px",
+            "opacity": 0.8,
+            "transform": "rotate(25deg)"
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "s7",
+          "type": "emoji",
+          "content": "\ud83d\ude80",
+          "style": {
+            "bottom": "15%",
+            "right": "5%",
+            "fontSize": "38px",
+            "opacity": 0.8,
+            "transform": "rotate(-20deg) scaleX(-1)"
+          },
+          "className": "hidden sm:block"
+        }
+      ]
+    },
+    {
+      "id": "why",
+      "type": "features",
+      "title": "Why Little Creators?",
+      "subtitle": "Cognitive growth, screen-free fun, and travel-friendly creative hobbies.",
+      "bgColor": "#FFFFFF",
+      "textColor": "#3C2A21",
+      "layoutTemplate": "why-cards",
+      "isVisible": true,
+      "sortOrder": 2
+    },
+    {
+      "id": "garden",
+      "type": "themeShowcase",
+      "title": "Secret Garden (Floral)",
+      "themeKeyword": "Garden",
+      "titleLayout": "center",
+      "bgColor": "#D1E7D2",
+      "textColor": "#3C2A21",
+      "topDividerFill": "#2D366D",
+      "cardSize": "large",
+      "layoutTemplate": "themeShowcase",
+      "isVisible": true,
+      "sortOrder": 4,
+      "decorations": [
+        {
+          "id": "g1",
+          "type": "emoji",
+          "content": "\ud83c\udf3f",
+          "style": {
+            "top": "20px",
+            "left": "20px",
+            "fontSize": "46px",
+            "opacity": 0.85
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "g2",
+          "type": "emoji",
+          "content": "\ud83c\udf3a",
+          "style": {
+            "bottom": "20px",
+            "right": "20px",
+            "fontSize": "46px",
+            "opacity": 0.85
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "g3",
+          "type": "emoji",
+          "content": "\ud83c\udf38",
+          "style": {
+            "top": "15%",
+            "right": "12%",
+            "fontSize": "36px",
+            "opacity": 0.8
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "g4",
+          "type": "emoji",
+          "content": "\ud83e\udd8b",
+          "style": {
+            "top": "25%",
+            "left": "10%",
+            "fontSize": "38px",
+            "opacity": 0.8
+          },
+          "className": "hidden sm:block"
+        }
+      ]
+    },
+    {
+      "id": "fairytale",
+      "type": "themeShowcase",
+      "title": "Fairytale Magic",
+      "themeKeyword": "Fairytale",
+      "titleLayout": "left",
+      "bgColor": "#F1E4F7",
+      "textColor": "#3C2A21",
+      "topDividerFill": "#D1E7D2",
+      "cardSize": "small",
+      "layoutTemplate": "themeShowcase",
+      "isVisible": true,
+      "sortOrder": 5,
+      "decorations": [
+        {
+          "id": "f1",
+          "type": "emoji",
+          "content": "\ud83c\udff0",
+          "style": {
+            "bottom": "20px",
+            "left": "20px",
+            "fontSize": "44px",
+            "opacity": 0.85
+          },
+          "className": "hidden md:block"
+        },
+        {
+          "id": "f2",
+          "type": "emoji",
+          "content": "\ud83e\udd84",
+          "style": {
+            "top": "18%",
+            "right": "8%",
+            "fontSize": "42px",
+            "opacity": 0.85
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "f3",
+          "type": "emoji",
+          "content": "\ud83d\udc51",
+          "style": {
+            "top": "12%",
+            "left": "25%",
+            "fontSize": "32px",
+            "opacity": 0.8
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "f4",
+          "type": "emoji",
+          "content": "\ud83e\ude84",
+          "style": {
+            "bottom": "25%",
+            "right": "12%",
+            "fontSize": "36px",
+            "opacity": 0.8
+          },
+          "className": "hidden md:block"
+        }
+      ]
+    },
+    {
+      "id": "wild",
+      "type": "themeShowcase",
+      "title": "Wild Kingdom",
+      "themeKeyword": "Wild",
+      "titleLayout": "right",
+      "bgColor": "#F9E6C3",
+      "textColor": "#3C2A21",
+      "topDividerFill": "#F1E4F7",
+      "cardSize": "small",
+      "layoutTemplate": "themeShowcase",
+      "isVisible": true,
+      "sortOrder": 6,
+      "decorations": [
+        {
+          "id": "w1",
+          "type": "emoji",
+          "content": "\ud83c\udf43",
+          "style": {
+            "bottom": "20px",
+            "left": "20px",
+            "fontSize": "46px",
+            "opacity": 0.85
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "w2",
+          "type": "emoji",
+          "content": "\ud83d\udc3e",
+          "style": {
+            "top": "20px",
+            "right": "20px",
+            "fontSize": "38px",
+            "opacity": 0.75
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "w3",
+          "type": "emoji",
+          "content": "\ud83e\udd81",
+          "style": {
+            "top": "15%",
+            "left": "12%",
+            "fontSize": "40px",
+            "opacity": 0.85
+          },
+          "className": "hidden sm:block"
+        },
+        {
+          "id": "w4",
+          "type": "emoji",
+          "content": "\ud83d\udc18",
+          "style": {
+            "bottom": "15%",
+            "right": "10%",
+            "fontSize": "40px",
+            "opacity": 0.85
+          },
+          "className": "hidden sm:block"
+        }
+      ]
+    },
+    {
+      "id": "candles",
+      "type": "categoryShowcase",
+      "title": "Aesthetic Wax Candles Collection",
+      "subtitle": "Hand-poured aromatic mood & decorative soy wax candles.",
+      "bgColor": "#1E1B18",
+      "textColor": "#FEF3C7",
+      "layoutTemplate": "ambient-lifestyle",
+      "productLineId": "line-2",
+      "isVisible": true,
+      "sortOrder": 7
+    },
+    {
+      "id": "bundle",
+      "type": "banner",
+      "title": "Build Your Custom Package",
+      "subtitle": "Select any 3 or 5 items across figurines & candles for 10% to 15% OFF!",
+      "bgColor": "#FEF08A",
+      "textColor": "#3C2A21",
+      "layoutTemplate": "bundle-banner",
+      "isVisible": true,
+      "sortOrder": 8
+    }
+  ],
+  "slugRedirects": []
 }

@@ -34,8 +34,8 @@ This document tracks implemented features, active modules, and production enhanc
 - [x] **Product Details Page (`app/product/[id]/page.tsx`)**: Detailed view with quantity selector & safety badges
 - [x] **Cart Drawer (`components/CartDrawer.tsx`)**: Slide-out cart drawer with quantity adjustments
 - [x] **Auth Modal (`components/AuthModal.tsx`)**: Login/Signup with any email or phone number
-- [x] **Auth-Enforced Checkout (`app/checkout/page.tsx`)**: Requires logged in customer token to place orders
-- [x] **My Account & Live Order Tracking (`app/account/page.tsx`)**: Order history & progress tracking bar (Pending → Processing → Shipped → Delivered)
+- [x] **My Account & Live Order Tracking (`app/account/page.tsx`)**: Full profile management (Name, Email, Phone, Address, City, State, Zip Code) & order tracking bar
+- [x] **Auto-populated Checkout (`app/checkout/page.tsx`)**: Automatically pre-fills customer address and contact details from account profile
 
 ### 3. Admin Management Panel (`admin panel/`)
 - [x] Next.js 14 App Router on port 3001

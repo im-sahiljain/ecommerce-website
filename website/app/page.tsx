@@ -1,28 +1,42 @@
+"use me";
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useCart } from "../context/CartContext";
 import { useAppSelector } from "../store/hooks";
 import type { RootState } from "../store/store";
+import {
+  Flame,
+  Sparkles,
+  ShoppingBag,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 interface Product {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number;
   theme: string;
   category: string;
   ageGroup: string;
+  productLineId?: string;
   isNonToxic: boolean;
   image: string;
+  images?: string[];
   description: string;
+  attributes?: Record<string, string>;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface DecorationItem {
   id: string;
-  type: 'emoji' | 'image';
-  content: string; // Emoji char or image URL
-  imageUrl?: string; // Saved image URL code for reference
+  type: "emoji" | "image";
+  content: string;
+  imageUrl?: string;
   style: React.CSSProperties;
   className?: string;
 }
@@ -31,25 +45,368 @@ interface ThemeSectionConfig {
   id: string;
   title: string | React.ReactNode;
   themeKeyword: string;
-  titleLayout: 'left' | 'center' | 'right';
+  titleLayout: "left" | "center" | "right";
   bgColor: string;
   textColor: string;
   topDividerFill: string;
-  cardSize: 'large' | 'small';
+  cardSize: "large" | "small";
+  limit?: number;
   decorations?: DecorationItem[];
 }
 
 export default function HomePage() {
   const { addToCart } = useCart();
-  const products = useAppSelector((state: RootState) => state.products.items);
+  const reduxProducts = useAppSelector(
+    (state: RootState) => state.products.items,
+  ) as Product[];
+  const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
 
-  const getThemeProducts = (themeKeyword: string) => {
+  const products = reduxProducts.length > 0 ? reduxProducts : fetchedProducts;
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setFetchedProducts(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const getThemeProducts = (themeKeyword: string, limit: number = 4) => {
     return products
       .filter((p) => p.theme.toLowerCase().includes(themeKeyword.toLowerCase()))
-      .slice(0, 2);
+      .sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return timeB - timeA;
+      })
+      .slice(0, limit);
   };
 
-  // CONFIGURABLE THEME SECTIONS ARRAY (DRIVEN DIRECTLY BY DATABASE PRODUCTS)
+  const candleProducts = products.filter((p) => p.productLineId === "line-2");
+
+  // HERO CAROUSEL SLIDES DEFINITION
+  const heroSlides = [
+    {
+      id: 0,
+      bgColor: "#EBF5FF",
+      content: (
+        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center w-full py-10 md:py-16">
+          <div className="w-full md:w-5/12 text-center md:text-left mb-8 md:mb-0">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 mb-3 rounded-full text-xs font-extrabold bg-sky-100 text-sky-900 tracking-wide uppercase border border-sky-200/80 shadow-xs">
+              <span>🎨 Plaster Craft Kits for Kids</span>
+            </span>
+            <h1
+              className="font-extrabold leading-tight mb-4"
+              style={{
+                fontSize: "clamp(2rem, 5vw, 3.25rem)",
+                color: "#3C2A21",
+              }}
+            >
+              Paint Your World
+              <br />
+              with Little Creators!
+            </h1>
+            <p className="mb-8 max-w-md mx-auto md:mx-0 text-slate-600 text-base sm:text-lg leading-relaxed font-medium">
+              Complete ready-to-paint plaster craft kits designed to ignite
+              creativity, joy, & proud young artists!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+              <Link
+                href="/shop"
+                className="px-7 py-3.5 text-white rounded-full font-bold shadow-lg text-center transition hover:opacity-90 active:scale-95 bg-[#3C2A21]"
+                style={{ fontSize: "15px" }}
+              >
+                Shop Painting Kits
+              </Link>
+              <Link
+                href="/shop"
+                className="px-7 py-3.5 rounded-full font-bold text-center transition hover:bg-sky-100/60 active:scale-95"
+                style={{
+                  border: "2px solid #3C2A21",
+                  color: "#3C2A21",
+                  fontSize: "15px",
+                }}
+              >
+                Explore Themes
+              </Link>
+            </div>
+          </div>
+
+          <div className="w-full md:w-7/12 flex justify-center md:justify-end relative">
+            <div className="relative w-full max-w-md sm:max-w-lg">
+              <div className="overflow-hidden rounded-3xl shadow-2xl border-4 border-white transform rotate-1 hover:rotate-0 transition duration-500">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/hero/indian-kids-painting.png"
+                  alt="Indian children joyfully painting plaster crafts"
+                  className="w-full h-72 sm:h-96 object-cover object-center"
+                />
+              </div>
+              <div className="absolute -top-3 -right-2 bg-sky-600 text-white rounded-full px-3.5 py-1 text-xs font-black shadow-lg">
+                ✨ Ready-To-Paint Kits
+              </div>
+              <div className="absolute -bottom-4 -left-3 bg-white px-4 py-2 rounded-2xl shadow-xl border border-sky-100 flex items-center space-x-2">
+                <span className="text-xl">🦚</span>
+                <div className="text-left">
+                  <p className="text-xs font-black text-slate-800">
+                    Peacock & Animal Models
+                  </p>
+                  <p className="text-[10px] text-slate-500 font-medium">
+                    Includes paints & brushes
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 1,
+      bgColor: "#FDF2F0",
+      content: (
+        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center w-full py-10 md:py-16">
+          <div className="w-full md:w-5/12 text-center md:text-left mb-8 md:mb-0">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 mb-3 rounded-full text-xs font-extrabold bg-pink-100 text-pink-800 tracking-wide uppercase">
+              <span>✨ DIY Home Decor Project</span>
+            </div>
+
+            <h1
+              className="font-black leading-tight mb-3 uppercase tracking-tight"
+              style={{
+                fontSize: "clamp(1.8rem, 4.5vw, 2.75rem)",
+                color: "#3C2A21",
+              }}
+            >
+              Brighten Up
+              <br />
+              Your Home!
+              <br />
+              <span className="text-pink-600">Décor Project.</span>
+            </h1>
+
+            <div className="inline-block bg-amber-100/90 text-[#3C2A21] px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm mb-5 border border-amber-300/60 shadow-xs">
+              🏡 Kids' Art as Charming Home Décor!
+            </div>
+
+            <p className="mb-6 max-w-md mx-auto md:mx-0 text-slate-600 text-sm sm:text-base leading-relaxed font-medium">
+              Turn your kids' hand-painted plaster creations into timeless shelf
+              & desk keepsakes to proudly display around the house.
+            </p>
+
+            <div className="flex justify-center md:justify-start">
+              <Link
+                href="/shop"
+                className="px-7 py-3.5 text-white rounded-full font-black uppercase tracking-wider shadow-xl text-center transition hover:opacity-95 active:scale-95 bg-pink-700 hover:bg-pink-800"
+                style={{ fontSize: "14px" }}
+              >
+                Start Your Decor Project!
+              </Link>
+            </div>
+          </div>
+
+          <div className="w-full md:w-7/12 flex flex-col sm:flex-row items-center justify-center gap-5 relative">
+            <div className="relative max-w-xs sm:max-w-sm w-full flex flex-col items-center">
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xs p-3.5 border border-rose-200/70 shadow-lg hover:shadow-xl transition duration-300 w-full flex justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/hero/owl-shelf.png"
+                  alt="Owl Figurine on Shelf"
+                  className="w-full h-auto max-h-52 object-contain filter drop-shadow-md"
+                />
+                <div className="absolute -top-3 -right-2 bg-pink-600 text-white rounded-full px-3 py-0.5 text-[10px] font-black shadow">
+                  Home Shelf Decor
+                </div>
+              </div>
+
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xs p-3 mt-3 border border-rose-200/70 shadow-md hover:shadow-lg transition duration-300 w-full flex justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/hero/plaster-crafts.png"
+                  alt="Painted Plaster Figurines"
+                  className="w-full h-auto max-h-36 object-contain filter drop-shadow-xs"
+                />
+              </div>
+            </div>
+
+            <div className="hidden lg:flex flex-col items-center justify-center p-4 bg-white/85 backdrop-blur-md rounded-3xl border border-rose-200 shadow-lg w-40 text-center shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/hero/silicone-mold.png"
+                alt="Silicone Mold"
+                className="w-20 h-20 object-contain mb-2 drop-shadow"
+              />
+              <span className="text-xs font-extrabold text-pink-900 leading-tight">
+                Includes Mold & Paints
+              </span>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 2,
+      bgColor: "#FFFDF0",
+      content: (
+        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center w-full py-10 md:py-16">
+          <div className="w-full md:w-5/12 text-center md:text-left mb-8 md:mb-0">
+            <span className="inline-block px-3.5 py-1 mb-3 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 tracking-wide uppercase">
+              🌟 Screen-Free Family Joy
+            </span>
+            <h1
+              className="font-extrabold leading-tight mb-5"
+              style={{
+                fontSize: "clamp(2rem, 5vw, 3.25rem)",
+                color: "#3C2A21",
+              }}
+            >
+              Unleash Their
+              <br />
+              Creative Wonder!
+            </h1>
+            <p
+              className="mb-8 max-w-md mx-auto md:mx-0"
+              style={{
+                color: "#4B5563",
+                fontSize: "17px",
+                lineHeight: "28px",
+                fontWeight: 500,
+              }}
+            >
+              Watch young imaginations blossom! Non-toxic, vibrant plaster
+              painting kits that bring hours of proud artistic fun.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+              <Link
+                href="/shop"
+                className="px-7 py-3.5 text-white rounded-full font-bold shadow-lg text-center transition hover:opacity-90 active:scale-95 bg-amber-600 hover:bg-amber-700"
+                style={{ fontSize: "15px" }}
+              >
+                Shop Kids' Art Kits
+              </Link>
+              <Link
+                href="/bundles"
+                className="px-7 py-3.5 rounded-full font-bold text-center transition hover:bg-amber-100/60 active:scale-95"
+                style={{
+                  border: "2px solid #3C2A21",
+                  color: "#3C2A21",
+                  fontSize: "15px",
+                }}
+              >
+                Build Custom Bundle
+              </Link>
+            </div>
+          </div>
+
+          <div className="w-full md:w-7/12 flex justify-center md:justify-end relative">
+            <div className="relative w-full max-w-md sm:max-w-lg">
+              <div className="overflow-hidden rounded-3xl shadow-2xl border-4 border-white transform rotate-1 hover:rotate-0 transition duration-500">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/hero/kids-painting-slide.png"
+                  alt="Kids enjoying painting crafts"
+                  className="w-full h-72 sm:h-96 object-cover object-center"
+                />
+              </div>
+              <div className="absolute -bottom-4 -left-3 bg-white px-4 py-2 rounded-2xl shadow-xl border border-amber-200 flex items-center space-x-2">
+                <span className="text-xl">👩‍🎨</span>
+                <div className="text-left">
+                  <p className="text-xs font-black text-slate-800">
+                    100% Non-Toxic & Safe
+                  </p>
+                  <p className="text-[10px] text-slate-500 font-medium">
+                    Certified child friendly
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(true);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  const extendedSlides = [
+    { ...heroSlides[heroSlides.length - 1], extendedKey: "clone-last" },
+    ...heroSlides.map((s, idx) => ({ ...s, extendedKey: `real-${idx}` })),
+    { ...heroSlides[0], extendedKey: "clone-first" },
+  ];
+
+  // Calculate safe index to prevent out of bounds
+  const rawIndex = (currentIndex - 1) % heroSlides.length;
+  const realIndex = (rawIndex + heroSlides.length) % heroSlides.length;
+
+  // Auto-play Timer (5 seconds)
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isPaused, currentIndex]);
+
+  const nextSlide = () => {
+    if (isAnimating) return; // Lock rapid spam clicking during active animation
+    setIsAnimating(true);
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => {
+      if (prev >= extendedSlides.length - 1) return 1;
+      return prev + 1;
+    });
+  };
+
+  const prevSlide = () => {
+    if (isAnimating) return; // Lock rapid spam clicking during active animation
+    setIsAnimating(true);
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => {
+      if (prev <= 0) return heroSlides.length;
+      return prev - 1;
+    });
+  };
+
+  const handleTransitionEnd = () => {
+    setIsAnimating(false);
+    if (currentIndex >= extendedSlides.length - 1) {
+      setIsTransitioning(false);
+      setCurrentIndex(1);
+    } else if (currentIndex <= 0) {
+      setIsTransitioning(false);
+      setCurrentIndex(heroSlides.length);
+    }
+  };
+
+  const handleDotClick = (idx: number) => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setIsTransitioning(true);
+    setCurrentIndex(idx + 1);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    if (diff > 50) {
+      nextSlide();
+    } else if (diff < -50) {
+      prevSlide();
+    }
+    setTouchStartX(null);
+  };
+
+  // HARDCODED THEME SECTIONS CONFIGURATION (WITH DYNAMIC DATABASE PRODUCTS)
   const themeSections: ThemeSectionConfig[] = [
     {
       id: "space",
@@ -66,17 +423,88 @@ export default function HomePage() {
       textColor: "#FFFFFF",
       topDividerFill: "white",
       cardSize: "large",
+      limit: 4,
       decorations: [
-        { id: "s1", type: "emoji", content: "🪐", style: { top: "15%", left: "5%", fontSize: "48px", opacity: 0.9, transform: "rotate(-15deg)" } },
-        { id: "s2", type: "emoji", content: "⭐", style: { top: "8%", left: "30%", fontSize: "18px", opacity: 0.8 }, className: "hidden sm:block" },
-        { id: "s3", type: "emoji", content: "✨", style: { top: "12%", right: "8%", fontSize: "14px", opacity: 0.7 }, className: "hidden sm:block" },
-        { id: "s4", type: "emoji", content: "⭐", style: { top: "5%", right: "15%", fontSize: "20px", opacity: 0.8 } },
-        { id: "s5", type: "emoji", content: "🌍", style: { top: "25%", right: "3%", fontSize: "42px", opacity: 0.85 }, className: "hidden md:block" },
-        { id: "s6", type: "emoji", content: "🚀", style: { bottom: "30%", left: "8%", fontSize: "36px", opacity: 0.8, transform: "rotate(25deg)" }, className: "hidden sm:block" },
-        { id: "s7", type: "emoji", content: "🚀", style: { bottom: "15%", right: "5%", fontSize: "38px", opacity: 0.8, transform: "rotate(-20deg) scaleX(-1)" }, className: "hidden sm:block" },
-        { id: "s8", type: "emoji", content: "⭐", style: { top: "45%", left: "2%", fontSize: "14px", opacity: 0.6 }, className: "hidden md:block" },
-        { id: "s9", type: "emoji", content: "✨", style: { top: "60%", left: "15%", fontSize: "12px", opacity: 0.5 }, className: "hidden md:block" }
-      ]
+        {
+          id: "s1",
+          type: "emoji",
+          content: "🪐",
+          style: {
+            top: "15%",
+            left: "5%",
+            fontSize: "48px",
+            opacity: 0.9,
+            transform: "rotate(-15deg)",
+          },
+        },
+        {
+          id: "s2",
+          type: "emoji",
+          content: "⭐",
+          style: { top: "8%", left: "30%", fontSize: "18px", opacity: 0.8 },
+          className: "hidden sm:block",
+        },
+        {
+          id: "s3",
+          type: "emoji",
+          content: "✨",
+          style: { top: "12%", right: "8%", fontSize: "14px", opacity: 0.7 },
+          className: "hidden sm:block",
+        },
+        {
+          id: "s4",
+          type: "emoji",
+          content: "⭐",
+          style: { top: "5%", right: "15%", fontSize: "20px", opacity: 0.8 },
+        },
+        {
+          id: "s5",
+          type: "emoji",
+          content: "🌍",
+          style: { top: "25%", right: "3%", fontSize: "42px", opacity: 0.85 },
+          className: "hidden md:block",
+        },
+        {
+          id: "s6",
+          type: "emoji",
+          content: "🚀",
+          style: {
+            bottom: "30%",
+            left: "8%",
+            fontSize: "36px",
+            opacity: 0.8,
+            transform: "rotate(25deg)",
+          },
+          className: "hidden sm:block",
+        },
+        {
+          id: "s7",
+          type: "emoji",
+          content: "🚀",
+          style: {
+            bottom: "15%",
+            right: "5%",
+            fontSize: "38px",
+            opacity: 0.8,
+            transform: "rotate(-20deg) scaleX(-1)",
+          },
+          className: "hidden sm:block",
+        },
+        {
+          id: "s8",
+          type: "emoji",
+          content: "⭐",
+          style: { top: "45%", left: "2%", fontSize: "14px", opacity: 0.6 },
+          className: "hidden md:block",
+        },
+        {
+          id: "s9",
+          type: "emoji",
+          content: "✨",
+          style: { top: "60%", left: "15%", fontSize: "12px", opacity: 0.5 },
+          className: "hidden md:block",
+        },
+      ],
     },
     {
       id: "garden",
@@ -87,28 +515,60 @@ export default function HomePage() {
       textColor: "#3C2A21",
       topDividerFill: "#2D366D",
       cardSize: "large",
+      limit: 3,
       decorations: [
         {
           id: "g1",
           type: "emoji",
           content: "🌿",
-          imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAS0H4RpDNj1wH6AR0qZ8Rn8McleCflgnz5Vg0_fQ9qqp_mstz0-IbqPw5O3mHFuNwBptJpVfeSh5oK_uyaWjLQxL7yYRQaqUzP1brGeF94hf_F6dpCvPlnNQI4tPy2MqvaQSKA9KhzS9caJMt4FyCo8qdRIQgjimRvkuEnvwXL7ILGZSeKCC5lylBp0hXrgjau4CmlaCpI4BVwexveLFlVgP_nlUSSio50rMV7YWltP58c4rmnZw--ryrxgWyOZslVbSYpvJdf1X4",
+          imageUrl:
+            "https://lh3.googleusercontent.com/aida-public/AB6AXuAS0H4RpDNj1wH6AR0qZ8Rn8McleCflgnz5Vg0_fQ9qqp_mstz0-IbqPw5O3mHFuNwBptJpVfeSh5oK_uyaWjLQxL7yYRQaqUzP1brGeF94hf_F6dpCvPlnNQI4tPy2MqvaQSKA9KhzS9caJMt4FyCo8qdRIQgjimRvkuEnvwXL7ILGZSeKCC5lylBp0hXrgjau4CmlaCpI4BVwexveLFlVgP_nlUSSio50rMV7YWltP58c4rmnZw--ryrxgWyOZslVbSYpvJdf1X4",
           style: { top: "20px", left: "20px", fontSize: "46px", opacity: 0.85 },
-          className: "hidden sm:block"
+          className: "hidden sm:block",
         },
         {
           id: "g2",
           type: "emoji",
           content: "🌺",
-          imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAtvOa9Z4BzqyCTT40TPkB_rJMyog9dxotykaM8tgg3r8K-znF-u7cqY0GMhHXlMzCxWzm2aKedtGfKzlVytEMdElQLRg7kdKd8S1yoYI6Nm9oDMEQsDnGITWXlI9ixUez_6rNNXGgjelbapytN9a-QWT2DBbYiKL8RZ77O95oeqSegWKPxpZ24xJZCw0-3J_-bccgnqOXh64KSVnBqd5rFtTaAuqyTd2iNObdYF2cOU7AA95NZ1bW5VYVu3pt4oXG5Tt3H9mRoHy4",
-          style: { bottom: "20px", right: "20px", fontSize: "46px", opacity: 0.85 },
-          className: "hidden sm:block"
+          imageUrl:
+            "https://lh3.googleusercontent.com/aida-public/AB6AXuAtvOa9Z4BzqyCTT40TPkB_rJMyog9dxotykaM8tgg3r8K-znF-u7cqY0GMhHXlMzCxWzm2aKedtGfKzlVytEMdElQLRg7kdKd8S1yoYI6Nm9oDMEQsDnGITWXlI9ixUez_6rNNXGgjelbapytN9a-QWT2DBbYiKL8RZ77O95oeqSegWKPxpZ24xJZCw0-3J_-bccgnqOXh64KSVnBqd5rFtTaAuqyTd2iNObdYF2cOU7AA95NZ1bW5VYVu3pt4oXG5Tt3H9mRoHy4",
+          style: {
+            bottom: "20px",
+            right: "20px",
+            fontSize: "46px",
+            opacity: 0.85,
+          },
+          className: "hidden sm:block",
         },
-        { id: "g3", type: "emoji", content: "🌸", style: { top: "15%", right: "12%", fontSize: "36px", opacity: 0.8 }, className: "hidden sm:block" },
-        { id: "g4", type: "emoji", content: "🦋", style: { top: "25%", left: "10%", fontSize: "38px", opacity: 0.8 }, className: "hidden sm:block" },
-        { id: "g5", type: "emoji", content: "🌷", style: { bottom: "30%", left: "5%", fontSize: "32px", opacity: 0.75 }, className: "hidden md:block" },
-        { id: "g6", type: "emoji", content: "🐝", style: { top: "10%", left: "40%", fontSize: "28px", opacity: 0.8 }, className: "hidden sm:block" }
-      ]
+        {
+          id: "g3",
+          type: "emoji",
+          content: "🌸",
+          style: { top: "15%", right: "12%", fontSize: "36px", opacity: 0.8 },
+          className: "hidden sm:block",
+        },
+        {
+          id: "g4",
+          type: "emoji",
+          content: "🦋",
+          style: { top: "25%", left: "10%", fontSize: "38px", opacity: 0.8 },
+          className: "hidden sm:block",
+        },
+        {
+          id: "g5",
+          type: "emoji",
+          content: "🌷",
+          style: { bottom: "30%", left: "5%", fontSize: "32px", opacity: 0.75 },
+          className: "hidden md:block",
+        },
+        {
+          id: "g6",
+          type: "emoji",
+          content: "🐝",
+          style: { top: "10%", left: "40%", fontSize: "28px", opacity: 0.8 },
+          className: "hidden sm:block",
+        },
+      ],
     },
     {
       id: "fairytale",
@@ -125,20 +585,56 @@ export default function HomePage() {
       textColor: "#3C2A21",
       topDividerFill: "#D1E7D2",
       cardSize: "small",
+      limit: 4,
       decorations: [
         {
           id: "f1",
           type: "emoji",
           content: "🏰",
-          imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuComB21zuW6PCQia8SUTMPu0q9ZTZO0rR0Vp9STHfUsNoO0j5qTw9Sn62NLSJBQNGSPEQcOQQwGcUWmaNcCeJuRs5RVcKmb211tUNNKQ4IaSVfHiWeiPMghpJM0I9TIci0s6qbRB6sfaYJWrB852e8XR-EJ74yw_ex7Qy4sfHWrS_ubxGz893uWYxG28q9JyAmgsmXWy-nP2Qo3dA5uuP4r5ChN0bNr2NvU9r-lC-QAh6n52sPP2VLLIFQAya4JfhepeQiw68SZH-s",
-          style: { bottom: "20px", left: "20px", fontSize: "44px", opacity: 0.85 },
-          className: "hidden md:block"
+          imageUrl:
+            "https://lh3.googleusercontent.com/aida-public/AB6AXuComB21zuW6PCQia8SUTMPu0q9ZTZO0rR0Vp9STHfUsNoO0j5qTw9Sn62NLSJBQNGSPEQcOQQwGcUWmaNcCeJuRs5RVcKmb211tUNNKQ4IaSVfHiWeiPMghpJM0I9TIci0s6qbRB6sfaYJWrB852e8XR-EJ74yw_ex7Qy4sfHWrS_ubxGz893uWYxG28q9JyAmgsmXWy-nP2Qo3dA5uuP4r5ChN0bNr2NvU9r-lC-QAh6n52sPP2VLLIFQAya4JfhepeQiw68SZH-s",
+          style: {
+            bottom: "20px",
+            left: "20px",
+            fontSize: "44px",
+            opacity: 0.85,
+          },
+          className: "hidden md:block",
         },
-        { id: "f2", type: "emoji", content: "🦄", style: { top: "18%", right: "8%", fontSize: "42px", opacity: 0.85 }, className: "hidden sm:block" },
-        { id: "f3", type: "emoji", content: "👑", style: { top: "12%", left: "25%", fontSize: "32px", opacity: 0.8 }, className: "hidden sm:block" },
-        { id: "f4", type: "emoji", content: "🪄", style: { bottom: "25%", right: "12%", fontSize: "36px", opacity: 0.8 }, className: "hidden md:block" },
-        { id: "f5", type: "emoji", content: "✨", style: { top: "35%", right: "20%", fontSize: "24px", opacity: 0.7 }, className: "hidden sm:block" }
-      ]
+        {
+          id: "f2",
+          type: "emoji",
+          content: "🦄",
+          style: { top: "18%", right: "8%", fontSize: "42px", opacity: 0.85 },
+          className: "hidden sm:block",
+        },
+        {
+          id: "f3",
+          type: "emoji",
+          content: "👑",
+          style: { top: "12%", left: "25%", fontSize: "32px", opacity: 0.8 },
+          className: "hidden sm:block",
+        },
+        {
+          id: "f4",
+          type: "emoji",
+          content: "🪄",
+          style: {
+            bottom: "25%",
+            right: "12%",
+            fontSize: "36px",
+            opacity: 0.8,
+          },
+          className: "hidden md:block",
+        },
+        {
+          id: "f5",
+          type: "emoji",
+          content: "✨",
+          style: { top: "35%", right: "20%", fontSize: "24px", opacity: 0.7 },
+          className: "hidden sm:block",
+        },
+      ],
     },
     {
       id: "wild",
@@ -155,120 +651,151 @@ export default function HomePage() {
       textColor: "#3C2A21",
       topDividerFill: "#F1E4F7",
       cardSize: "small",
+      limit: 4,
       decorations: [
         {
           id: "w1",
           type: "emoji",
           content: "🍃",
-          imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDXyCpZUjaQfYpaOp5ai0oQeFYPxroB2o4suZygVoQ0Nql86CdrVoYX17qWeE2ySHLJHjudkhg_78Q_I9rrOcYkbSykBOnQS2-QJA8eeLq-R8PpRWA4D55g63-Qf_r0nuovF8SbC6d00YdfD_Gn5A5e3dK1-Kq9qBvrKd1zJyRCYqA5zCeHhpWgsJDdJqCvJZ70vUvxLcBujM7tjjWpZIWB3qO4Yx44pzFTFPstvk1i4U8INi_zvwPsbEIUrtxClc4kOxVxFp2y2WA",
-          style: { bottom: "20px", left: "20px", fontSize: "46px", opacity: 0.85 },
-          className: "hidden sm:block"
+          imageUrl:
+            "https://lh3.googleusercontent.com/aida-public/AB6AXuDXyCpZUjaQfYpaOp5ai0oQeFYPxroB2o4suZygVoQ0Nql86CdrVoYX17qWeE2ySHLJHjudkhg_78Q_I9rrOcYkbSykBOnQS2-QJA8eeLq-R8PpRWA4D55g63-Qf_r0nuovF8SbC6d00YdfD_Gn5A5e3dK1-Kq9qBvrKd1zJyRCYqA5zCeHhpWgsJDdJqCvJZ70vUvxLcBujM7tjjWpZIWB3qO4Yx44pzFTFPstvk1i4U8INi_zvwPsbEIUrtxClc4kOxVxFp2y2WA",
+          style: {
+            bottom: "20px",
+            left: "20px",
+            fontSize: "46px",
+            opacity: 0.85,
+          },
+          className: "hidden sm:block",
         },
         {
           id: "w2",
           type: "emoji",
           content: "🐾",
-          imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuBFuq1NrDk9hDdAAaD786n-QEpOQm9jFqkMS4w_NOBwj3FJvcQm8MVVlDG9xXKdsEmUD2v09nzXK8HxPVbktkCZ4yMhVY4K5QiMdEytLdSkuFhl93g5ZF4z2EarZzxdbTEyug4upfkRfQ1c3LAkG4ADGeNtaGg0x82yPqn1WqnjY3OJv16w2Etrtk5od9iwbjbj7oJ_18AItqsK6Emv6wndCCxsJIStjiEk7LRltWrt-Vl5Cmqywg_c58R0xwcXS_GpQO9frHKoivg",
-          style: { top: "20px", right: "20px", fontSize: "38px", opacity: 0.75 },
-          className: "hidden sm:block"
+          imageUrl:
+            "https://lh3.googleusercontent.com/aida-public/AB6AXuBFuq1NrDk9hDdAAaD786n-QEpOQm9jFqkMS4w_NOBwj3FJvcQm8MVVlDG9xXKdsEmUD2v09nzXK8HxPVbktkCZ4yMhVY4K5QiMdEytLdSkuFhl93g5ZF4z2EarZzxdbTEyug4upfkRfQ1c3LAkG4ADGeNtaGg0x82yPqn1WqnjY3OJv16w2Etrtk5od9iwbjbj7oJ_18AItqsK6Emv6wndCCxsJIStjiEk7LRltWrt-Vl5Cmqywg_c58R0xwcXS_GpQO9frHKoivg",
+          style: {
+            top: "20px",
+            right: "20px",
+            fontSize: "38px",
+            opacity: 0.75,
+          },
+          className: "hidden sm:block",
         },
-        { id: "w3", type: "emoji", content: "🦁", style: { top: "15%", left: "12%", fontSize: "40px", opacity: 0.85 }, className: "hidden sm:block" },
-        { id: "w4", type: "emoji", content: "🐘", style: { bottom: "15%", right: "10%", fontSize: "40px", opacity: 0.85 }, className: "hidden sm:block" },
-        { id: "w5", type: "emoji", content: "🌴", style: { top: "40%", right: "4%", fontSize: "36px", opacity: 0.75 }, className: "hidden md:block" }
-      ]
-    }
+        {
+          id: "w3",
+          type: "emoji",
+          content: "🦁",
+          style: { top: "15%", left: "12%", fontSize: "40px", opacity: 0.85 },
+          className: "hidden sm:block",
+        },
+        {
+          id: "w4",
+          type: "emoji",
+          content: "🐘",
+          style: {
+            bottom: "15%",
+            right: "10%",
+            fontSize: "40px",
+            opacity: 0.85,
+          },
+          className: "hidden sm:block",
+        },
+        {
+          id: "w5",
+          type: "emoji",
+          content: "🌴",
+          style: { top: "40%", right: "4%", fontSize: "36px", opacity: 0.75 },
+          className: "hidden md:block",
+        },
+      ],
+    },
   ];
 
   return (
     <div style={{ fontFamily: "'Quicksand', sans-serif", color: "#333" }}>
-      {/* ─── HERO SECTION ─── */}
+      {/* ─── HERO CAROUSEL SECTION ─── */}
       <section
-        className="relative overflow-hidden"
-        style={{ backgroundColor: "#EFF6FF", minHeight: "420px" }}
+        className="relative overflow-hidden select-none transition-colors duration-700"
+        style={{
+          backgroundColor: heroSlides[realIndex].bgColor,
+          minHeight: "460px",
+        }}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={(e) => {
+          setIsPaused(true);
+          handleTouchStart(e);
+        }}
+        onTouchEnd={(e) => {
+          setIsPaused(false);
+          handleTouchEnd(e);
+        }}
       >
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Subtle Bottom Wavy Divider */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none overflow-hidden z-0 leading-none">
           <svg
-            className="absolute bottom-0 left-0 w-full"
+            className="w-full h-12 sm:h-20 block"
             fill="white"
-            viewBox="0 0 1440 320"
+            preserveAspectRatio="none"
+            viewBox="0 0 1440 120"
           >
             <path
               fillOpacity="1"
-              d="M0,224L60,202.7C120,181,240,139,360,138.7C480,139,600,181,720,202.7C840,224,960,224,1080,192C1200,160,1320,96,1380,64L1440,32L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
+              d="M0,32L60,42.7C120,53,240,75,360,80C480,85,600,75,720,64C840,53,960,43,1080,48C1200,53,1320,75,1380,85L1440,96L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z"
             />
           </svg>
         </div>
 
-        <div
-          className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center"
-          style={{ padding: "60px 24px 80px 24px" }}
+        {/* Left Arrow Button */}
+        <button
+          onClick={prevSlide}
+          aria-label="Previous slide"
+          className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white/80 hover:bg-white text-[#3C2A21] backdrop-blur-md shadow-lg border border-white/60 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer"
         >
-          <div className="w-full md:w-5/12 text-center md:text-left mb-10 md:mb-0">
-            <h1
-              className="font-bold leading-tight mb-6"
-              style={{
-                fontSize: "clamp(2rem, 5vw, 3.25rem)",
-                color: "#3C2A21",
-              }}
-            >
-              Paint Your World
-              <br />
-              with Little Creators!
-            </h1>
-            <p
-              className="mb-8 max-w-md mx-auto md:mx-0"
-              style={{
-                color: "#4B5563",
-                fontSize: "17px",
-                lineHeight: "28px",
-                fontWeight: 500,
-              }}
-            >
-              Complete ready-to-paint plaster craft kits designed for curious
-              young minds.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <Link
-                href="/shop"
-                className="px-7 py-3.5 text-white rounded-full font-bold shadow-lg text-center transition hover:opacity-90"
-                style={{ backgroundColor: "#3C2A21", fontSize: "15px" }}
-              >
-                Shop Painting Kits
-              </Link>
-              <Link
-                href="/shop"
-                className="px-7 py-3.5 rounded-full font-bold text-center transition hover:bg-blue-50"
-                style={{
-                  border: "2px solid #3C2A21",
-                  color: "#3C2A21",
-                  fontSize: "15px",
-                }}
-              >
-                Explore Themes
-              </Link>
-            </div>
-          </div>
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
 
-          <div className="w-full md:w-7/12 flex justify-center md:justify-end relative">
-            <div className="relative w-full" style={{ maxWidth: "600px" }}>
+        {/* Right Arrow Button */}
+        <button
+          onClick={nextSlide}
+          aria-label="Next slide"
+          className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white/80 hover:bg-white text-[#3C2A21] backdrop-blur-md shadow-lg border border-white/60 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer"
+        >
+          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+
+        {/* Carousel Slides Container */}
+        <div className="relative w-full overflow-hidden min-h-[460px] flex items-center z-10">
+          <div
+            className={`flex w-full ${isTransitioning ? "transition-transform duration-700 ease-in-out" : ""}`}
+            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+            onTransitionEnd={handleTransitionEnd}
+          >
+            {extendedSlides.map((slide) => (
               <div
-                className="overflow-hidden w-full"
-                style={{
-                  clipPath: "ellipse(85% 95% at 65% 50%)",
-                  WebkitClipPath: "ellipse(85% 95% at 65% 50%)",
-                  borderRadius: "0 0 0 40%",
-                }}
+                key={`${slide.id}-${slide.extendedKey}`}
+                className="w-full shrink-0 flex items-center"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDX3XrM68ibMOJBdg1KJRUcl3673jAz2D2uXdkdQeaKwhwGhZTxIu8h5jhX2wgGfN4T4za5H8vEK81153qHcO1XDeFGtyatNhetX5KReX37UFA4clyI1RCDN92VMtPPRRbjlR6OM4hNvlAX7d9tTARtByd6DcpXfVPPqhZDuu_0Uwxd1uD_eXlki6tqbHGjDv16EIWCTA50urtFql5gYcWIEibj3HBYXQy9IXjOYNoknK47cI92Hbyycq81r1RFoWw0_6WCUDirB2E"
-                  alt="Children painting crafts"
-                  className="w-full h-full object-cover"
-                  style={{ minHeight: "320px", maxHeight: "440px" }}
-                />
+                {slide.content}
               </div>
-            </div>
+            ))}
           </div>
+        </div>
+
+        {/* Dot Indicators */}
+        <div className="absolute bottom-6 left-0 right-0 z-30 flex justify-center items-center gap-2.5">
+          {heroSlides.map((slide, idx) => (
+            <button
+              key={slide.id}
+              onClick={() => handleDotClick(idx)}
+              aria-label={`Go to slide ${idx + 1}`}
+              className={`transition-all duration-300 rounded-full focus:outline-none cursor-pointer ${
+                realIndex === idx
+                  ? "w-8 h-3 bg-[#3C2A21] shadow-sm"
+                  : "w-3 h-3 bg-[#3C2A21]/30 hover:bg-[#3C2A21]/60"
+              }`}
+            />
+          ))}
         </div>
       </section>
 
@@ -304,9 +831,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── DYNAMIC CONFIGURABLE THEME SECTIONS (DATABASE DRIVEN) ─── */}
+      {/* ─── HARDCODED THEME SECTIONS (DYNAMIC PRODUCTS FROM DATABASE) ─── */}
       {themeSections.map((sectionConfig) => {
-        const themeProducts = getThemeProducts(sectionConfig.themeKeyword);
+        const themeProducts = getThemeProducts(
+          sectionConfig.themeKeyword,
+          sectionConfig.limit || 4,
+        );
 
         return (
           <section
@@ -335,7 +865,7 @@ export default function HomePage() {
               </svg>
             </div>
 
-            {/* Configurable Decorative Elements */}
+            {/* Decorative Elements */}
             {sectionConfig.decorations?.map((decor) => (
               <React.Fragment key={decor.id}>
                 {decor.type === "emoji" ? (
@@ -360,76 +890,56 @@ export default function HomePage() {
               </React.Fragment>
             ))}
 
-            {/* Configurable Section Layout */}
+            {/* Section Layout */}
             <div className="max-w-7xl mx-auto px-6 relative z-10">
               {sectionConfig.titleLayout === "center" ? (
                 /* Center Layout */
                 <div className="text-center">
                   <h2
-                    className="font-bold mb-12"
-                    style={{ fontSize: "36px", color: sectionConfig.textColor }}
+                    className="font-bold mb-10 text-3xl sm:text-4xl"
+                    style={{ color: sectionConfig.textColor }}
                   >
                     {sectionConfig.title}
                   </h2>
-                  <div className="flex flex-wrap justify-center gap-10">
-                    {themeProducts.map((p) => (
-                      <ThemeProductCard
-                        key={p.id}
-                        product={p}
-                        size={sectionConfig.cardSize}
-                        onAdd={() => addToCart(p)}
-                      />
-                    ))}
-                  </div>
+                  <ThemeProductCarousel
+                    themeProducts={themeProducts}
+                    onAddToCart={(p) => addToCart(p)}
+                  />
                 </div>
               ) : sectionConfig.titleLayout === "left" ? (
                 /* Left Title Layout */
-                <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-                  <div className="w-full md:w-2/5 text-center md:text-left shrink-0">
+                <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                  <div className="w-full md:w-1/3 text-center md:text-left shrink-0">
                     <h2
-                      className="font-bold leading-tight"
-                      style={{
-                        fontSize: "clamp(2.25rem, 5vw, 3.5rem)",
-                        color: sectionConfig.textColor,
-                      }}
+                      className="font-extrabold leading-tight text-3xl sm:text-4xl md:text-5xl"
+                      style={{ color: sectionConfig.textColor }}
                     >
                       {sectionConfig.title}
                     </h2>
                   </div>
-                  <div className="w-full md:w-3/5 flex flex-col sm:flex-row justify-center gap-6 sm:gap-8">
-                    {themeProducts.map((p) => (
-                      <ThemeProductCard
-                        key={p.id}
-                        product={p}
-                        size={sectionConfig.cardSize}
-                        onAdd={() => addToCart(p)}
-                      />
-                    ))}
+                  <div className="w-full md:w-2/3">
+                    <ThemeProductCarousel
+                      themeProducts={themeProducts}
+                      onAddToCart={(p) => addToCart(p)}
+                    />
                   </div>
                 </div>
               ) : (
                 /* Right Title Layout */
-                <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-12 text-center">
-                  <div className="w-full md:w-2/5 text-center md:text-left shrink-0">
+                <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-8 md:gap-12 text-center">
+                  <div className="w-full md:w-1/3 text-center md:text-left shrink-0">
                     <h2
-                      className="font-bold mb-4 leading-tight"
-                      style={{
-                        fontSize: "clamp(2.25rem, 5vw, 3.5rem)",
-                        color: sectionConfig.textColor,
-                      }}
+                      className="font-extrabold leading-tight text-3xl sm:text-4xl md:text-5xl"
+                      style={{ color: sectionConfig.textColor }}
                     >
                       {sectionConfig.title}
                     </h2>
                   </div>
-                  <div className="w-full md:w-3/5 flex flex-wrap justify-center gap-8">
-                    {themeProducts.map((p) => (
-                      <ThemeProductCard
-                        key={p.id}
-                        product={p}
-                        size={sectionConfig.cardSize}
-                        onAdd={() => addToCart(p)}
-                      />
-                    ))}
+                  <div className="w-full md:w-2/3">
+                    <ThemeProductCarousel
+                      themeProducts={themeProducts}
+                      onAddToCart={(p) => addToCart(p)}
+                    />
                   </div>
                 </div>
               )}
@@ -437,6 +947,108 @@ export default function HomePage() {
           </section>
         );
       })}
+
+      {/* ─── AESTHETIC WAX CANDLES COLLECTION SHOWCASE ─── */}
+      <section className="bg-gradient-to-b from-amber-950 via-slate-900 to-amber-950 text-amber-100 py-16 px-6 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto space-y-10 relative z-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-amber-900/60 pb-6">
+            <div>
+              <span className="inline-flex items-center space-x-1 text-xs font-bold text-amber-400 uppercase tracking-widest">
+                <Flame className="w-4 h-4 text-amber-400" />
+                <span>Product Line #2 • Ambient Lifestyle Collection</span>
+              </span>
+              <h2 className="text-3xl font-extrabold text-amber-50 mt-1">
+                Aesthetic Scented Wax Candles
+              </h2>
+              <p className="text-xs text-amber-200/80 mt-1 max-w-lg">
+                Hand-poured pure soy and beeswax candles infused with botanical
+                essential oils for mood & ambient home decor.
+              </p>
+            </div>
+            <Link
+              href="/shop?productLineId=line-2"
+              className="px-6 py-2.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-extrabold text-xs rounded-full shadow transition"
+            >
+              Shop All Candles
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {candleProducts.map((candle) => (
+              <div
+                key={candle.id}
+                className="bg-slate-900/90 rounded-3xl border border-amber-900/50 p-5 soft-shadow hover:border-amber-400/50 transition flex flex-col justify-between group"
+              >
+                <div>
+                  <Link href={`/product/${candle.id}`} className="block">
+                    <div className="relative rounded-2xl overflow-hidden mb-4 aspect-square bg-amber-950/40">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={candle.image}
+                        alt={candle.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      />
+                      <div className="absolute top-3 left-3 flex flex-col space-y-1">
+                        <span className="px-3 py-1 bg-amber-500/90 backdrop-blur-xs text-amber-950 rounded-full text-[10px] font-extrabold shadow-sm">
+                          {candle.attributes?.Scent || candle.theme}
+                        </span>
+                        {candle.attributes?.["Burn Time"] && (
+                          <span className="px-3 py-1 bg-slate-950/80 backdrop-blur-xs text-amber-300 rounded-full text-[10px] font-bold border border-amber-800/40">
+                            ⏱️ {candle.attributes["Burn Time"]}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400">
+                      {candle.category}
+                    </span>
+                    <h3 className="font-extrabold text-base text-amber-100 group-hover:text-amber-300 transition line-clamp-1 mt-0.5">
+                      {candle.name}
+                    </h3>
+                  </Link>
+
+                  <p className="text-xs text-amber-200/70 mt-2 line-clamp-2 leading-relaxed font-medium">
+                    {candle.description}
+                  </p>
+
+                  <p className="text-lg font-extrabold text-amber-400 mt-3">
+                    ₹{candle.price.toFixed(2)}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => addToCart(candle)}
+                  className="w-full mt-5 py-3 bg-amber-500 hover:bg-amber-400 text-amber-950 font-extrabold rounded-2xl text-xs transition active:scale-95 shadow-md flex items-center justify-center space-x-2"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Add Candle to Basket — ₹{candle.price.toFixed(2)}</span>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── BUNDLE PACKAGE PROMO BANNER ─── */}
+      <section className="max-w-7xl mx-auto px-6 py-12">
+        <div className="bg-gradient-to-r from-pink-200 via-yellow-200 to-sky-200 p-8 sm:p-10 rounded-3xl text-center space-y-4 shadow-sm border border-slate-100">
+          <Sparkles className="w-10 h-10 text-pink-600 mx-auto" />
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-800">
+            Build Your Custom Craft & Candle Package
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-700 max-w-xl mx-auto">
+            Select any 3 or 5 items across figurines and candles to receive an
+            automatic 10% to 15% discount at checkout.
+          </p>
+          <Link
+            href="/bundles"
+            className="inline-block px-8 py-3.5 bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-xs rounded-full shadow transition"
+          >
+            Start Building Package →
+          </Link>
+        </div>
+      </section>
 
       {/* ─── EXPLORE ALL THEMES BUTTON ─── */}
       <div
@@ -491,97 +1103,250 @@ function WhyCard({
   );
 }
 
-/* ─── PRODUCT CARD FOR THEME SECTIONS ─── */
+/* ─── REDESIGNED BEAUTIFUL PRODUCT CARD FOR THEME SECTIONS ─── */
 function ThemeProductCard({
   product,
-  size,
   onAdd,
 }: {
   product: Product;
-  size: "large" | "small";
   onAdd: () => void;
 }) {
-  const isLarge = size === "large";
-  const cardWidth = isLarge ? "280px" : "256px";
-  const imgHeight = isLarge ? "192px" : "160px";
-  const titleSize = isLarge ? "20px" : "18px";
-  const btnPy = isLarge ? "12px" : "8px";
-  const btnFontSize = isLarge ? "16px" : "14px";
-
   return (
-    <div
-      className="bg-white rounded-3xl flex flex-col justify-between transition-transform hover:-translate-y-1"
-      style={{
-        padding: "24px",
-        width: "100%",
-        maxWidth: cardWidth,
-        color: "#3C2A21",
-        boxShadow:
-          "0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1)",
-      }}
-    >
+    <div className="bg-white/95 backdrop-blur-md rounded-3xl p-4 sm:p-5 w-full flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl border border-white/60 text-[#3C2A21] shadow-lg group">
       <div>
-        {/* Badges */}
-        <div className="flex gap-2 mb-3 self-start">
-          <span
-            className="text-xs font-bold px-2 py-0.5 rounded"
-            style={{ backgroundColor: "#E0F2FE", color: "#0284C7" }}
-          >
+        {/* Badges Header */}
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          <span className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200/60 shadow-2xs">
             {product.ageGroup || "Ages 4+"}
           </span>
           {product.isNonToxic && (
-            <span
-              className="text-xs font-bold px-2 py-0.5 rounded"
-              style={{ backgroundColor: "#DCFCE7", color: "#15803D" }}
-            >
+            <span className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200/60 shadow-2xs">
               Non-Toxic
             </span>
           )}
         </div>
 
-        {/* Image Container */}
-        <div
-          className="rounded-2xl mb-4 flex items-center justify-center overflow-hidden"
-          style={{
-            backgroundColor: "#F9FAFB",
-            padding: "16px",
-            height: imgHeight,
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={product.image}
-            alt={product.name}
-            className="max-h-full object-contain"
-          />
-        </div>
+        {/* Product Image Container */}
+        <Link href={`/product/${product.id}`} className="block">
+          <div className="rounded-2xl mb-3 bg-slate-50/80 p-3 h-36 sm:h-44 flex items-center justify-center overflow-hidden border border-slate-100 relative group-hover:bg-slate-100/80 transition duration-300">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={product.image}
+              alt={product.name}
+              className="max-h-full max-w-full object-contain group-hover:scale-108 transition duration-500 ease-out filter drop-shadow-sm"
+            />
+          </div>
 
-        {/* Title & Price */}
-        <Link href={`/product/${product.id}`}>
-          <h3
-            className="font-bold mb-1 hover:text-blue-500 transition line-clamp-1"
-            style={{ fontSize: titleSize, color: "#3C2A21" }}
-          >
+          {/* Product Name */}
+          <h3 className="font-extrabold text-sm sm:text-base text-[#3C2A21] group-hover:text-sky-700 transition line-clamp-1 mb-1 leading-snug">
             {product.name}
           </h3>
         </Link>
-        <p className="mb-4" style={{ color: "#6B7280", fontWeight: 600 }}>
-          ${product.price.toFixed(2)}
-        </p>
+
+        {/* Price Tag */}
+        <div className="flex items-baseline space-x-2 mb-4">
+          <span className="font-black text-base sm:text-lg text-[#3C2A21]">
+            ₹{product.price.toFixed(2)}
+          </span>
+          {product.originalPrice && product.originalPrice > product.price && (
+            <span className="text-xs text-slate-400 line-through font-semibold">
+              ₹{product.originalPrice.toFixed(2)}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Add to Cart */}
+      {/* Add to Cart Button */}
       <button
         onClick={onAdd}
-        className="w-full text-white rounded-full font-bold transition hover:opacity-90"
-        style={{
-          backgroundColor: "#3C2A21",
-          padding: `${btnPy} 0`,
-          fontSize: btnFontSize,
-        }}
+        className="w-full text-white font-black py-2.5 sm:py-3 rounded-full text-xs sm:text-sm bg-[#3C2A21] hover:bg-[#251A14] active:scale-95 transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer"
       >
-        Add to Cart
+        <ShoppingBag className="w-4 h-4" />
+        <span>Add to Cart</span>
       </button>
+    </div>
+  );
+}
+
+/* ─── PRODUCT CAROUSEL FOR THEME SECTIONS (INFINITE LOOP, 1-CARD STEP) ─── */
+function ThemeProductCarousel({
+  themeProducts,
+  onAddToCart,
+}: {
+  themeProducts: Product[];
+  onAddToCart: (p: Product) => void;
+}) {
+  const [cardsPerView, setCardsPerView] = useState(3);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setCardsPerView(window.innerWidth < 768 ? 2 : 3);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const realLen = themeProducts?.length || 0;
+
+  // Number of clone cards on each side. Must be enough to fill the
+  // viewport during the wrap-around, but capped at realLen so we never
+  // try to slice more unique items than actually exist.
+  const cloneCount = Math.min(Math.max(cardsPerView, 1), realLen);
+
+  // Build extended infinite array with clone buffers
+  const extendedProducts = useMemo(() => {
+    if (!themeProducts || realLen === 0) return [];
+    if (cloneCount === 0) return [];
+    const cloneHead = themeProducts.slice(-cloneCount);
+    const cloneTail = themeProducts.slice(0, cloneCount);
+    return [
+      ...cloneHead.map((p, i) => ({ ...p, cloneKey: `head-${i}` })),
+      ...themeProducts.map((p, i) => ({ ...p, cloneKey: `real-${i}` })),
+      ...cloneTail.map((p, i) => ({ ...p, cloneKey: `tail-${i}` })),
+    ];
+  }, [themeProducts, cloneCount, realLen]);
+
+  const startIndex = cloneCount;
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
+  const [isTransitioning, setIsTransitioning] = useState(true);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Measure the real pixel width of one "step" (card + gap) so the
+  // translateX always moves exactly one card, regardless of gap size,
+  // padding, or how percentages round at different viewport widths.
+  const trackRef = React.useRef<HTMLDivElement | null>(null);
+  const [stepPx, setStepPx] = useState(0);
+
+  const measureStep = React.useCallback(() => {
+    const track = trackRef.current;
+    if (!track || track.children.length < 2) return;
+    const first = track.children[0] as HTMLElement;
+    const second = track.children[1] as HTMLElement;
+    // Distance between the start of card 1 and the start of card 2
+    // = card width + gap, however the gap is implemented.
+    const step = second.offsetLeft - first.offsetLeft;
+    if (step > 0) setStepPx(step);
+  }, []);
+
+  useEffect(() => {
+    measureStep();
+    window.addEventListener("resize", measureStep);
+    return () => window.removeEventListener("resize", measureStep);
+  }, [measureStep, extendedProducts, cardsPerView]);
+
+  useEffect(() => {
+    setCurrentIndex(startIndex);
+    // Re-measure after layout settles for the new product set.
+    const id = requestAnimationFrame(measureStep);
+    return () => cancelAnimationFrame(id);
+  }, [themeProducts, startIndex, measureStep]);
+
+  const handleNext = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => prev + 1);
+  };
+
+  const handlePrev = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => prev - 1);
+  };
+
+  const handleTransitionEnd = () => {
+    setIsAnimating(false);
+    if (!themeProducts || realLen === 0) return;
+
+    if (currentIndex >= startIndex + realLen) {
+      setIsTransitioning(false);
+      setCurrentIndex(currentIndex - realLen);
+    } else if (currentIndex < startIndex) {
+      setIsTransitioning(false);
+      setCurrentIndex(currentIndex + realLen);
+    }
+  };
+
+  // Turn transitions back on after a snap (transition was disabled for
+  // one frame to jump invisibly from clone -> real position).
+  useEffect(() => {
+    if (!isTransitioning) {
+      const id = requestAnimationFrame(() => setIsTransitioning(true));
+      return () => cancelAnimationFrame(id);
+    }
+  }, [isTransitioning]);
+
+  if (!themeProducts || realLen === 0) {
+    return (
+      <div className="text-center py-8 text-slate-500 font-medium">
+        No items available in this theme yet.
+      </div>
+    );
+  }
+
+  // If there aren't enough products to fill a viewport, looping/cloning
+  // isn't meaningful (and can't be built safely) — just render statically.
+  if (realLen <= cardsPerView) {
+    return (
+      <div className="relative w-full max-w-5xl mx-auto px-1 sm:px-2">
+        <div className="flex w-full gap-3 sm:gap-4 py-4 px-1">
+          {themeProducts.map((p) => (
+            <div
+              key={p.id}
+              className="w-[calc(50%-6px)] md:w-[calc(33.333%-11px)] shrink-0 flex"
+            >
+              <ThemeProductCard product={p} onAdd={() => onAddToCart(p)} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full max-w-5xl mx-auto px-1 sm:px-2">
+      {/* Left Navigation Arrow */}
+      <button
+        onClick={handlePrev}
+        aria-label="Previous product"
+        className="absolute -left-3 sm:-left-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white text-[#3C2A21] shadow-xl border border-slate-200/80 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer hover:bg-slate-50"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+
+      {/* Right Navigation Arrow */}
+      <button
+        onClick={handleNext}
+        aria-label="Next product"
+        className="absolute -right-3 sm:-right-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white text-[#3C2A21] shadow-xl border border-slate-200/80 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer hover:bg-slate-50"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
+
+      {/* Product Cards Track Container */}
+      <div className="overflow-hidden w-full py-4 px-1">
+        <div
+          ref={trackRef}
+          className={`flex w-full ${isTransitioning ? "transition-transform duration-500 ease-out" : ""} gap-3 sm:gap-4`}
+          style={{
+            transform: stepPx
+              ? `translateX(-${currentIndex * stepPx}px)`
+              : `translateX(-${currentIndex * (100 / cardsPerView)}%)`, // fallback before first measure
+          }}
+          onTransitionEnd={handleTransitionEnd}
+        >
+          {extendedProducts.map((p, i) => (
+            <div
+              key={`${p.id}-${p.cloneKey || i}`}
+              className="w-[calc(50%-6px)] md:w-[calc(33.333%-11px)] shrink-0 flex"
+            >
+              <ThemeProductCard product={p} onAdd={() => onAddToCart(p)} />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
