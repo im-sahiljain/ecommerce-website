@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useCart } from '../../../context/CartContext';
 import { ShieldCheck, Sparkles, Minus, Plus, ShoppingBag, Truck, RotateCcw, Award, MessageCircle, Heart } from 'lucide-react';
+import { API_BASE_URL } from '../../../config/api';
 
 interface Product {
   id: string;
@@ -43,7 +44,7 @@ export default function ProductDetailPage() {
   const [selectedImgIndex, setSelectedImgIndex] = useState(0);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/products/${id}`)
+    fetch(`${API_BASE_URL}/api/products/${id}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.id) setProduct(data);
@@ -51,7 +52,7 @@ export default function ProductDetailPage() {
       })
       .catch(() => setLoading(false));
 
-    fetch('http://localhost:5000/api/settings')
+    fetch(`${API_BASE_URL}/api/settings`)
       .then(res => res.json())
       .then(data => { if (data) setSettings(data); })
       .catch(() => {});
@@ -59,7 +60,7 @@ export default function ProductDetailPage() {
 
   const handleLikeToggle = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/products/${id}/like`, {
+      const res = await fetch(`${API_BASE_URL}/api/products/${id}/like`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userIdentifier: 'guest' })

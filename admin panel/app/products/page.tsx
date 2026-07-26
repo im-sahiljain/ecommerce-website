@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Plus, Edit, Copy, Trash2, ShieldCheck, X, Image as ImageIcon, Sliders, History, ShoppingBag, Eye, ArrowLeft, ArrowRight, Star } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
+import { API_BASE_URL } from '../../config/api';
 
 interface Product {
   id: string;
@@ -72,17 +73,17 @@ export default function ProductsManagerPage() {
   const [stockQuantity, setStockQuantity] = useState(25);
 
   const fetchProducts = () => {
-    fetch('http://localhost:5000/api/products')
+    fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setProducts(data); })
       .catch(() => {});
 
-    fetch('http://localhost:5000/api/product-lines')
+    fetch(`${API_BASE_URL}/api/product-lines`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setProductLines(data); })
       .catch(() => {});
 
-    fetch('http://localhost:5000/api/categories')
+    fetch(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setCategoriesList(data); })
       .catch(() => {});
@@ -199,7 +200,7 @@ export default function ProductsManagerPage() {
           reader.readAsDataURL(fileToUpload);
         });
 
-        const res = await fetch('http://localhost:5000/api/upload', {
+        const res = await fetch(`${API_BASE_URL}/api/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -262,7 +263,7 @@ export default function ProductsManagerPage() {
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this product listing?')) {
-      await fetch(`http://localhost:5000/api/products/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/products/${id}`, { method: 'DELETE' });
       fetchProducts();
     }
   };
@@ -291,13 +292,13 @@ export default function ProductsManagerPage() {
     };
 
     if (editingId) {
-      await fetch(`http://localhost:5000/api/products/${editingId}`, {
+      await fetch(`${API_BASE_URL}/api/products/${editingId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
     } else {
-      await fetch('http://localhost:5000/api/products', {
+      await fetch(`${API_BASE_URL}/api/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

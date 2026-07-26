@@ -6,6 +6,9 @@ import Link from "next/link";
 import { useCart } from "../context/CartContext";
 import { useAppSelector } from "../store/hooks";
 import type { RootState } from "../store/store";
+import { API_BASE_URL } from "../config/api";
+
+interface Product {
 import {
   Flame,
   Sparkles,
@@ -64,7 +67,7 @@ export default function HomePage() {
   const products = reduxProducts.length > 0 ? reduxProducts : fetchedProducts;
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products")
+    fetch(`${API_BASE_URL}/api/products`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setFetchedProducts(data);

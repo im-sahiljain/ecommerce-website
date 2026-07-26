@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '../../context/CartContext';
 import { ShieldCheck, Filter, ArrowUpDown, Sparkles, Heart, Flame } from 'lucide-react';
+import { API_BASE_URL } from '../../config/api';
 
 interface Product {
   id: string;
@@ -61,7 +62,7 @@ function ShopPageContent() {
   const [sortOrder, setSortOrder] = useState<'default' | 'low-to-high' | 'high-to-low' | 'newest'>('default');
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setProducts(data);
@@ -69,12 +70,12 @@ function ShopPageContent() {
       })
       .catch(() => setLoading(false));
 
-    fetch('http://localhost:5000/api/product-lines')
+    fetch(`${API_BASE_URL}/api/product-lines`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setProductLines(data); })
       .catch(() => {});
 
-    fetch('http://localhost:5000/api/facets')
+    fetch(`${API_BASE_URL}/api/facets`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setFacets(data); })
       .catch(() => {});

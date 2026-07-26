@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { API_BASE_URL } from '../../config/api';
 
 export interface Product {
   id: string;
@@ -31,7 +32,7 @@ const initialState: ProductsState = {
 };
 
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
-  const response = await fetch('http://localhost:5000/api/products');
+  const response = await fetch(`${API_BASE_URL}/api/products`);
   if (!response.ok) {
     throw new Error('Failed to fetch products');
   }
