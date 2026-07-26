@@ -251,7 +251,7 @@ export class Database {
   public pgPool: Pool | null = null;
 
   constructor() {
-    const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:Sahiljain20014@db.jbbdbdgbqsbdtfymcjwt.supabase.co:5432/postgres';
+    const connectionString = process.env.DATABASE_URL || process.env.SUPABASE_PG_URL;
     if (connectionString) {
       try {
         this.pgPool = new Pool({ connectionString, ssl: { rejectUnauthorized: false } });
