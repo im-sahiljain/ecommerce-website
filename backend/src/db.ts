@@ -49,6 +49,91 @@ export class Database {
       homepageSections: [],
       slugRedirects: []
     };
+
+    if (this.pgPool) {
+      this.loadFromSupabasePostgres();
+    }
+  }
+
+  public async loadFromSupabasePostgres() {
+    if (!this.pgPool) return;
+    try {
+      // 1. Load Products
+      const prodRes = await this.pgPool.query(`SELECT * FROM public.products`);
+      if (prodRes.rows.length > 0) {
+        this.data.products = prodRes.rows.map(r => ({
+          id: r.id,
+          sku: r.sku || undefined,
+          name: r.name,
+          slug: r.slug || r.id,
+          price: Number(r.price),
+          originalPrice: r.original_price ? Number(r.original_price) : undefined,
+          costPrice: r.cost_price ? Number(r.cost_price) : undefined,
+          theme: r.theme || 'General',
+          category: r.category || 'General',
+          ageGroup: r.age_group || 'All Ages',
+          productLineId: r.product_line_id || undefined,
+          isNonToxic: r.is_non_toxic !== false,
+          image: r.image || '',
+          images: r.images ? (typeof r.images === 'string' ? JSON.parse(r.images) : r.images) : [r.image],
+          description: r.description || '',
+          inStock: r.in_stock !== false,
+          stockQuantity: r.stock_quantity ? Number(r.stock_quantity) : 10,
+          isOrderingEnabled: r.is_ordering_enabled !== false,
+          createdAt: r.created_at ? new Date(r.created_at).toISOString() : undefined,
+          updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : undefined
+        }));
+        console.log(`⚡ Loaded ${this.data.products.length} products from PostgreSQL database`);
+      }
+
+      // 2. Load Categories
+      const catRes = await this.pgPool.query(`SELECT * FROM public.categories`);
+      if (catRes.rows.length > 0) {
+        this.data.categories = catRes.rows.map(r => ({
+          id: r.id,
+          name: r.name,
+          slug: r.slug,
+          productLineId: r.product_line_id,
+          description: r.description
+        }));
+      }
+
+      // 3. Load Product Lines
+      const lineRes = await this.pgPool.query(`SELECT * FROM public.product_lines`);
+      if (lineRes.rows.length > 0) {
+        this.data.productLines = lineRes.rows.map(r => ({
+          id: r.id,
+          name: r.name,
+          slug: r.slug,
+          description: r.description,
+          icon: r.icon,
+          isVisible: r.is_visible !== false,
+          sortOrder: r.sort_order || 1
+        }));
+      }
+
+      // 4. Load Orders
+      const orderRes = await this.pgPool.query(`SELECT * FROM public.orders ORDER BY created_at DESC`).catch(() => null);
+      if (orderRes && orderRes.rows.length > 0) {
+        this.data.orders = orderRes.rows.map(r => ({
+          id: r.id,
+          orderNumber: r.order_number,
+          userIdentifier: r.user_identifier,
+          customerName: r.customer_name,
+          shippingAddress: r.shipping_address,
+          phone: r.phone,
+          items: typeof r.items === 'string' ? JSON.parse(r.items) : r.items,
+          subtotal: Number(r.subtotal),
+          shipping: Number(r.shipping),
+          total: Number(r.total),
+          status: r.status,
+          createdAt: r.created_at,
+          trackingNumber: r.tracking_number
+        }));
+      }
+    } catch (err: any) {
+      console.warn('⚠️ Error loading records from PostgreSQL:', err.message);
+    }
   }
 
   public syncAllToSupabasePostgres() {
