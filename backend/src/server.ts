@@ -17,7 +17,7 @@ dotenv.config();
 initOrderWorker();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
 app.set('etag', false); // Disable 304 ETag caching so API routes return fresh 200 OK
 app.use(cors());
