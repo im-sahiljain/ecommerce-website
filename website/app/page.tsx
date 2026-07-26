@@ -7,8 +7,6 @@ import { useCart } from "../context/CartContext";
 import { useAppSelector } from "../store/hooks";
 import type { RootState } from "../store/store";
 import { API_BASE_URL } from "../config/api";
-
-interface Product {
 import {
   Flame,
   Sparkles,
