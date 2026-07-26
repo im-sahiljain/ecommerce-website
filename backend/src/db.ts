@@ -139,6 +139,37 @@ export class Database {
           trackingNumber: r.tracking_number
         }));
       }
+
+      // 5. Load Bundle Rules
+      const bundleRes = await this.pgPool.query(`SELECT * FROM public.bundle_rules`).catch(() => null);
+      if (bundleRes && bundleRes.rows.length > 0) {
+        this.data.bundleRules = bundleRes.rows.map(r => ({
+          id: r.id,
+          name: r.name,
+          description: r.description,
+          applicableScope: r.applicable_scope || 'all',
+          scopeValue: r.scope_value,
+          requirementMode: r.requirement_mode || 'exact',
+          tiers: typeof r.tiers === 'string' ? JSON.parse(r.tiers) : r.tiers,
+          isActive: r.is_active !== false,
+          priority: r.priority || 0
+        }));
+        console.log(`⚡ Loaded ${this.data.bundleRules.length} bundle rules from PostgreSQL database`);
+      }
+
+      // 6. Load Settings
+      const settingsRes = await this.pgPool.query(`SELECT * FROM public.site_settings LIMIT 1`).catch(() => null);
+      if (settingsRes && settingsRes.rows.length > 0) {
+        const s = settingsRes.rows[0];
+        this.data.settings = {
+          isGlobalOrderingEnabled: s.is_global_ordering_enabled !== false,
+          whatsappNumber: s.whatsapp_number || '',
+          whatsappMessageTemplate: s.whatsapp_message_template || '',
+          isWhatsappEnabled: s.is_whatsapp_enabled !== false,
+          siteTitle: s.site_title || 'Little Creators',
+          defaultMetaDescription: s.default_meta_description || ''
+        };
+      }
     } catch (err: any) {
       console.warn('⚠️ Error loading records from PostgreSQL:', err.message);
     }

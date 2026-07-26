@@ -1,12 +1,13 @@
-'use me';
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Gift, Plus, Edit2, Trash2, CheckCircle2, Tag, Layers, Grid } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Gift, Plus, Edit2, Trash2 } from "lucide-react";
+import { adminFetch } from "../../config/auth";
+import { API_BASE_URL } from "../../config/api";
 
 interface BundleTier {
   quantity: number;
-  discountType: 'percentage' | 'flat';
+  discountType: "percentage" | "flat";
   discountValue: number;
 }
 
@@ -14,9 +15,9 @@ interface BundleRule {
   id: string;
   name: string;
   description?: string;
-  applicableScope: 'all' | 'productLine' | 'category' | 'theme';
+  applicableScope: "all" | "productLine" | "category" | "theme";
   scopeValue?: string;
-  requirementMode?: 'exact' | 'min_threshold';
+  requirementMode?: "exact" | "min_threshold";
   tiers: BundleTier[];
   isActive: boolean;
   priority: number;
@@ -29,11 +30,15 @@ export default function BundlesAdminPage() {
   const [editingRule, setEditingRule] = useState<BundleRule | null>(null);
 
   // Form State
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [applicableScope, setApplicableScope] = useState<'all' | 'productLine' | 'category' | 'theme'>('all');
-  const [scopeValue, setScopeValue] = useState('');
-  const [requirementMode, setRequirementMode] = useState<'exact' | 'min_threshold'>('exact');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [applicableScope, setApplicableScope] = useState<
+    "all" | "productLine" | "category" | "theme"
+  >("all");
+  const [scopeValue, setScopeValue] = useState("");
+  const [requirementMode, setRequirementMode] = useState<
+    "exact" | "min_threshold"
+  >("exact");
   const [tier1Qty, setTier1Qty] = useState(3);
   const [tier1Value, setTier1Value] = useState(10);
   const [tier2Qty, setTier2Qty] = useState(5);
@@ -45,9 +50,9 @@ export default function BundlesAdminPage() {
   }, []);
 
   const fetchRules = () => {
-    fetch('http://localhost:5000/api/bundles')
-      .then(res => res.json())
-      .then(data => {
+    adminFetch('/api/bundles')
+      .then((res) => res.json())
+      .then((data) => {
         if (Array.isArray(data)) setRules(data);
         setLoading(false);
       })
@@ -56,11 +61,11 @@ export default function BundlesAdminPage() {
 
   const openAddModal = () => {
     setEditingRule(null);
-    setName('');
-    setDescription('');
-    setApplicableScope('all');
-    setScopeValue('');
-    setRequirementMode('exact');
+    setName("");
+    setDescription("");
+    setApplicableScope("all");
+    setScopeValue("");
+    setRequirementMode("exact");
     setTier1Qty(3);
     setTier1Value(10);
     setTier2Qty(5);
@@ -72,10 +77,10 @@ export default function BundlesAdminPage() {
   const openEditModal = (rule: BundleRule) => {
     setEditingRule(rule);
     setName(rule.name);
-    setDescription(rule.description || '');
-    setApplicableScope(rule.applicableScope || 'all');
-    setScopeValue(rule.scopeValue || '');
-    setRequirementMode(rule.requirementMode || 'exact');
+    setDescription(rule.description || "");
+    setApplicableScope(rule.applicableScope || "all");
+    setScopeValue(rule.scopeValue || "");
+    setRequirementMode(rule.requirementMode || "exact");
     if (rule.tiers && rule.tiers.length > 0) {
       setTier1Qty(rule.tiers[0].quantity);
       setTier1Value(rule.tiers[0].discountValue);
@@ -97,22 +102,29 @@ export default function BundlesAdminPage() {
       scopeValue,
       requirementMode,
       tiers: [
-        { quantity: Number(tier1Qty), discountType: 'percentage', discountValue: Number(tier1Value) },
-        { quantity: Number(tier2Qty), discountType: 'percentage', discountValue: Number(tier2Value) }
-      ].filter(t => t.quantity > 0 && t.discountValue > 0),
+        {
+          quantity: Number(tier1Qty),
+          discountType: "percentage",
+          discountValue: Number(tier1Value),
+        },
+        {
+          quantity: Number(tier2Qty),
+          discountType: "percentage",
+          discountValue: Number(tier2Value),
+        },
+      ].filter((t) => t.quantity > 0 && t.discountValue > 0),
       isActive,
-      priority: 1
+      priority: 1,
     };
 
     try {
       const url = editingRule
-        ? `http://localhost:5000/api/bundles/${editingRule.id}`
-        : 'http://localhost:5000/api/bundles';
+        ? `/api/bundles/${editingRule.id}`
+        : '/api/bundles';
       const method = editingRule ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
@@ -121,17 +133,19 @@ export default function BundlesAdminPage() {
         fetchRules();
       }
     } catch (err) {
-      console.warn('Save bundle rule failed:', err);
+      console.warn("Save bundle rule failed:", err);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this bundle offer?')) return;
+    if (!confirm("Are you sure you want to delete this bundle offer?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/bundles/${id}`, { method: 'DELETE' });
+      const res = await adminFetch(`/api/bundles/${id}`, {
+        method: "DELETE",
+      });
       if (res.ok) fetchRules();
     } catch (err) {
-      console.warn('Delete rule failed:', err);
+      console.warn("Delete rule failed:", err);
     }
   };
 
@@ -139,9 +153,12 @@ export default function BundlesAdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-800">Bundle Rules & Coupon Engine</h1>
+          <h1 className="text-2xl font-extrabold text-slate-800">
+            Bundle Rules & Coupon Engine
+          </h1>
           <p className="text-slate-500 text-xs mt-1">
-            Create exact-quantity or minimum-threshold bundles for storewide, product lines, categories, or themes.
+            Create exact-quantity or minimum-threshold bundles for storewide,
+            product lines, categories, or themes.
           </p>
         </div>
         <button
@@ -154,11 +171,16 @@ export default function BundlesAdminPage() {
       </div>
 
       {loading ? (
-        <div className="p-8 text-center text-slate-500 font-bold">Loading bundle rules...</div>
+        <div className="p-8 text-center text-slate-500 font-bold">
+          Loading bundle rules...
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {rules.map(rule => (
-            <div key={rule.id} className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-4">
+          {rules.map((rule) => (
+            <div
+              key={rule.id}
+              className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-4"
+            >
               <div>
                 <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-2">
@@ -166,33 +188,55 @@ export default function BundlesAdminPage() {
                       <Gift className="w-5 h-5" />
                     </span>
                     <div>
-                      <h3 className="font-extrabold text-base text-slate-800">{rule.name}</h3>
-                      <p className="text-xs text-slate-500 font-medium">{rule.description || 'Special package bundle discount'}</p>
+                      <h3 className="font-extrabold text-base text-slate-800">
+                        {rule.name}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium">
+                        {rule.description || "Special package bundle discount"}
+                      </p>
                     </div>
                   </div>
-                  <span className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${
-                    rule.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
-                  }`}>
-                    {rule.isActive ? 'Active Coupon' : 'Disabled'}
+                  <span
+                    className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${
+                      rule.isActive
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-slate-100 text-slate-500"
+                    }`}
+                  >
+                    {rule.isActive ? "Active Coupon" : "Disabled"}
                   </span>
                 </div>
 
                 {/* Badges */}
                 <div className="flex flex-wrap gap-2 mt-4 text-[10px] font-extrabold">
                   <span className="px-2.5 py-1 bg-purple-100 text-purple-800 rounded-full">
-                    Scope: {rule.applicableScope.toUpperCase()} {rule.scopeValue ? `(${rule.scopeValue})` : ''}
+                    Scope: {rule.applicableScope.toUpperCase()}{" "}
+                    {rule.scopeValue ? `(${rule.scopeValue})` : ""}
                   </span>
                   <span className="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">
-                    Mode: {rule.requirementMode === 'exact' ? 'Exact Item Count' : 'Minimum Threshold'}
+                    Mode:{" "}
+                    {rule.requirementMode === "exact"
+                      ? "Exact Item Count"
+                      : "Minimum Threshold"}
                   </span>
                 </div>
 
                 {/* Tiers List */}
                 <div className="mt-4 pt-3 border-t space-y-1.5">
                   {rule.tiers.map((tier, idx) => (
-                    <div key={idx} className="flex justify-between text-xs font-bold text-slate-700">
-                      <span>{rule.requirementMode === 'exact' ? `Buy Exactly ${tier.quantity} items` : `Buy ${tier.quantity}+ items`}:</span>
-                      <span className="text-pink-600 font-extrabold">{tier.discountValue}% OFF</span>
+                    <div
+                      key={idx}
+                      className="flex justify-between text-xs font-bold text-slate-700"
+                    >
+                      <span>
+                        {rule.requirementMode === "exact"
+                          ? `Buy Exactly ${tier.quantity} items`
+                          : `Buy ${tier.quantity}+ items`}
+                        :
+                      </span>
+                      <span className="text-pink-600 font-extrabold">
+                        {tier.discountValue}% OFF
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -222,17 +266,24 @@ export default function BundlesAdminPage() {
       {/* Add / Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 w-full max-w-lg space-y-4 shadow-2xl animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-3xl p-6 w-full max-w-lg space-y-4 shadow-2xl animate-in zoom-in-95 max-h-[90vh] overflow-y-auto"
+          >
             <h3 className="font-extrabold text-base text-slate-800 border-b pb-3">
-              {editingRule ? `Edit Bundle Coupon: ${editingRule.name}` : 'Create New Bundle Coupon'}
+              {editingRule
+                ? `Edit Bundle Coupon: ${editingRule.name}`
+                : "Create New Bundle Coupon"}
             </h3>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Bundle Offer Name</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Bundle Offer Name
+              </label>
               <input
                 type="text"
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Space Explorer 3-Pack Deal"
                 required
                 className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-semibold"
@@ -240,11 +291,13 @@ export default function BundlesAdminPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Description / Subtitle</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Description / Subtitle
+              </label>
               <input
                 type="text"
                 value={description}
-                onChange={e => setDescription(e.target.value)}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Select 3 Space theme kits to get 15% OFF!"
                 className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"
               />
@@ -252,10 +305,12 @@ export default function BundlesAdminPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Applicable Scope</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Applicable Scope
+                </label>
                 <select
                   value={applicableScope}
-                  onChange={e => setApplicableScope(e.target.value as any)}
+                  onChange={(e) => setApplicableScope(e.target.value as any)}
                   className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-semibold"
                 >
                   <option value="all">Storewide (All Products)</option>
@@ -266,11 +321,13 @@ export default function BundlesAdminPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Scope Value (ID / Name)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Scope Value (ID / Name)
+                </label>
                 <input
                   type="text"
                   value={scopeValue}
-                  onChange={e => setScopeValue(e.target.value)}
+                  onChange={(e) => setScopeValue(e.target.value)}
                   placeholder="e.g. Space Adventures or line-2"
                   className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"
                 />
@@ -278,54 +335,70 @@ export default function BundlesAdminPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Requirement Mode</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Requirement Mode
+              </label>
               <select
                 value={requirementMode}
-                onChange={e => setRequirementMode(e.target.value as any)}
+                onChange={(e) => setRequirementMode(e.target.value as any)}
                 className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-semibold"
               >
-                <option value="exact">Exact Item Quantity (Must pick EXACT N items)</option>
-                <option value="min_threshold">Minimum Item Threshold (At least N items)</option>
+                <option value="exact">
+                  Exact Item Quantity (Must pick EXACT N items)
+                </option>
+                <option value="min_threshold">
+                  Minimum Item Threshold (At least N items)
+                </option>
               </select>
             </div>
 
             <div className="p-3 bg-slate-50 rounded-2xl border space-y-2">
-              <h4 className="text-xs font-extrabold text-slate-800">Discount Tiers</h4>
+              <h4 className="text-xs font-extrabold text-slate-800">
+                Discount Tiers
+              </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">Tier 1 Item Qty</label>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    Tier 1 Item Qty
+                  </label>
                   <input
                     type="number"
                     value={tier1Qty}
-                    onChange={e => setTier1Qty(Number(e.target.value))}
+                    onChange={(e) => setTier1Qty(Number(e.target.value))}
                     className="w-full px-2.5 py-1.5 bg-white border rounded-xl text-xs font-bold"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">Tier 1 Discount %</label>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    Tier 1 Discount %
+                  </label>
                   <input
                     type="number"
                     value={tier1Value}
-                    onChange={e => setTier1Value(Number(e.target.value))}
+                    onChange={(e) => setTier1Value(Number(e.target.value))}
                     className="w-full px-2.5 py-1.5 bg-white border rounded-xl text-xs font-bold text-pink-600"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">Tier 2 Item Qty (Optional)</label>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    Tier 2 Item Qty (Optional)
+                  </label>
                   <input
                     type="number"
                     value={tier2Qty}
-                    onChange={e => setTier2Qty(Number(e.target.value))}
+                    onChange={(e) => setTier2Qty(Number(e.target.value))}
                     className="w-full px-2.5 py-1.5 bg-white border rounded-xl text-xs font-bold"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">Tier 2 Discount %</label>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    Tier 2 Discount %
+                  </label>
                   <input
                     type="number"
                     value={tier2Value}
-                    onChange={e => setTier2Value(Number(e.target.value))}
+                    onChange={(e) => setTier2Value(Number(e.target.value))}
                     className="w-full px-2.5 py-1.5 bg-white border rounded-xl text-xs font-bold text-pink-600"
                   />
                 </div>
@@ -337,7 +410,7 @@ export default function BundlesAdminPage() {
                 <input
                   type="checkbox"
                   checked={isActive}
-                  onChange={e => setIsActive(e.target.checked)}
+                  onChange={(e) => setIsActive(e.target.checked)}
                   className="rounded text-pink-500"
                 />
                 <span>Active Bundle Offer</span>

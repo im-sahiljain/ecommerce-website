@@ -1,63 +1,77 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import React, { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import {
-  LayoutDashboard, Package, Tags, Layers, Gift, ShoppingCart, BarChart2,
-  Settings, ExternalLink, Sparkles, LogOut, ShieldCheck
-} from 'lucide-react';
-import { API_BASE_URL } from '../config/api';
+  LayoutDashboard,
+  Package,
+  Tags,
+  Layers,
+  Gift,
+  ShoppingCart,
+  BarChart2,
+  Settings,
+  ExternalLink,
+  Sparkles,
+  LogOut,
+  ShieldCheck,
+} from "lucide-react";
+import { API_BASE_URL } from "../config/api";
 
-export default function AdminAuthGuard({ children }: { children: React.ReactNode }) {
+export default function AdminAuthGuard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [adminUser, setAdminUser] = useState<{ username: string } | null>(null);
 
   useEffect(() => {
-    if (pathname === '/login') {
+    if (pathname === "/login") {
       setIsAuthenticated(true);
       return;
     }
 
-    const token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem("admin_token");
     if (!token) {
       setIsAuthenticated(false);
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
     // Verify token with backend
     fetch(`${API_BASE_URL}/api/admin/me`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => {
-        if (!res.ok) throw new Error('Unauthorized');
+      .then((res) => {
+        if (!res.ok) throw new Error("Unauthorized");
         return res.json();
       })
-      .then(data => {
-        setAdminUser(data.admin || { username: 'Admin' });
+      .then((data) => {
+        setAdminUser(data.admin || { username: "Admin" });
         setIsAuthenticated(true);
       })
       .catch(() => {
-        localStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_user');
+        localStorage.removeItem("admin_token");
+        localStorage.removeItem("admin_user");
         setIsAuthenticated(false);
-        router.push('/login');
+        router.push("/login");
       });
   }, [pathname, router]);
 
   const handleLogout = () => {
-    if (confirm('Are you sure you want to log out of the Admin Panel?')) {
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('admin_user');
-      router.push('/login');
+    if (confirm("Are you sure you want to log out of the Admin Panel?")) {
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("admin_user");
+      router.push("/login");
       router.refresh();
     }
   };
 
-  if (pathname === '/login') {
+  if (pathname === "/login") {
     return <>{children}</>;
   }
 
@@ -66,7 +80,9 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
       <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-800">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-pink-500/30 border-t-pink-500 rounded-full animate-spin" />
-          <span className="text-xs font-bold tracking-wider uppercase text-slate-500">Verifying Admin Session...</span>
+          <span className="text-xs font-bold tracking-wider uppercase text-slate-500">
+            Verifying Admin Session...
+          </span>
         </div>
       </div>
     );
@@ -87,8 +103,12 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="font-extrabold text-base tracking-tight text-white">Little Creators</h1>
-              <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest block">Admin Control</span>
+              <h1 className="font-extrabold text-base tracking-tight text-white">
+                Little Creators
+              </h1>
+              <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest block">
+                Admin Control
+              </span>
             </div>
           </div>
 
@@ -97,7 +117,9 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
             <Link
               href="/"
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
-                pathname === '/' ? 'bg-pink-600 text-white font-bold' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+                pathname === "/"
+                  ? "bg-pink-600 text-white font-bold"
+                  : "hover:bg-slate-800 text-slate-300 hover:text-white"
               }`}
             >
               <LayoutDashboard className="w-4 h-4 text-pink-400" />
@@ -107,7 +129,9 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
             <Link
               href="/product-lines"
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
-                pathname === '/product-lines' ? 'bg-pink-600 text-white font-bold' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+                pathname === "/product-lines"
+                  ? "bg-pink-600 text-white font-bold"
+                  : "hover:bg-slate-800 text-slate-300 hover:text-white"
               }`}
             >
               <Layers className="w-4 h-4 text-sky-400" />
@@ -115,19 +139,11 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
             </Link>
 
             <Link
-              href="/products"
-              className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
-                pathname === '/products' ? 'bg-pink-600 text-white font-bold' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
-              }`}
-            >
-              <Package className="w-4 h-4 text-emerald-400" />
-              <span>Products Catalog</span>
-            </Link>
-
-            <Link
               href="/categories"
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
-                pathname === '/categories' ? 'bg-pink-600 text-white font-bold' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+                pathname === "/categories"
+                  ? "bg-pink-600 text-white font-bold"
+                  : "hover:bg-slate-800 text-slate-300 hover:text-white"
               }`}
             >
               <Tags className="w-4 h-4 text-yellow-400" />
@@ -135,9 +151,23 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
             </Link>
 
             <Link
+              href="/products"
+              className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
+                pathname === "/products"
+                  ? "bg-pink-600 text-white font-bold"
+                  : "hover:bg-slate-800 text-slate-300 hover:text-white"
+              }`}
+            >
+              <Package className="w-4 h-4 text-emerald-400" />
+              <span>Products Catalog</span>
+            </Link>
+
+            <Link
               href="/bundles"
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
-                pathname === '/bundles' ? 'bg-pink-600 text-white font-bold' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+                pathname === "/bundles"
+                  ? "bg-pink-600 text-white font-bold"
+                  : "hover:bg-slate-800 text-slate-300 hover:text-white"
               }`}
             >
               <Gift className="w-4 h-4 text-amber-400" />
@@ -147,7 +177,9 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
             <Link
               href="/orders"
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
-                pathname === '/orders' ? 'bg-pink-600 text-white font-bold' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+                pathname === "/orders"
+                  ? "bg-pink-600 text-white font-bold"
+                  : "hover:bg-slate-800 text-slate-300 hover:text-white"
               }`}
             >
               <ShoppingCart className="w-4 h-4 text-rose-400" />
@@ -157,7 +189,9 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
             <Link
               href="/analytics"
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
-                pathname === '/analytics' ? 'bg-pink-600 text-white font-bold' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+                pathname === "/analytics"
+                  ? "bg-pink-600 text-white font-bold"
+                  : "hover:bg-slate-800 text-slate-300 hover:text-white"
               }`}
             >
               <BarChart2 className="w-4 h-4 text-cyan-400" />
@@ -167,7 +201,9 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
             <Link
               href="/settings"
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
-                pathname === '/settings' ? 'bg-pink-600 text-white font-bold' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+                pathname === "/settings"
+                  ? "bg-pink-600 text-white font-bold"
+                  : "hover:bg-slate-800 text-slate-300 hover:text-white"
               }`}
             >
               <Settings className="w-4 h-4 text-slate-400" />
@@ -181,7 +217,9 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
           <div className="px-3 py-2 bg-slate-800/80 rounded-xl flex items-center justify-between">
             <div className="flex items-center gap-2 truncate">
               <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="font-bold text-slate-200 truncate">{adminUser?.username || 'Admin User'}</span>
+              <span className="font-bold text-slate-200 truncate">
+                {adminUser?.username || "Admin User"}
+              </span>
             </div>
             <button
               onClick={handleLogout}
