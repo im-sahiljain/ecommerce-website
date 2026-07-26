@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { db } from './db';
-import { requireCustomerAuth, generateUserToken, AuthenticatedRequest } from './middleware/auth';
+import { requireCustomerAuth, requireAdminAuth, generateUserToken, generateAdminToken, AuthenticatedRequest } from './middleware/auth';
 import { uploadToCloudinary } from './utils/cloudinary';
 import { redisCacheMiddleware } from './middleware/redisCache';
 import { orderQueue } from './queues/orderQueue';
@@ -18,6 +18,8 @@ initOrderWorker();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin@littlecreators.com';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin@123456';
 
 app.set('etag', false); // Disable 304 ETag caching so API routes return fresh 200 OK
 app.use(cors());
@@ -25,6 +27,29 @@ app.use(express.json({ limit: '10mb' }));
 
 // Swagger UI API Documentation Route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Admin Authentication API Endpoints
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Admin username/email and password are required.' });
+  }
+
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    const token = generateAdminToken({ username });
+    return res.json({
+      success: true,
+      token,
+      admin: { username, role: 'admin' }
+    });
+  }
+
+  return res.status(401).json({ error: 'Invalid admin credentials. Access denied.' });
+});
+
+app.get('/api/admin/me', requireAdminAuth, (req, res) => {
+  res.json({ admin: (req as any).admin });
+});
 
 // Auth / Login Route
 app.post('/api/users/login', (req, res) => {
@@ -141,8 +166,8 @@ app.delete('/api/users/addresses/:id', requireCustomerAuth, (req: AuthenticatedR
   res.json({ success: true, message: 'Address deleted' });
 });
 
-// Image Upload API (Cloudinary integration)
-app.post('/api/upload', async (req, res) => {
+// Image Upload API (Cloudinary integration - Admin Protected)
+app.post('/api/upload', requireAdminAuth, async (req, res) => {
   try {
     const { image } = req.body;
     if (!image) return res.status(400).json({ error: 'Image data or URL required' });
@@ -158,7 +183,7 @@ app.get('/api/product-lines', (req, res) => {
   res.json(db.getProductLines());
 });
 
-app.post('/api/product-lines', (req, res) => {
+app.post('/api/product-lines', requireAdminAuth, (req, res) => {
   const { name, slug, description, coverImage, icon, isVisible, sortOrder } = req.body;
   if (!name) return res.status(400).json({ error: 'Product line name is required' });
   const newLine = db.addProductLine({
@@ -173,13 +198,13 @@ app.post('/api/product-lines', (req, res) => {
   res.status(201).json(newLine);
 });
 
-app.put('/api/product-lines/:id', (req, res) => {
+app.put('/api/product-lines/:id', requireAdminAuth, (req, res) => {
   const updated = db.updateProductLine(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Product line not found' });
   res.json(updated);
 });
 
-app.delete('/api/product-lines/:id', (req, res) => {
+app.delete('/api/product-lines/:id', requireAdminAuth, (req, res) => {
   const deleted = db.deleteProductLine(req.params.id);
   if (!deleted) return res.status(404).json({ error: 'Product line not found' });
   res.json({ success: true });
@@ -190,7 +215,7 @@ app.get('/api/facets', (req, res) => {
   res.json(db.getFacets());
 });
 
-app.post('/api/facets', (req, res) => {
+app.post('/api/facets', requireAdminAuth, (req, res) => {
   const { name, slug, parentId, productLineId, facetGroup, coverImage, icon, description, seoTitle, seoDescription, isVisible, sortOrder } = req.body;
   if (!name) return res.status(400).json({ error: 'Facet name is required' });
   const newFacet = db.addFacet({
@@ -210,13 +235,13 @@ app.post('/api/facets', (req, res) => {
   res.status(201).json(newFacet);
 });
 
-app.put('/api/facets/:id', (req, res) => {
+app.put('/api/facets/:id', requireAdminAuth, (req, res) => {
   const updated = db.updateFacet(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Facet not found' });
   res.json(updated);
 });
 
-app.delete('/api/facets/:id', (req, res) => {
+app.delete('/api/facets/:id', requireAdminAuth, (req, res) => {
   const deleted = db.deleteFacet(req.params.id);
   if (!deleted) return res.status(404).json({ error: 'Facet not found' });
   res.json({ success: true });
@@ -227,7 +252,7 @@ app.get('/api/bundles', (req, res) => {
   res.json(db.getBundleRules());
 });
 
-app.post('/api/bundles', (req, res) => {
+app.post('/api/bundles', requireAdminAuth, (req, res) => {
   const { name, applicableScope, scopeValue, tiers, isActive, priority } = req.body;
   if (!name || !tiers || !Array.isArray(tiers)) {
     return res.status(400).json({ error: 'Bundle name and discount tiers are required.' });
@@ -243,13 +268,13 @@ app.post('/api/bundles', (req, res) => {
   res.status(201).json(newRule);
 });
 
-app.put('/api/bundles/:id', (req, res) => {
+app.put('/api/bundles/:id', requireAdminAuth, (req, res) => {
   const updated = db.updateBundleRule(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Bundle rule not found' });
   res.json(updated);
 });
 
-app.delete('/api/bundles/:id', (req, res) => {
+app.delete('/api/bundles/:id', requireAdminAuth, (req, res) => {
   const deleted = db.deleteBundleRule(req.params.id);
   if (!deleted) return res.status(404).json({ error: 'Bundle rule not found' });
   res.json({ success: true });
@@ -260,7 +285,7 @@ app.get('/api/settings', (req, res) => {
   res.json(db.getSettings());
 });
 
-app.put('/api/settings', (req, res) => {
+app.put('/api/settings', requireAdminAuth, (req, res) => {
   const updated = db.updateSettings(req.body);
   res.json(updated);
 });
@@ -270,7 +295,7 @@ app.get('/api/homepage-sections', (req, res) => {
   res.json(db.getHomepageSections());
 });
 
-app.post('/api/homepage-sections', (req, res) => {
+app.post('/api/homepage-sections', requireAdminAuth, (req, res) => {
   const { type, title, subtitle, bgColor, textColor, layoutTemplate, productLineId, categoryId, isVisible, sortOrder } = req.body;
   if (!title) return res.status(400).json({ error: 'Section title is required' });
   const newSection = db.addHomepageSection({
@@ -288,27 +313,27 @@ app.post('/api/homepage-sections', (req, res) => {
   res.status(201).json(newSection);
 });
 
-app.put('/api/homepage-sections/reorder', (req, res) => {
+app.put('/api/homepage-sections/reorder', requireAdminAuth, (req, res) => {
   const { orderedIds } = req.body;
   if (!Array.isArray(orderedIds)) return res.status(400).json({ error: 'orderedIds array required' });
   const updated = db.reorderHomepageSections(orderedIds);
   res.json(updated);
 });
 
-app.put('/api/homepage-sections/:id', (req, res) => {
+app.put('/api/homepage-sections/:id', requireAdminAuth, (req, res) => {
   const updated = db.updateHomepageSection(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Homepage section not found' });
   res.json(updated);
 });
 
-app.delete('/api/homepage-sections/:id', (req, res) => {
+app.delete('/api/homepage-sections/:id', requireAdminAuth, (req, res) => {
   const deleted = db.deleteHomepageSection(req.params.id);
   if (!deleted) return res.status(404).json({ error: 'Homepage section not found' });
   res.json({ success: true });
 });
 
 // Product Stock Adjustment & Analytics API
-app.post('/api/products/:id/stock-adjustment', (req, res) => {
+app.post('/api/products/:id/stock-adjustment', requireAdminAuth, (req, res) => {
   const { changeAmount, reason, updatedBy } = req.body;
   if (typeof changeAmount !== 'number' || !reason) {
     return res.status(400).json({ error: 'changeAmount (number) and reason (string) are required.' });
@@ -318,7 +343,7 @@ app.post('/api/products/:id/stock-adjustment', (req, res) => {
   res.json(updated);
 });
 
-app.get('/api/products/:id/stock-history', (req, res) => {
+app.get('/api/products/:id/stock-history', requireAdminAuth, (req, res) => {
   const logs = db.getStockLogs(req.params.id);
   res.json(logs);
 });
@@ -393,7 +418,7 @@ app.post('/api/upload', async (req, res) => {
   }
 });
 
-app.post('/api/products', async (req, res) => {
+app.post('/api/products', requireAdminAuth, async (req, res) => {
   const { name, price, originalPrice, theme, category, ageGroup, isNonToxic, image, images, description, inStock, featured } = req.body;
   if (!name || !price || !theme || !category || !ageGroup) {
     return res.status(400).json({ error: 'Missing required product fields' });
@@ -441,7 +466,7 @@ app.post('/api/products', async (req, res) => {
   res.status(201).json(newProduct);
 });
 
-app.put('/api/products/:id', async (req, res) => {
+app.put('/api/products/:id', requireAdminAuth, async (req, res) => {
   let updates = { ...req.body };
   const productName = updates.name || (db.getProductById(req.params.id)?.name || 'General');
   const folderPath = `Ecommerce/Products/${productName.trim()}`;
@@ -470,7 +495,7 @@ app.put('/api/products/:id', async (req, res) => {
   res.json(updated);
 });
 
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', requireAdminAuth, (req, res) => {
   const success = db.deleteProduct(req.params.id);
   if (!success) return res.status(404).json({ error: 'Product not found' });
   res.json({ success: true, message: 'Product deleted' });
@@ -481,20 +506,20 @@ app.get('/api/categories', (req, res) => {
   res.json(db.getCategories());
 });
 
-app.post('/api/categories', (req, res) => {
+app.post('/api/categories', requireAdminAuth, (req, res) => {
   const { name, slug, description } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
   const category = db.addCategory({ name, slug: slug || name.toLowerCase().replace(/\s+/g, '-'), description });
   res.status(201).json(category);
 });
 
-app.put('/api/categories/:id', (req, res) => {
+app.put('/api/categories/:id', requireAdminAuth, (req, res) => {
   const updated = db.updateCategory(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Category not found' });
   res.json(updated);
 });
 
-app.delete('/api/categories/:id', (req, res) => {
+app.delete('/api/categories/:id', requireAdminAuth, (req, res) => {
   db.deleteCategory(req.params.id);
   res.json({ success: true });
 });
@@ -504,20 +529,20 @@ app.get('/api/themes', (req, res) => {
   res.json(db.getThemes());
 });
 
-app.post('/api/themes', (req, res) => {
+app.post('/api/themes', requireAdminAuth, (req, res) => {
   const { name, slug, description, icon } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
   const theme = db.addTheme({ name, slug: slug || name.toLowerCase().replace(/\s+/g, '-'), description, icon });
   res.status(201).json(theme);
 });
 
-app.put('/api/themes/:id', (req, res) => {
+app.put('/api/themes/:id', requireAdminAuth, (req, res) => {
   const updated = db.updateTheme(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Theme not found' });
   res.json(updated);
 });
 
-app.delete('/api/themes/:id', (req, res) => {
+app.delete('/api/themes/:id', requireAdminAuth, (req, res) => {
   db.deleteTheme(req.params.id);
   res.json({ success: true });
 });
@@ -527,19 +552,19 @@ app.get('/api/age-groups', (req, res) => {
   res.json(db.getAgeGroups());
 });
 
-app.post('/api/age-groups', (req, res) => {
+app.post('/api/age-groups', requireAdminAuth, (req, res) => {
   const { name, slug } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
   const group = db.addAgeGroup({ name, slug: slug || name.toLowerCase().replace(/\s+/g, '-') });
   res.status(201).json(group);
 });
 
-app.delete('/api/age-groups/:id', (req, res) => {
+app.delete('/api/age-groups/:id', requireAdminAuth, (req, res) => {
   db.deleteAgeGroup(req.params.id);
   res.json({ success: true });
 });
 
-// Orders Routes (AUTHENTICATED FOR CUSTOMERS)
+// Orders Routes (AUTHENTICATED FOR CUSTOMERS & ADMIN)
 app.get('/api/orders/my-orders', requireCustomerAuth, (req: AuthenticatedRequest, res) => {
   const userIdentifier = req.user?.identifier;
   if (!userIdentifier) return res.status(401).json({ error: 'User session not found' });
@@ -547,7 +572,7 @@ app.get('/api/orders/my-orders', requireCustomerAuth, (req: AuthenticatedRequest
   res.json(userOrders);
 });
 
-app.get('/api/orders', (req, res) => {
+app.get('/api/orders', requireAdminAuth, (req, res) => {
   const { userIdentifier } = req.query;
   if (userIdentifier && typeof userIdentifier === 'string') {
     return res.json(db.getOrdersByUser(userIdentifier));
@@ -620,7 +645,7 @@ app.post('/api/orders', requireCustomerAuth, (req: AuthenticatedRequest, res) =>
   res.status(201).json(newOrder);
 });
 
-app.patch('/api/orders/:id/status', (req, res) => {
+app.patch('/api/orders/:id/status', requireAdminAuth, (req, res) => {
   const { status } = req.body;
   if (!status) return res.status(400).json({ error: 'Status is required' });
   const updated = db.updateOrderStatus(req.params.id, status);
@@ -629,7 +654,7 @@ app.patch('/api/orders/:id/status', (req, res) => {
 });
 
 // Admin Stats
-app.get('/api/admin/stats', (req, res) => {
+app.get('/api/admin/stats', requireAdminAuth, (req, res) => {
   const orders = db.getOrders();
   const products = db.getProducts();
   const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
