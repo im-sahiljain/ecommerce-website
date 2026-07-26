@@ -1,8 +1,8 @@
-'use me';
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Users, Trash2 } from 'lucide-react';
+import { adminFetch } from '../../config/auth';
 
 interface AgeGroup {
   id: string;
@@ -15,7 +15,7 @@ export default function AgeGroupsPage() {
   const [name, setName] = useState('');
 
   const fetchAgeGroups = () => {
-    fetch('http://localhost:5000/api/age-groups')
+    adminFetch('/api/age-groups')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setAgeGroups(data);
@@ -30,9 +30,8 @@ export default function AgeGroupsPage() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
-    await fetch('http://localhost:5000/api/age-groups', {
+    await adminFetch('/api/age-groups', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name })
     });
     setName('');
@@ -40,7 +39,7 @@ export default function AgeGroupsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`http://localhost:5000/api/age-groups/${id}`, { method: 'DELETE' });
+    await adminFetch(`/api/age-groups/${id}`, { method: 'DELETE' });
     fetchAgeGroups();
   };
 

@@ -1,8 +1,8 @@
-'use me';
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, RefreshCw, Truck, MapPin, User, CheckCircle2 } from 'lucide-react';
+import { adminFetch } from '../../config/auth';
 
 interface OrderItem {
   productId: string;
@@ -31,7 +31,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
   const fetchOrders = () => {
-    fetch('http://localhost:5000/api/orders')
+    adminFetch('/api/orders')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setOrders(data);
@@ -44,9 +44,8 @@ export default function OrdersPage() {
   }, []);
 
   const handleStatusChange = async (orderId: string, status: string) => {
-    await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+    await adminFetch(`/api/orders/${orderId}/status`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
     });
     fetchOrders();

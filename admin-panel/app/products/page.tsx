@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Package, Plus, Edit, Copy, Trash2, ShieldCheck, X, Image as ImageIcon, Sliders, History, ShoppingBag, Eye, ArrowLeft, ArrowRight, Star } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 import { API_BASE_URL } from '../../config/api';
+import { adminFetch } from '../../config/auth';
 
 interface Product {
   id: string;
@@ -72,17 +73,17 @@ export default function ProductsManagerPage() {
   const [stockQuantity, setStockQuantity] = useState(25);
 
   const fetchProducts = () => {
-    fetch(`${API_BASE_URL}/api/products`)
+    adminFetch('/api/products')
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setProducts(data); })
       .catch(() => {});
 
-    fetch(`${API_BASE_URL}/api/product-lines`)
+    adminFetch('/api/product-lines')
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setProductLines(data); })
       .catch(() => {});
 
-    fetch(`${API_BASE_URL}/api/categories`)
+    adminFetch('/api/categories')
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setCategoriesList(data); })
       .catch(() => {});
@@ -199,9 +200,8 @@ export default function ProductsManagerPage() {
           reader.readAsDataURL(fileToUpload);
         });
 
-        const res = await fetch(`${API_BASE_URL}/api/upload`, {
+        const res = await adminFetch('/api/upload', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             image: base64,
             productName: name || 'General'
@@ -262,7 +262,7 @@ export default function ProductsManagerPage() {
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this product listing?')) {
-      await fetch(`${API_BASE_URL}/api/products/${id}`, { method: 'DELETE' });
+      await adminFetch(`/api/products/${id}`, { method: 'DELETE' });
       fetchProducts();
     }
   };
@@ -291,15 +291,13 @@ export default function ProductsManagerPage() {
     };
 
     if (editingId) {
-      await fetch(`${API_BASE_URL}/api/products/${editingId}`, {
+      await adminFetch(`/api/products/${editingId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
     } else {
-      await fetch(`${API_BASE_URL}/api/products`, {
+      await adminFetch('/api/products', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
     }
@@ -313,9 +311,8 @@ export default function ProductsManagerPage() {
     if (!stockModalProduct) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/products/${stockModalProduct.id}/stock-adjustment`, {
+      const res = await adminFetch(`/api/products/${stockModalProduct.id}/stock-adjustment`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           changeAmount: Number(stockChangeAmount),
           reason: stockReason,

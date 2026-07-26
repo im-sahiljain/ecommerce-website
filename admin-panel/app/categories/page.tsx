@@ -1,8 +1,8 @@
-'use me';
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Tags, Plus, Trash2, Edit2, Layers } from 'lucide-react';
+import { adminFetch } from '../../config/auth';
 
 interface Category {
   id: string;
@@ -25,12 +25,12 @@ export default function CategoriesPage() {
   const [productLineId, setProductLineId] = useState('line-1');
 
   const fetchCategories = () => {
-    fetch('http://localhost:5000/api/categories')
+    adminFetch('/api/categories')
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setCategories(data); })
       .catch(() => {});
 
-    fetch('http://localhost:5000/api/product-lines')
+    adminFetch('/api/product-lines')
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setProductLines(data); })
       .catch(() => {});
@@ -43,9 +43,8 @@ export default function CategoriesPage() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
-    await fetch('http://localhost:5000/api/categories', {
+    await adminFetch('/api/categories', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, description, productLineId })
     });
     setName('');
@@ -55,7 +54,7 @@ export default function CategoriesPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this category?')) return;
-    await fetch(`http://localhost:5000/api/categories/${id}`, { method: 'DELETE' });
+    await adminFetch(`/api/categories/${id}`, { method: 'DELETE' });
     fetchCategories();
   };
 

@@ -1,8 +1,8 @@
-'use me';
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Layers, Plus, Edit2, Trash2, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { adminFetch } from '../../config/auth';
 
 interface ProductLine {
   id: string;
@@ -35,7 +35,7 @@ export default function ProductLinesPage() {
   }, []);
 
   const fetchLines = () => {
-    fetch('http://localhost:5000/api/product-lines')
+    adminFetch('/api/product-lines')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setProductLines(data);
@@ -82,13 +82,12 @@ export default function ProductLinesPage() {
 
     try {
       const url = editingLine
-        ? `http://localhost:5000/api/product-lines/${editingLine.id}`
-        : 'http://localhost:5000/api/product-lines';
+        ? `/api/product-lines/${editingLine.id}`
+        : '/api/product-lines';
       const method = editingLine ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
@@ -104,7 +103,7 @@ export default function ProductLinesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this product line?')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/product-lines/${id}`, { method: 'DELETE' });
+      const res = await adminFetch(`/api/product-lines/${id}`, { method: 'DELETE' });
       if (res.ok) fetchLines();
     } catch (err) {
       console.warn('Delete product line failed:', err);

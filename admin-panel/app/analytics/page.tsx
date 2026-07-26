@@ -1,8 +1,8 @@
-'use me';
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { BarChart2, Eye, Heart, ShoppingCart, DollarSign, TrendingUp, Package, AlertTriangle } from 'lucide-react';
+import { adminFetch } from '../../config/auth';
 
 interface Product {
   id: string;
@@ -29,8 +29,8 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('http://localhost:5000/api/products').then(res => res.json()),
-      fetch('http://localhost:5000/api/analytics/products').then(res => res.json())
+      adminFetch('/api/products').then(res => res.json()),
+      adminFetch('/api/analytics/products').then(res => res.json())
     ])
       .then(([productsData, analyticsData]) => {
         if (Array.isArray(productsData)) setProducts(productsData);

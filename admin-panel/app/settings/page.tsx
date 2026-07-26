@@ -1,8 +1,8 @@
-'use me';
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Settings, Save, CheckCircle2, MessageCircle, ShoppingBag, ShieldCheck } from 'lucide-react';
+import { adminFetch } from '../../config/auth';
 
 interface SiteSettings {
   isGlobalOrderingEnabled: boolean;
@@ -27,7 +27,7 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/settings')
+    adminFetch('/api/settings')
       .then(res => res.json())
       .then(data => { if (data) setSettings(data); })
       .catch(() => {});
@@ -39,9 +39,8 @@ export default function SettingsPage() {
     setSuccess(false);
 
     try {
-      const res = await fetch('http://localhost:5000/api/settings', {
+      const res = await adminFetch('/api/settings', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
       });
       if (res.ok) {

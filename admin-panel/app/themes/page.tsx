@@ -1,8 +1,8 @@
-'use me';
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Palette, Trash2 } from 'lucide-react';
+import { adminFetch } from '../../config/auth';
 
 interface Theme {
   id: string;
@@ -19,7 +19,7 @@ export default function ThemesPage() {
   const [icon, setIcon] = useState('🎨');
 
   const fetchThemes = () => {
-    fetch('http://localhost:5000/api/themes')
+    adminFetch('/api/themes')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setThemes(data);
@@ -34,9 +34,8 @@ export default function ThemesPage() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
-    await fetch('http://localhost:5000/api/themes', {
+    await adminFetch('/api/themes', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, description, icon })
     });
     setName('');
@@ -45,7 +44,7 @@ export default function ThemesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`http://localhost:5000/api/themes/${id}`, { method: 'DELETE' });
+    await adminFetch(`/api/themes/${id}`, { method: 'DELETE' });
     fetchThemes();
   };
 

@@ -1,9 +1,9 @@
-'use me';
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Package, ShoppingCart, DollarSign, Clock, ArrowUpRight, Sparkles } from 'lucide-react';
+import { adminFetch } from '../config/auth';
 
 interface Stats {
   totalProducts: number;
@@ -23,7 +23,7 @@ export default function AdminDashboardPage() {
   });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/admin/stats')
+    adminFetch('/api/admin/stats')
       .then(res => res.json())
       .then(data => {
         if (data && data.totalProducts !== undefined) setStats(data);
