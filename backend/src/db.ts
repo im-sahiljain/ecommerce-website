@@ -1,4 +1,3 @@
-import fs from 'fs';
 import path from 'path';
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
@@ -247,9 +246,6 @@ interface DatabaseSchema {
   slugRedirects: SlugRedirect[];
 }
 
-const DATA_DIR = path.join(__dirname, '../data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
-
 export class Database {
   private data: DatabaseSchema;
   public pgPool: Pool | null = null;
@@ -357,12 +353,8 @@ export class Database {
           );
         `).catch(err => console.warn('⚠️ Supabase PG column migration notice:', err.message));
       } catch (err) {
-        console.warn('PostgreSQL pool connection failed, using file fallback:', err);
+        console.warn('PostgreSQL pool connection notice:', err);
       }
-    }
-
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
     }
 
     const emptySettings: SiteSettings = {
@@ -374,63 +366,23 @@ export class Database {
       defaultMetaDescription: ''
     };
 
-    if (fs.existsSync(DB_FILE)) {
-      try {
-        const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        this.data = JSON.parse(raw);
-        if (!this.data.products) this.data.products = [];
-        if (!this.data.productLines) this.data.productLines = [];
-        if (!this.data.categories) this.data.categories = [];
-        if (!this.data.facets) this.data.facets = [];
-        if (!this.data.themes) this.data.themes = [];
-        if (!this.data.ageGroups) this.data.ageGroups = [];
-        if (!this.data.users) this.data.users = [];
-        if (!this.data.orders) this.data.orders = [];
-        if (!this.data.addresses) this.data.addresses = [];
-        if (!this.data.bundleRules) this.data.bundleRules = [];
-        if (!this.data.stockLogs) this.data.stockLogs = [];
-        if (!this.data.analytics) this.data.analytics = {};
-        if (!this.data.settings) this.data.settings = emptySettings;
-        if (!this.data.homepageSections) this.data.homepageSections = [];
-        if (!this.data.slugRedirects) this.data.slugRedirects = [];
-      } catch (err) {
-        this.data = {
-          products: [],
-          productLines: [],
-          categories: [],
-          facets: [],
-          themes: [],
-          ageGroups: [],
-          users: [],
-          orders: [],
-          addresses: [],
-          bundleRules: [],
-          stockLogs: [],
-          analytics: {},
-          settings: emptySettings,
-          homepageSections: [],
-          slugRedirects: []
-        };
-      }
-    } else {
-      this.data = {
-        products: [],
-        productLines: [],
-        categories: [],
-        facets: [],
-        themes: [],
-        ageGroups: [],
-        users: [],
-        orders: [],
-        addresses: [],
-        bundleRules: [],
-        stockLogs: [],
-        analytics: {},
-        settings: emptySettings,
-        homepageSections: [],
-        slugRedirects: []
-      };
-    }
+    this.data = {
+      products: [],
+      productLines: [],
+      categories: [],
+      facets: [],
+      themes: [],
+      ageGroups: [],
+      users: [],
+      orders: [],
+      addresses: [],
+      bundleRules: [],
+      stockLogs: [],
+      analytics: {},
+      settings: emptySettings,
+      homepageSections: [],
+      slugRedirects: []
+    };
   }
 
   public syncAllToSupabasePostgres() {
@@ -534,7 +486,6 @@ export class Database {
   }
 
   private save() {
-    fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
     this.syncAllToSupabasePostgres();
   }
 
