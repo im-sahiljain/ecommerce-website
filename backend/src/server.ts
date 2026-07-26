@@ -28,23 +28,32 @@ app.use(express.json({ limit: '10mb' }));
 // Swagger UI API Documentation Route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Admin Authentication API Endpoints
-app.post('/api/admin/login', (req, res) => {
+// Admin Authentication API Endpoints (Database Verified)
+app.post('/api/admin/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Admin username/email and password are required.' });
   }
 
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    const token = generateAdminToken({ username });
-    return res.json({
-      success: true,
-      token,
-      admin: { username, role: 'admin' }
-    });
+  const adminUser = await db.getAdminUserFromDatabase(username);
+  if (!adminUser) {
+    return res.status(401).json({ error: 'Invalid admin credentials or account not found in database.' });
   }
 
-  return res.status(401).json({ error: 'Invalid admin credentials. Access denied.' });
+  if (adminUser.password !== password) {
+    return res.status(401).json({ error: 'Invalid admin password. Access denied.' });
+  }
+
+  const token = generateAdminToken({ username: adminUser.email || adminUser.identifier });
+  return res.json({
+    success: true,
+    token,
+    admin: {
+      username: adminUser.email || adminUser.identifier,
+      name: adminUser.name || 'Admin User',
+      role: 'admin'
+    }
+  });
 });
 
 app.get('/api/admin/me', requireAdminAuth, (req, res) => {

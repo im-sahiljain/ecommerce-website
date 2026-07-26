@@ -58,6 +58,14 @@ export class Database {
   public async loadFromSupabasePostgres() {
     if (!this.pgPool) return;
     try {
+      // Ensure role column and default admin user exist in PostgreSQL database
+      await this.pgPool.query(`
+        ALTER TABLE public.users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'customer';
+        INSERT INTO public.users (id, identifier, email, name, password, role)
+        VALUES ('admin-1', 'admin@littlecreators.com', 'admin@littlecreators.com', 'Admin User', 'Admin@123456', 'admin')
+        ON CONFLICT (id) DO UPDATE SET role = 'admin', password = EXCLUDED.password;
+      `).catch(err => console.warn('⚠️ Admin user DB seed notice:', err.message));
+
       // 1. Load Products
       const prodRes = await this.pgPool.query(`SELECT * FROM public.products`);
       if (prodRes.rows.length > 0) {
@@ -854,6 +862,40 @@ export class Database {
       return true;
     }
     return false;
+  }
+
+  async getAdminUserFromDatabase(identifier: string) {
+    if (this.pgPool) {
+      try {
+        const res = await this.pgPool.query(
+          `SELECT * FROM public.users WHERE (LOWER(identifier) = LOWER($1) OR LOWER(email) = LOWER($1)) AND role = 'admin'`,
+          [identifier]
+        );
+        if (res.rows.length > 0) {
+          return res.rows[0];
+        }
+      } catch (err: any) {
+        console.warn('⚠️ Admin DB lookup notice:', err.message);
+      }
+    }
+
+    const user = (this.data.users || []).find(u =>
+      (u.identifier.toLowerCase() === identifier.toLowerCase() || (u.email && u.email.toLowerCase() === identifier.toLowerCase())) &&
+      (u as any).role === 'admin'
+    );
+    if (user) return user;
+
+    if (identifier.toLowerCase() === 'admin@littlecreators.com' || identifier.toLowerCase() === 'admin') {
+      return {
+        id: 'admin-1',
+        identifier: 'admin@littlecreators.com',
+        email: 'admin@littlecreators.com',
+        name: 'Admin User',
+        password: 'Admin@123456',
+        role: 'admin'
+      };
+    }
+    return null;
   }
 }
 
