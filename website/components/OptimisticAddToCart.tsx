@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useOptimistic, useTransition } from 'react';
-import { useCart } from '../context/CartContext';
-import { addToCartAction } from '../app/actions/cartActions';
+import { useOptimistic, useTransition } from "react";
+import { useCart } from "../context/CartContext";
+import { addToCartAction } from "../app/actions/cartActions";
 
 interface ProductItem {
   id: string;
@@ -17,13 +17,20 @@ interface OptimisticAddToCartProps {
   className?: string;
 }
 
-export default function OptimisticAddToCart({ product, className }: OptimisticAddToCartProps) {
+export default function OptimisticAddToCart({
+  product,
+  className,
+}: OptimisticAddToCartProps) {
   const { addToCart } = useCart();
   const [isPending, startTransition] = useTransition();
 
   const [optimisticState, setOptimisticState] = useOptimistic(
     { isAdding: false, successMessage: false },
-    (state, isAdding: boolean) => ({ ...state, isAdding, successMessage: isAdding })
+    (state, isAdding: boolean) => ({
+      ...state,
+      isAdding,
+      successMessage: isAdding,
+    }),
   );
 
   const handleAddToCart = () => {
@@ -58,10 +65,10 @@ export default function OptimisticAddToCart({ product, className }: OptimisticAd
       ) : null}
       <span>
         {product.inStock === false
-          ? 'Out of Stock'
+          ? "Out of Stock"
           : optimisticState.isAdding
-          ? 'Added!'
-          : 'Add to Cart'}
+            ? "Added!"
+            : "Add to Cart"}
       </span>
     </button>
   );

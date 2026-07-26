@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { MessageCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { MessageCircle } from "lucide-react";
 
 interface SiteSettings {
   isWhatsappEnabled: boolean;
@@ -13,16 +13,20 @@ export default function WhatsappFloatingButton() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/settings')
-      .then(res => res.json())
-      .then(data => { if (data) setSettings(data); })
+    fetch("http://localhost:5000/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) setSettings(data);
+      })
       .catch(() => {});
   }, []);
 
   if (!settings || !settings.isWhatsappEnabled) return null;
 
-  const phoneClean = settings.whatsappNumber.replace(/[^0-9]/g, '');
-  const messageText = encodeURIComponent("Hi! I have a question about products on your website.");
+  const phoneClean = settings.whatsappNumber.replace(/[^0-9]/g, "");
+  const messageText = encodeURIComponent(
+    "Hi! I have a question about products on your website.",
+  );
   const whatsappUrl = `https://wa.me/${phoneClean}?text=${messageText}`;
 
   return (

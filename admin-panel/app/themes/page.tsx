@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Palette, Trash2 } from 'lucide-react';
-import { adminFetch } from '../../config/auth';
+import React, { useState, useEffect } from "react";
+import { Trash2 } from "lucide-react";
+import { adminFetch } from "../../config/auth";
 
 interface Theme {
   id: string;
@@ -14,14 +14,14 @@ interface Theme {
 
 export default function ThemesPage() {
   const [themes, setThemes] = useState<Theme[]>([]);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [icon, setIcon] = useState('🎨');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [icon, setIcon] = useState("🎨");
 
   const fetchThemes = () => {
-    adminFetch('/api/themes')
-      .then(res => res.json())
-      .then(data => {
+    adminFetch("/api/themes")
+      .then((res) => res.json())
+      .then((data) => {
         if (Array.isArray(data)) setThemes(data);
       })
       .catch(() => {});
@@ -34,25 +34,30 @@ export default function ThemesPage() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
-    await adminFetch('/api/themes', {
-      method: 'POST',
-      body: JSON.stringify({ name, description, icon })
+    await adminFetch("/api/themes", {
+      method: "POST",
+      body: JSON.stringify({ name, description, icon }),
     });
-    setName('');
-    setDescription('');
+    setName("");
+    setDescription("");
     fetchThemes();
   };
 
   const handleDelete = async (id: string) => {
-    await adminFetch(`/api/themes/${id}`, { method: 'DELETE' });
+    await adminFetch(`/api/themes/${id}`, { method: "DELETE" });
     fetchThemes();
   };
 
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-        <h1 className="text-2xl font-extrabold text-slate-800">Themes Management</h1>
-        <p className="text-slate-500 text-xs mt-1">Manage Craft Hub themes (Space Adventures, Secret Garden, Fairytale Magic, Wild Kingdom).</p>
+        <h1 className="text-2xl font-extrabold text-slate-800">
+          Themes Management
+        </h1>
+        <p className="text-slate-500 text-xs mt-1">
+          Manage Craft Hub themes (Space Adventures, Secret Garden, Fairytale
+          Magic, Wild Kingdom).
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -61,32 +66,38 @@ export default function ThemesPage() {
           <h3 className="font-bold text-sm text-slate-800">Add New Theme</h3>
           <form onSubmit={handleAdd} className="space-y-3 text-xs">
             <div>
-              <label className="block font-bold text-slate-600 mb-1">Theme Title</label>
+              <label className="block font-bold text-slate-600 mb-1">
+                Theme Title
+              </label>
               <input
                 type="text"
                 placeholder="e.g. Under the Sea"
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-50 border rounded-xl"
                 required
               />
             </div>
             <div>
-              <label className="block font-bold text-slate-600 mb-1">Icon Emoji</label>
+              <label className="block font-bold text-slate-600 mb-1">
+                Icon Emoji
+              </label>
               <input
                 type="text"
                 value={icon}
-                onChange={e => setIcon(e.target.value)}
+                onChange={(e) => setIcon(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-50 border rounded-xl"
               />
             </div>
             <div>
-              <label className="block font-bold text-slate-600 mb-1">Description</label>
+              <label className="block font-bold text-slate-600 mb-1">
+                Description
+              </label>
               <input
                 type="text"
                 placeholder="Theme description"
                 value={description}
-                onChange={e => setDescription(e.target.value)}
+                onChange={(e) => setDescription(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-50 border rounded-xl"
               />
             </div>
@@ -112,12 +123,12 @@ export default function ThemesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {themes.map(t => (
+              {themes.map((t) => (
                 <tr key={t.id} className="hover:bg-slate-50">
-                  <td className="p-4 text-xl">{t.icon || '🎨'}</td>
+                  <td className="p-4 text-xl">{t.icon || "🎨"}</td>
                   <td className="p-4 font-bold text-slate-800">{t.name}</td>
                   <td className="p-4 text-slate-500">{t.slug}</td>
-                  <td className="p-4 text-slate-600">{t.description || '-'}</td>
+                  <td className="p-4 text-slate-600">{t.description || "-"}</td>
                   <td className="p-4 text-right">
                     <button
                       onClick={() => handleDelete(t.id)}

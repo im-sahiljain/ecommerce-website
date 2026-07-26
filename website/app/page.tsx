@@ -1,4 +1,3 @@
-"use me";
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
@@ -833,12 +832,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── HARDCODED THEME SECTIONS (DYNAMIC PRODUCTS FROM DATABASE) ─── */}
+      {/* ─── DYNAMIC THEME SECTIONS FROM DATABASE ─── */}
       {themeSections.map((sectionConfig) => {
         const themeProducts = getThemeProducts(
           sectionConfig.themeKeyword,
           sectionConfig.limit || 4,
         );
+
+        if (themeProducts.length === 0) return null;
 
         return (
           <section
@@ -951,86 +952,88 @@ export default function HomePage() {
       })}
 
       {/* ─── AESTHETIC WAX CANDLES COLLECTION SHOWCASE ─── */}
-      <section className="bg-gradient-to-b from-amber-950 via-slate-900 to-amber-950 text-amber-100 py-16 px-6 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto space-y-10 relative z-10">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-amber-900/60 pb-6">
-            <div>
-              <span className="inline-flex items-center space-x-1 text-xs font-bold text-amber-400 uppercase tracking-widest">
-                <Flame className="w-4 h-4 text-amber-400" />
-                <span>Product Line #2 • Ambient Lifestyle Collection</span>
-              </span>
-              <h2 className="text-3xl font-extrabold text-amber-50 mt-1">
-                Aesthetic Scented Wax Candles
-              </h2>
-              <p className="text-xs text-amber-200/80 mt-1 max-w-lg">
-                Hand-poured pure soy and beeswax candles infused with botanical
-                essential oils for mood & ambient home decor.
-              </p>
-            </div>
-            <Link
-              href="/shop?productLineId=line-2"
-              className="px-6 py-2.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-extrabold text-xs rounded-full shadow transition"
-            >
-              Shop All Candles
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {candleProducts.map((candle) => (
-              <div
-                key={candle.id}
-                className="bg-slate-900/90 rounded-3xl border border-amber-900/50 p-5 soft-shadow hover:border-amber-400/50 transition flex flex-col justify-between group"
-              >
-                <div>
-                  <Link href={`/product/${candle.id}`} className="block">
-                    <div className="relative rounded-2xl overflow-hidden mb-4 aspect-square bg-amber-950/40">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={candle.image}
-                        alt={candle.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      />
-                      <div className="absolute top-3 left-3 flex flex-col space-y-1">
-                        <span className="px-3 py-1 bg-amber-500/90 backdrop-blur-xs text-amber-950 rounded-full text-[10px] font-extrabold shadow-sm">
-                          {candle.attributes?.Scent || candle.theme}
-                        </span>
-                        {candle.attributes?.["Burn Time"] && (
-                          <span className="px-3 py-1 bg-slate-950/80 backdrop-blur-xs text-amber-300 rounded-full text-[10px] font-bold border border-amber-800/40">
-                            ⏱️ {candle.attributes["Burn Time"]}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400">
-                      {candle.category}
-                    </span>
-                    <h3 className="font-extrabold text-base text-amber-100 group-hover:text-amber-300 transition line-clamp-1 mt-0.5">
-                      {candle.name}
-                    </h3>
-                  </Link>
-
-                  <p className="text-xs text-amber-200/70 mt-2 line-clamp-2 leading-relaxed font-medium">
-                    {candle.description}
-                  </p>
-
-                  <p className="text-lg font-extrabold text-amber-400 mt-3">
-                    ₹{candle.price.toFixed(2)}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => addToCart(candle)}
-                  className="w-full mt-5 py-3 bg-amber-500 hover:bg-amber-400 text-amber-950 font-extrabold rounded-2xl text-xs transition active:scale-95 shadow-md flex items-center justify-center space-x-2"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>Add Candle to Basket — ₹{candle.price.toFixed(2)}</span>
-                </button>
+      {candleProducts.length > 0 && (
+        <section className="bg-gradient-to-b from-amber-950 via-slate-900 to-amber-950 text-amber-100 py-16 px-6 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto space-y-10 relative z-10">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-amber-900/60 pb-6">
+              <div>
+                <span className="inline-flex items-center space-x-1 text-xs font-bold text-amber-400 uppercase tracking-widest">
+                  <Flame className="w-4 h-4 text-amber-400" />
+                  <span>Product Line #2 • Ambient Lifestyle Collection</span>
+                </span>
+                <h2 className="text-3xl font-extrabold text-amber-50 mt-1">
+                  Aesthetic Scented Wax Candles
+                </h2>
+                <p className="text-xs text-amber-200/80 mt-1 max-w-lg">
+                  Hand-poured pure soy and beeswax candles infused with botanical
+                  essential oils for mood & ambient home decor.
+                </p>
               </div>
-            ))}
+              <Link
+                href="/shop?productLineId=line-2"
+                className="px-6 py-2.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-extrabold text-xs rounded-full shadow transition"
+              >
+                Shop All Candles
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {candleProducts.map((candle) => (
+                <div
+                  key={candle.id}
+                  className="bg-slate-900/90 rounded-3xl border border-amber-900/50 p-5 soft-shadow hover:border-amber-400/50 transition flex flex-col justify-between group"
+                >
+                  <div>
+                    <Link href={`/product/${candle.id}`} className="block">
+                      <div className="relative rounded-2xl overflow-hidden mb-4 aspect-square bg-amber-950/40">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={candle.image}
+                          alt={candle.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                        />
+                        <div className="absolute top-3 left-3 flex flex-col space-y-1">
+                          <span className="px-3 py-1 bg-amber-500/90 backdrop-blur-xs text-amber-950 rounded-full text-[10px] font-extrabold shadow-sm">
+                            {candle.attributes?.Scent || candle.theme}
+                          </span>
+                          {candle.attributes?.["Burn Time"] && (
+                            <span className="px-3 py-1 bg-slate-950/80 backdrop-blur-xs text-amber-300 rounded-full text-[10px] font-bold border border-amber-800/40">
+                              ⏱️ {candle.attributes["Burn Time"]}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400">
+                        {candle.category}
+                      </span>
+                      <h3 className="font-extrabold text-base text-amber-100 group-hover:text-amber-300 transition line-clamp-1 mt-0.5">
+                        {candle.name}
+                      </h3>
+                    </Link>
+
+                    <p className="text-xs text-amber-200/70 mt-2 line-clamp-2 leading-relaxed font-medium">
+                      {candle.description}
+                    </p>
+
+                    <p className="text-lg font-extrabold text-amber-400 mt-3">
+                      ₹{candle.price.toFixed(2)}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => addToCart(candle)}
+                    className="w-full mt-5 py-3 bg-amber-500 hover:bg-amber-400 text-amber-950 font-extrabold rounded-2xl text-xs transition active:scale-95 shadow-md flex items-center justify-center space-x-2"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Add Candle to Basket — ₹{candle.price.toFixed(2)}</span>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ─── BUNDLE PACKAGE PROMO BANNER ─── */}
       <section className="max-w-7xl mx-auto px-6 py-12">

@@ -1,10 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
-import { Search, User as UserIcon, Heart, ShoppingBag, ChevronDown, LogOut, Package, Sparkles, Layers, Menu, X } from 'lucide-react';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import {
+  Search,
+  User as UserIcon,
+  ShoppingBag,
+  ChevronDown,
+  LogOut,
+  Package,
+  Sparkles,
+  Menu,
+  X,
+} from "lucide-react";
 
 interface ProductLine {
   id: string;
@@ -30,14 +40,18 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/product-lines')
-      .then(res => res.json())
-      .then(data => { if (Array.isArray(data)) setProductLines(data); })
+    fetch("http://localhost:5000/api/product-lines")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setProductLines(data);
+      })
       .catch(() => {});
 
-    fetch('http://localhost:5000/api/categories')
-      .then(res => res.json())
-      .then(data => { if (Array.isArray(data)) setCategories(data); })
+    fetch("http://localhost:5000/api/categories")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setCategories(data);
+      })
       .catch(() => {});
   }, []);
 
@@ -45,7 +59,8 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm font-quicksand">
       {/* Announcement Banner */}
       <div className="bg-gradient-to-r from-yellow-100 via-pink-100 to-sky-100 py-2 text-center text-xs font-bold text-[#3C2A21]">
-        🎉 Free Express Shipping across India on orders over ₹499! Code: <span className="font-extrabold text-pink-600">CREATIVEKIDS</span>
+        🎉 Free Express Shipping across India on orders over ₹499! Code:{" "}
+        <span className="font-extrabold text-pink-600">CREATIVEKIDS</span>
       </div>
 
       {/* Main Header Container */}
@@ -56,14 +71,21 @@ export default function Navbar() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 md:hidden text-gray-700 hover:bg-gray-100 rounded-full"
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <img
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_UQUMwLrsnDMCn3_g3cToAVSI3k4qukosF44ecbU05eSe91otMhXSkPxDTBzsC4MhKORdnU2q61582CqZP3irVG3T33y7di3j99Z2cpQdYg6YqjMy3LRdCtCecGKFnZb7OI-AHJitGYfIx2Tg_xI8dkjOAuMGesnUaCQpfpP_JKRlFMv-JnZP9sDnSt5DVJn1mwC5h__mkiCVEkcgQhMx1H9zROXqzzoQQHNYsQwWXeYJjtuwVTX-1Os30Si01k240O0t6CRMoqM"
-              onError={(e: any) => { e.target.src = 'https://placehold.co/150x50?text=Little+Creators'; }}
+              onError={(e: any) => {
+                e.target.src =
+                  "https://placehold.co/150x50?text=Little+Creators";
+              }}
               alt="Little Creators Logo"
               className="h-9 w-auto"
             />
@@ -81,20 +103,24 @@ export default function Navbar() {
             {/* Mega-Menu Dropdown Panel */}
             <div className="absolute top-full left-0 mt-1 w-[540px] bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 hidden group-hover:block animate-in fade-in zoom-in-95 duration-150 z-50">
               <div className="grid grid-cols-2 gap-6">
-                {productLines.map(line => {
-                  const subCats = categories.filter(c => c.productLineId === line.id);
+                {productLines.map((line) => {
+                  const subCats = categories.filter(
+                    (c) => c.productLineId === line.id,
+                  );
                   return (
                     <div key={line.id} className="space-y-3">
                       <Link
                         href={`/shop?productLineId=${line.id}`}
                         className="flex items-center space-x-2 pb-2 border-b border-slate-100 group/title"
                       >
-                        <span className="text-xl">{line.icon || '📦'}</span>
+                        <span className="text-xl">{line.icon || "📦"}</span>
                         <div>
                           <h4 className="font-extrabold text-sm text-slate-800 group-hover/title:text-pink-500 transition">
                             {line.name}
                           </h4>
-                          <p className="text-[10px] font-medium text-slate-400 line-clamp-1">{line.description}</p>
+                          <p className="text-[10px] font-medium text-slate-400 line-clamp-1">
+                            {line.description}
+                          </p>
                         </div>
                       </Link>
 
@@ -105,7 +131,7 @@ export default function Navbar() {
                         >
                           View All {line.name} →
                         </Link>
-                        {subCats.map(cat => (
+                        {subCats.map((cat) => (
                           <Link
                             key={cat.id}
                             href={`/shop?category=${encodeURIComponent(cat.name)}`}
@@ -122,7 +148,10 @@ export default function Navbar() {
 
               <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-500 bg-pink-50/50 -mx-6 -mb-6 p-4 rounded-b-3xl">
                 <span>Mix & Match any items for bulk savings</span>
-                <Link href="/bundles" className="text-pink-600 hover:text-pink-700 flex items-center space-x-1">
+                <Link
+                  href="/bundles"
+                  className="text-pink-600 hover:text-pink-700 flex items-center space-x-1"
+                >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Build Package (10% Off)</span>
                 </Link>
@@ -130,8 +159,13 @@ export default function Navbar() {
             </div>
           </div>
 
-          <Link href="/shop" className="hover:text-pink-500 transition">Shop All</Link>
-          <Link href="/bundles" className="hover:text-pink-500 transition text-pink-600 flex items-center space-x-1">
+          <Link href="/shop" className="hover:text-pink-500 transition">
+            Shop All
+          </Link>
+          <Link
+            href="/bundles"
+            className="hover:text-pink-500 transition text-pink-600 flex items-center space-x-1"
+          >
             <Sparkles className="w-4 h-4" />
             <span>Build Package</span>
           </Link>
@@ -139,7 +173,11 @@ export default function Navbar() {
 
         {/* Utility Icons */}
         <div className="flex items-center space-x-2 sm:space-x-3">
-          <Link href="/shop" aria-label="Search" className="p-2 hover:bg-gray-100 rounded-full text-gray-700">
+          <Link
+            href="/shop"
+            aria-label="Search"
+            className="p-2 hover:bg-gray-100 rounded-full text-gray-700"
+          >
             <Search className="w-5 h-5" />
           </Link>
 
@@ -156,8 +194,12 @@ export default function Navbar() {
               {/* User Dropdown Menu */}
               <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 z-50">
                 <div className="px-3 py-2 border-b border-slate-100 mb-1 bg-pink-50/50 rounded-xl">
-                  <p className="text-[10px] font-extrabold text-pink-500 uppercase tracking-wider">Signed in as</p>
-                  <p className="text-xs font-bold text-slate-800 truncate">{user.name || user.identifier}</p>
+                  <p className="text-[10px] font-extrabold text-pink-500 uppercase tracking-wider">
+                    Signed in as
+                  </p>
+                  <p className="text-xs font-bold text-slate-800 truncate">
+                    {user.name || user.identifier}
+                  </p>
                 </div>
 
                 <Link
@@ -204,11 +246,18 @@ export default function Navbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-slate-100 bg-white px-6 py-4 space-y-4 animate-in slide-in-from-top duration-200">
           <div className="space-y-3">
-            <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Product Categories</p>
-            {productLines.map(line => {
-              const subCats = categories.filter(c => c.productLineId === line.id);
+            <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+              Product Categories
+            </p>
+            {productLines.map((line) => {
+              const subCats = categories.filter(
+                (c) => c.productLineId === line.id,
+              );
               return (
-                <div key={line.id} className="space-y-1 pl-2 border-l-2 border-pink-200">
+                <div
+                  key={line.id}
+                  className="space-y-1 pl-2 border-l-2 border-pink-200"
+                >
                   <Link
                     href={`/shop?productLineId=${line.id}`}
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -217,7 +266,7 @@ export default function Navbar() {
                     <span>{line.icon}</span>
                     <span>{line.name}</span>
                   </Link>
-                  {subCats.map(cat => (
+                  {subCats.map((cat) => (
                     <Link
                       key={cat.id}
                       href={`/shop?category=${encodeURIComponent(cat.name)}`}
@@ -233,10 +282,18 @@ export default function Navbar() {
           </div>
 
           <div className="pt-2 border-t border-slate-100 flex flex-col space-y-2 font-bold text-xs">
-            <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-slate-700">
+            <Link
+              href="/shop"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="py-2 text-slate-700"
+            >
               Shop All Products
             </Link>
-            <Link href="/bundles" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-pink-600 flex items-center space-x-1">
+            <Link
+              href="/bundles"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="py-2 text-pink-600 flex items-center space-x-1"
+            >
               <Sparkles className="w-4 h-4" />
               <span>Build Package (10% Off)</span>
             </Link>

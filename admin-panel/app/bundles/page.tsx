@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { Gift, Plus, Edit2, Trash2 } from "lucide-react";
 import { adminFetch } from "../../config/auth";
-import { API_BASE_URL } from "../../config/api";
 
 interface BundleTier {
   quantity: number;
@@ -50,7 +49,7 @@ export default function BundlesAdminPage() {
   }, []);
 
   const fetchRules = () => {
-    adminFetch('/api/bundles')
+    adminFetch("/api/bundles")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setRules(data);
@@ -120,12 +119,12 @@ export default function BundlesAdminPage() {
     try {
       const url = editingRule
         ? `/api/bundles/${editingRule.id}`
-        : '/api/bundles';
-      const method = editingRule ? 'PUT' : 'POST';
+        : "/api/bundles";
+      const method = editingRule ? "PUT" : "POST";
 
       const res = await adminFetch(url, {
         method,
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {

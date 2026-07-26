@@ -1,10 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Package, Plus, Edit, Copy, Trash2, ShieldCheck, X, Image as ImageIcon, Sliders, History, ShoppingBag, Eye, ArrowLeft, ArrowRight, Star } from 'lucide-react';
-import imageCompression from 'browser-image-compression';
-import { API_BASE_URL } from '../../config/api';
-import { adminFetch } from '../../config/auth';
+import React, { useState, useEffect } from "react";
+import {
+  Plus,
+  Edit,
+  Copy,
+  Trash2,
+  X,
+  Image as ImageIcon,
+  Sliders,
+  ArrowLeft,
+  ArrowRight,
+  Star,
+} from "lucide-react";
+import imageCompression from "browser-image-compression";
+import { adminFetch } from "../../config/auth";
 
 interface Product {
   id: string;
@@ -24,7 +34,7 @@ interface Product {
   inStock: boolean;
   stockQuantity?: number;
   isOrderingEnabled?: boolean;
-  status?: 'Draft' | 'Published' | 'Hidden' | 'Archived';
+  status?: "Draft" | "Published" | "Hidden" | "Archived";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -48,44 +58,121 @@ export default function ProductsManagerPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Stock Adjustment Modal
-  const [stockModalProduct, setStockModalProduct] = useState<Product | null>(null);
+  const [stockModalProduct, setStockModalProduct] = useState<Product | null>(
+    null,
+  );
   const [stockChangeAmount, setStockChangeAmount] = useState(5);
-  const [stockReason, setStockReason] = useState('Restock inventory');
+  const [stockReason, setStockReason] = useState("Restock inventory");
 
   // Form State
-  const [name, setName] = useState('');
-  const [sku, setSku] = useState('');
-  const [price, setPrice] = useState('');
-  const [originalPrice, setOriginalPrice] = useState('');
-  const [costPrice, setCostPrice] = useState('');
-  const [productLineId, setProductLineId] = useState('line-1');
-  const [category, setCategory] = useState('Painting Kits');
-  const [theme, setTheme] = useState('Space Adventures');
-  const [ageGroup, setAgeGroup] = useState('Ages 4+');
+  const [name, setName] = useState("");
+  const [sku, setSku] = useState("");
+  const [price, setPrice] = useState("");
+  const [originalPrice, setOriginalPrice] = useState("");
+  const [costPrice, setCostPrice] = useState("");
+  const [productLineId, setProductLineId] = useState("line-1");
+  const [category, setCategory] = useState("Painting Kits");
+  const [theme, setTheme] = useState("Space Adventures");
+
+  // Parent-Child Classification Mappings
+  const PRODUCT_LINE_CATEGORIES: Record<string, string[]> = {
+    "line-1": [
+      "Painting Kits",
+      "Plaster Figurines",
+      "DIY Craft Kits",
+      "Party Packs",
+    ],
+    "line-2": [
+      "Scented Candles",
+      "Unscented Candles",
+      "Botanical Candles",
+      "Aesthetic Pillar Candles",
+    ],
+  };
+
+  const PRODUCT_LINE_THEMES: Record<string, string[]> = {
+    "line-1": [
+      "Space Adventures",
+      "Secret Garden (Floral)",
+      "Fairytale Magic",
+      "Wild Kingdom",
+      "Classic",
+    ],
+    "line-2": [
+      "Aesthetic",
+      "Floral & Botanical",
+      "Citrus & Fresh",
+      "Vanilla & Spice",
+      "Signature Scents",
+    ],
+  };
+
+  // Filter Categories by selected Product Line
+  const availableCategories = categoriesList
+    .filter((c) => c.productLineId === productLineId)
+    .map((c) => c.name)
+    .concat(PRODUCT_LINE_CATEGORIES[productLineId] || ["General"])
+    .reduce(
+      (acc: string[], item: string) =>
+        acc.includes(item) ? acc : [...acc, item],
+      [],
+    );
+
+  // Filter Themes by selected Product Line
+  const availableThemes = PRODUCT_LINE_THEMES[productLineId] || [
+    "General",
+    "Classic",
+    "Aesthetic",
+  ];
+
+  const handleProductLineChange = (newLineId: string) => {
+    setProductLineId(newLineId);
+
+    const dbCats = categoriesList
+      .filter((c) => c.productLineId === newLineId)
+      .map((c) => c.name);
+    const defaultCats = PRODUCT_LINE_CATEGORIES[newLineId] || ["General"];
+    const newCats = Array.from(new Set([...dbCats, ...defaultCats]));
+    if (newCats.length > 0) {
+      setCategory(newCats[0]);
+    }
+
+    const newThemes = PRODUCT_LINE_THEMES[newLineId] || ["General"];
+    if (newThemes.length > 0) {
+      setTheme(newThemes[0]);
+    }
+  };
+  const [ageGroup, setAgeGroup] = useState("Ages 4+");
   const [isNonToxic, setIsNonToxic] = useState(true);
   const [isOrderingEnabled, setIsOrderingEnabled] = useState(true);
-  const [image, setImage] = useState('');
+  const [image, setImage] = useState("");
   const [imagesList, setImagesList] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [newImageUrl, setNewImageUrl] = useState('');
-  const [description, setDescription] = useState('');
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const [description, setDescription] = useState("");
   const [stockQuantity, setStockQuantity] = useState(25);
 
   const fetchProducts = () => {
-    adminFetch('/api/products')
-      .then(res => res.json())
-      .then(data => { if (Array.isArray(data)) setProducts(data); })
+    adminFetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setProducts(data);
+      })
       .catch(() => {});
 
-    adminFetch('/api/product-lines')
-      .then(res => res.json())
-      .then(data => { if (Array.isArray(data)) setProductLines(data); })
+    adminFetch("/api/product-lines")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setProductLines(data);
+      })
       .catch(() => {});
 
-    adminFetch('/api/categories')
-      .then(res => res.json())
-      .then(data => { if (Array.isArray(data)) setCategoriesList(data); })
+    adminFetch("/api/categories")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setCategoriesList(data);
+      })
       .catch(() => {});
   };
 
@@ -95,22 +182,22 @@ export default function ProductsManagerPage() {
 
   const openAddModal = () => {
     setEditingId(null);
-    setName('');
+    setName("");
     setSku(`SKU-${Date.now().toString().slice(-6)}`);
-    setPrice('');
-    setOriginalPrice('');
-    setCostPrice('');
-    setProductLineId('line-1');
-    setCategory('Painting Kits');
-    setTheme('Space Adventures');
-    setAgeGroup('Ages 4+');
+    setPrice("");
+    setOriginalPrice("");
+    setCostPrice("");
+    setProductLineId("line-1");
+    setCategory("Painting Kits");
+    setTheme("Space Adventures");
+    setAgeGroup("Ages 4+");
     setIsNonToxic(true);
     setIsOrderingEnabled(true);
-    setImage('');
+    setImage("");
     setImagesList([]);
     setUploadError(null);
-    setNewImageUrl('');
-    setDescription('');
+    setNewImageUrl("");
+    setDescription("");
     setStockQuantity(25);
     setIsModalOpen(true);
   };
@@ -120,18 +207,22 @@ export default function ProductsManagerPage() {
     setName(p.name);
     setSku(p.sku || `SKU-${Date.now().toString().slice(-6)}`);
     setPrice(String(p.price));
-    setOriginalPrice(p.originalPrice ? String(p.originalPrice) : '');
-    setCostPrice(p.costPrice ? String(p.costPrice) : '');
-    setProductLineId(p.productLineId || 'line-1');
+    setOriginalPrice(p.originalPrice ? String(p.originalPrice) : "");
+    setCostPrice(p.costPrice ? String(p.costPrice) : "");
+    setProductLineId(p.productLineId || "line-1");
     setCategory(p.category);
     setTheme(p.theme);
     setAgeGroup(p.ageGroup);
     setIsNonToxic(p.isNonToxic);
-    setIsOrderingEnabled(p.isOrderingEnabled !== undefined ? p.isOrderingEnabled : true);
+    setIsOrderingEnabled(
+      p.isOrderingEnabled !== undefined ? p.isOrderingEnabled : true,
+    );
     setImage(p.image);
-    setImagesList(p.images && p.images.length > 0 ? p.images : (p.image ? [p.image] : []));
+    setImagesList(
+      p.images && p.images.length > 0 ? p.images : p.image ? [p.image] : [],
+    );
     setUploadError(null);
-    setNewImageUrl('');
+    setNewImageUrl("");
     setDescription(p.description);
     setStockQuantity(p.stockQuantity !== undefined ? p.stockQuantity : 10);
     setIsModalOpen(true);
@@ -142,18 +233,22 @@ export default function ProductsManagerPage() {
     setName(`${p.name} (Copy)`);
     setSku(`SKU-${Date.now().toString().slice(-6)}`);
     setPrice(String(p.price));
-    setOriginalPrice(p.originalPrice ? String(p.originalPrice) : '');
-    setCostPrice(p.costPrice ? String(p.costPrice) : '');
-    setProductLineId(p.productLineId || 'line-1');
+    setOriginalPrice(p.originalPrice ? String(p.originalPrice) : "");
+    setCostPrice(p.costPrice ? String(p.costPrice) : "");
+    setProductLineId(p.productLineId || "line-1");
     setCategory(p.category);
     setTheme(p.theme);
     setAgeGroup(p.ageGroup);
     setIsNonToxic(p.isNonToxic);
-    setIsOrderingEnabled(p.isOrderingEnabled !== undefined ? p.isOrderingEnabled : true);
+    setIsOrderingEnabled(
+      p.isOrderingEnabled !== undefined ? p.isOrderingEnabled : true,
+    );
     setImage(p.image);
-    setImagesList(p.images && p.images.length > 0 ? p.images : (p.image ? [p.image] : []));
+    setImagesList(
+      p.images && p.images.length > 0 ? p.images : p.image ? [p.image] : [],
+    );
     setUploadError(null);
-    setNewImageUrl('');
+    setNewImageUrl("");
     setDescription(p.description);
     setStockQuantity(p.stockQuantity !== undefined ? p.stockQuantity : 10);
     setIsModalOpen(true);
@@ -181,13 +276,15 @@ export default function ProductsManagerPage() {
           };
           fileToUpload = await imageCompression(fileToUpload, options);
         } catch (compressErr) {
-          console.warn('Auto compression notice:', compressErr);
+          console.warn("Auto compression notice:", compressErr);
         }
       }
 
       // Final Size Validation (2 MB limit)
       if (fileToUpload.size > 2 * 1024 * 1024) {
-        setUploadError(`File "${fileToUpload.name}" is too large even after compression (${(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB). Please select a smaller image.`);
+        setUploadError(
+          `File "${fileToUpload.name}" is too large even after compression (${(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB). Please select a smaller image.`,
+        );
         setUploading(false);
         return;
       }
@@ -200,29 +297,29 @@ export default function ProductsManagerPage() {
           reader.readAsDataURL(fileToUpload);
         });
 
-        const res = await adminFetch('/api/upload', {
-          method: 'POST',
+        const res = await adminFetch("/api/upload", {
+          method: "POST",
           body: JSON.stringify({
             image: base64,
-            productName: name || 'General'
-          })
+            productName: name || "General",
+          }),
         });
 
         const data = await res.json();
         if (res.ok && data.url) {
           uploadedUrls.push(data.url);
         } else {
-          throw new Error(data.error || 'Failed to upload image');
+          throw new Error(data.error || "Failed to upload image");
         }
       } catch (err: any) {
-        setUploadError(err.message || 'Image upload error');
+        setUploadError(err.message || "Image upload error");
         setUploading(false);
         return;
       }
     }
 
-    setImagesList(prev => [...prev, ...uploadedUrls]);
-    if (uploadedUrls.length > 0 && (!image || image === '')) {
+    setImagesList((prev) => [...prev, ...uploadedUrls]);
+    if (uploadedUrls.length > 0 && (!image || image === "")) {
       setImage(uploadedUrls[0]);
     }
     setUploading(false);
@@ -231,9 +328,9 @@ export default function ProductsManagerPage() {
   const handleAddImageUrl = () => {
     if (!newImageUrl.trim()) return;
     const url = newImageUrl.trim();
-    setImagesList(prev => [...prev, url]);
+    setImagesList((prev) => [...prev, url]);
     if (!image) setImage(url);
-    setNewImageUrl('');
+    setNewImageUrl("");
   };
 
   const handleRemoveImage = (index: number) => {
@@ -242,7 +339,7 @@ export default function ProductsManagerPage() {
     if (updated.length > 0) {
       setImage(updated[0]);
     } else {
-      setImage('');
+      setImage("");
     }
   };
 
@@ -261,15 +358,22 @@ export default function ProductsManagerPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this product listing?')) {
-      await adminFetch(`/api/products/${id}`, { method: 'DELETE' });
+    if (confirm("Are you sure you want to delete this product listing?")) {
+      await adminFetch(`/api/products/${id}`, { method: "DELETE" });
       fetchProducts();
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const finalImages = imagesList.length > 0 ? imagesList : (image ? [image] : ['https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500']);
+    const finalImages =
+      imagesList.length > 0
+        ? imagesList
+        : image
+          ? [image]
+          : [
+              "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500",
+            ];
 
     const payload = {
       sku,
@@ -287,17 +391,17 @@ export default function ProductsManagerPage() {
       images: finalImages,
       description,
       stockQuantity: Number(stockQuantity),
-      inStock: Number(stockQuantity) > 0
+      inStock: Number(stockQuantity) > 0,
     };
 
     if (editingId) {
       await adminFetch(`/api/products/${editingId}`, {
-        method: 'PUT',
+        method: "PUT",
         body: JSON.stringify(payload),
       });
     } else {
-      await adminFetch('/api/products', {
-        method: 'POST',
+      await adminFetch("/api/products", {
+        method: "POST",
         body: JSON.stringify(payload),
       });
     }
@@ -311,33 +415,43 @@ export default function ProductsManagerPage() {
     if (!stockModalProduct) return;
 
     try {
-      const res = await adminFetch(`/api/products/${stockModalProduct.id}/stock-adjustment`, {
-        method: 'POST',
-        body: JSON.stringify({
-          changeAmount: Number(stockChangeAmount),
-          reason: stockReason,
-          updatedBy: 'Admin'
-        })
-      });
+      const res = await adminFetch(
+        `/api/products/${stockModalProduct.id}/stock-adjustment`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            changeAmount: Number(stockChangeAmount),
+            reason: stockReason,
+            updatedBy: "Admin",
+          }),
+        },
+      );
 
       if (res.ok) {
         setStockModalProduct(null);
         fetchProducts();
       }
     } catch (err) {
-      console.warn('Stock adjustment failed:', err);
+      console.warn("Stock adjustment failed:", err);
     }
   };
 
   // Filter categories by selected product line
-  const filteredCategories = categoriesList.filter(c => !c.productLineId || c.productLineId === productLineId);
+  const filteredCategories = categoriesList.filter(
+    (c) => !c.productLineId || c.productLineId === productLineId,
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-800">Products Catalog Management</h1>
-          <p className="text-slate-500 text-xs mt-1">Granular product CRUD, SKU management, line & category assignment, and stock adjustments.</p>
+          <h1 className="text-2xl font-extrabold text-slate-800">
+            Products Catalog Management
+          </h1>
+          <p className="text-slate-500 text-xs mt-1">
+            Granular product CRUD, SKU management, line & category assignment,
+            and stock adjustments.
+          </p>
         </div>
         <button
           onClick={openAddModal}
@@ -363,29 +477,48 @@ export default function ProductsManagerPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {products.map(p => {
-              const stock = p.stockQuantity !== undefined ? p.stockQuantity : 10;
+            {products.map((p) => {
+              const stock =
+                p.stockQuantity !== undefined ? p.stockQuantity : 10;
               const isOrderOn = p.isOrderingEnabled !== false;
-              const line = productLines.find(l => l.id === p.productLineId);
+              const line = productLines.find((l) => l.id === p.productLineId);
               return (
                 <tr key={p.id} className="hover:bg-slate-50/80 transition">
                   <td className="p-4 flex items-center space-x-3">
-                    <img src={p.image} alt={p.name} className="w-10 h-10 rounded-xl object-cover border" />
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="w-10 h-10 rounded-xl object-cover border"
+                    />
                     <div>
-                      <p className="font-bold text-slate-800 text-sm">{p.name}</p>
-                      <p className="text-[10px] text-slate-400 font-mono">{p.sku || p.id}</p>
+                      <p className="font-bold text-slate-800 text-sm">
+                        {p.name}
+                      </p>
+                      <p className="text-[10px] text-slate-400 font-mono">
+                        {p.sku || p.id}
+                      </p>
                     </div>
                   </td>
                   <td className="p-4 font-bold text-slate-800">
                     <span className="px-2.5 py-1 bg-sky-100 text-sky-800 rounded-full text-[10px]">
-                      {line ? line.name : (p.productLineId === 'line-2' ? 'Wax Candles' : 'POP Figurines')}
+                      {line
+                        ? line.name
+                        : p.productLineId === "line-2"
+                          ? "Wax Candles"
+                          : "POP Figurines"}
                     </span>
                   </td>
                   <td className="p-4 font-semibold text-slate-700">
-                    <span className="font-bold block text-slate-800">{p.category}</span>
-                    <span className="text-[11px] text-pink-500 font-bold">{p.theme}</span>
+                    <span className="font-bold block text-slate-800">
+                      {p.category}
+                    </span>
+                    <span className="text-[11px] text-pink-500 font-bold">
+                      {p.theme}
+                    </span>
                   </td>
-                  <td className="p-4 font-extrabold text-slate-800">₹{p.price.toFixed(2)}</td>
+                  <td className="p-4 font-extrabold text-slate-800">
+                    ₹{p.price.toFixed(2)}
+                  </td>
                   <td className="p-4">
                     <button
                       onClick={() => setStockModalProduct(p)}
@@ -396,10 +529,14 @@ export default function ProductsManagerPage() {
                     </button>
                   </td>
                   <td className="p-4">
-                    <span className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${
-                      isOrderOn ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {isOrderOn ? 'Enabled' : 'WhatsApp Only'}
+                    <span
+                      className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${
+                        isOrderOn
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-amber-100 text-amber-800"
+                      }`}
+                    >
+                      {isOrderOn ? "Enabled" : "WhatsApp Only"}
                     </span>
                   </td>
                   <td className="p-4 text-right space-x-1.5">
@@ -435,23 +572,32 @@ export default function ProductsManagerPage() {
       {/* Add / Edit Product Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 w-full max-w-xl space-y-4 shadow-2xl animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-3xl p-6 w-full max-w-xl space-y-4 shadow-2xl animate-in zoom-in-95 max-h-[90vh] overflow-y-auto"
+          >
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-extrabold text-base text-slate-800">
-                {editingId ? 'Edit Product Listing' : 'Add New Product Listing'}
+                {editingId ? "Edit Product Listing" : "Add New Product Listing"}
               </h3>
-              <button type="button" onClick={() => setIsModalOpen(false)} className="p-1 text-slate-400 hover:text-slate-600">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="p-1 text-slate-400 hover:text-slate-600"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Product Name</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Product Name
+                </label>
                 <input
                   type="text"
                   value={name}
-                  onChange={e => setName(e.target.value)}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="Lavender Soy Candle"
                   required
                   className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-semibold"
@@ -459,11 +605,13 @@ export default function ProductsManagerPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">SKU Code</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  SKU Code
+                </label>
                 <input
                   type="text"
                   value={sku}
-                  onChange={e => setSku(e.target.value)}
+                  onChange={(e) => setSku(e.target.value)}
                   placeholder="CND-LAV-01"
                   required
                   className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-mono"
@@ -473,51 +621,58 @@ export default function ProductsManagerPage() {
 
             {/* PRODUCT LINE, CATEGORY & THEME SELECTORS */}
             <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-3">
-              <h4 className="font-extrabold text-xs text-slate-800 border-b pb-1">Catalog Classification</h4>
+              <h4 className="font-extrabold text-xs text-slate-800 border-b pb-1">
+                Catalog Classification
+              </h4>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">1. Product Line</label>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    1. Product Line
+                  </label>
                   <select
                     value={productLineId}
-                    onChange={e => setProductLineId(e.target.value)}
+                    onChange={(e) => handleProductLineChange(e.target.value)}
                     className="w-full px-3 py-2 bg-white border rounded-xl text-xs font-semibold focus:outline-none focus:border-pink-400"
                   >
-                    {productLines.map(l => (
-                      <option key={l.id} value={l.id}>{l.name}</option>
+                    {productLines.map((l) => (
+                      <option key={l.id} value={l.id}>
+                        {l.name}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">2. Category</label>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    2. Category
+                  </label>
                   <select
                     value={category}
-                    onChange={e => setCategory(e.target.value)}
+                    onChange={(e) => setCategory(e.target.value)}
                     className="w-full px-3 py-2 bg-white border rounded-xl text-xs font-semibold focus:outline-none focus:border-pink-400"
                   >
-                    {filteredCategories.map(c => (
-                      <option key={c.id} value={c.name}>{c.name}</option>
+                    {availableCategories.map((catName) => (
+                      <option key={catName} value={catName}>
+                        {catName}
+                      </option>
                     ))}
-                    <option value="Painting Kits">Painting Kits</option>
-                    <option value="Scented Candles">Scented Candles</option>
-                    <option value="Unscented Candles">Unscented Candles</option>
-                    <option value="Party Packs">Party Packs</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">3. Theme</label>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    3. Theme
+                  </label>
                   <select
                     value={theme}
-                    onChange={e => setTheme(e.target.value)}
+                    onChange={(e) => setTheme(e.target.value)}
                     className="w-full px-3 py-2 bg-white border rounded-xl text-xs font-semibold focus:outline-none focus:border-pink-400"
                   >
-                    <option value="Space Adventures">🚀 Space Adventures</option>
-                    <option value="Secret Garden (Floral)">🌸 Secret Garden (Floral)</option>
-                    <option value="Fairytale Magic">🦄 Fairytale Magic</option>
-                    <option value="Wild Kingdom">🦁 Wild Kingdom</option>
-                    <option value="Aesthetic">🕯️ Aesthetic</option>
-                    <option value="Classic">✨ Classic</option>
+                    {availableThemes.map((themeName) => (
+                      <option key={themeName} value={themeName}>
+                        {themeName}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -525,12 +680,14 @@ export default function ProductsManagerPage() {
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Selling Price (₹)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Selling Price (₹)
+                </label>
                 <input
                   type="number"
                   step="0.01"
                   value={price}
-                  onChange={e => setPrice(e.target.value)}
+                  onChange={(e) => setPrice(e.target.value)}
                   placeholder="499"
                   required
                   className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-bold"
@@ -538,23 +695,27 @@ export default function ProductsManagerPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Original Price (₹)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Original Price (₹)
+                </label>
                 <input
                   type="number"
                   step="0.01"
                   value={originalPrice}
-                  onChange={e => setOriginalPrice(e.target.value)}
+                  onChange={(e) => setOriginalPrice(e.target.value)}
                   placeholder="599"
                   className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Initial Stock Quantity</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Initial Stock Quantity
+                </label>
                 <input
                   type="number"
                   value={stockQuantity}
-                  onChange={e => setStockQuantity(Number(e.target.value))}
+                  onChange={(e) => setStockQuantity(Number(e.target.value))}
                   required
                   className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-bold"
                 />
@@ -570,7 +731,11 @@ export default function ProductsManagerPage() {
                     <span>Product Images Upload (Cloudinary)</span>
                   </h4>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    Cloudinary Folder: <code className="bg-slate-200/80 px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-800 font-bold">Ecommerce / Products / {name ? name.trim() : '(Product Name)'}</code>
+                    Cloudinary Folder:{" "}
+                    <code className="bg-slate-200/80 px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-800 font-bold">
+                      Ecommerce / Products /{" "}
+                      {name ? name.trim() : "(Product Name)"}
+                    </code>
                   </p>
                 </div>
                 <span className="text-[10px] font-bold px-2 py-0.5 bg-pink-100 text-pink-700 rounded-full border border-pink-200">
@@ -582,7 +747,11 @@ export default function ProductsManagerPage() {
               {uploadError && (
                 <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold flex items-center justify-between">
                   <span>⚠️ {uploadError}</span>
-                  <button type="button" onClick={() => setUploadError(null)} className="text-rose-500 hover:text-rose-800">
+                  <button
+                    type="button"
+                    onClick={() => setUploadError(null)}
+                    className="text-rose-500 hover:text-rose-800"
+                  >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -601,9 +770,13 @@ export default function ProductsManagerPage() {
                 <div className="flex flex-col items-center space-y-1">
                   <Plus className="w-6 h-6 text-pink-500 group-hover:scale-110 transition" />
                   <p className="text-xs font-bold text-slate-700">
-                    {uploading ? "Uploading to Cloudinary..." : "Click or Drag & Drop Images to Upload"}
+                    {uploading
+                      ? "Uploading to Cloudinary..."
+                      : "Click or Drag & Drop Images to Upload"}
                   </p>
-                  <p className="text-[10px] text-slate-400 font-medium">Supports PNG, JPG, WEBP (Limit 2 MB per image)</p>
+                  <p className="text-[10px] text-slate-400 font-medium">
+                    Supports PNG, JPG, WEBP (Limit 2 MB per image)
+                  </p>
                 </div>
               </div>
 
@@ -612,7 +785,7 @@ export default function ProductsManagerPage() {
                 <input
                   type="url"
                   value={newImageUrl}
-                  onChange={e => setNewImageUrl(e.target.value)}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
                   placeholder="Or paste external image URL (https://...)"
                   className="flex-1 px-3 py-1.5 bg-white border rounded-xl text-xs"
                 />
@@ -642,12 +815,18 @@ export default function ProductsManagerPage() {
                       <div
                         key={idx}
                         className={`relative group rounded-2xl overflow-hidden border-2 bg-white flex flex-col justify-between shadow-xs transition ${
-                          idx === 0 ? "border-pink-500 ring-2 ring-pink-200" : "border-slate-200"
+                          idx === 0
+                            ? "border-pink-500 ring-2 ring-pink-200"
+                            : "border-slate-200"
                         }`}
                       >
                         {/* Image Preview */}
                         <div className="relative aspect-square w-full bg-slate-100 overflow-hidden">
-                          <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                          <img
+                            src={imgUrl}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
 
                           {/* Sequence Badge */}
                           <span
@@ -727,11 +906,13 @@ export default function ProductsManagerPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Description</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Description
+              </label>
               <textarea
                 rows={3}
                 value={description}
-                onChange={e => setDescription(e.target.value)}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Detailed description of craft set or wax candle..."
                 required
                 className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"
@@ -743,7 +924,7 @@ export default function ProductsManagerPage() {
                 <input
                   type="checkbox"
                   checked={isOrderingEnabled}
-                  onChange={e => setIsOrderingEnabled(e.target.checked)}
+                  onChange={(e) => setIsOrderingEnabled(e.target.checked)}
                   className="rounded text-pink-500"
                 />
                 <span>Online Purchasing Enabled for this item</span>
@@ -772,32 +953,45 @@ export default function ProductsManagerPage() {
       {/* Stock Adjustment Modal */}
       {stockModalProduct && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <form onSubmit={handleStockAdjustment} className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl animate-in zoom-in-95">
+          <form
+            onSubmit={handleStockAdjustment}
+            className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl animate-in zoom-in-95"
+          >
             <h3 className="font-extrabold text-base text-slate-800 border-b pb-2">
               Adjust Stock for {stockModalProduct.name}
             </h3>
 
             <p className="text-xs text-slate-500">
-              Current Stock: <strong className="text-slate-800">{stockModalProduct.stockQuantity !== undefined ? stockModalProduct.stockQuantity : 10} units</strong>
+              Current Stock:{" "}
+              <strong className="text-slate-800">
+                {stockModalProduct.stockQuantity !== undefined
+                  ? stockModalProduct.stockQuantity
+                  : 10}{" "}
+                units
+              </strong>
             </p>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Adjustment Quantity (+ to add, - to reduce)</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Adjustment Quantity (+ to add, - to reduce)
+              </label>
               <input
                 type="number"
                 value={stockChangeAmount}
-                onChange={e => setStockChangeAmount(Number(e.target.value))}
+                onChange={(e) => setStockChangeAmount(Number(e.target.value))}
                 required
                 className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-bold"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Reason / Note (Audit Trail)</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Reason / Note (Audit Trail)
+              </label>
               <input
                 type="text"
                 value={stockReason}
-                onChange={e => setStockReason(e.target.value)}
+                onChange={(e) => setStockReason(e.target.value)}
                 placeholder="Restock from warehouse"
                 required
                 className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"
