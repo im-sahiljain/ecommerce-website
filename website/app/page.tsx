@@ -833,40 +833,51 @@ export default function HomePage() {
       </section>
 
       {/* ─── DYNAMIC THEME SECTIONS FROM DATABASE ─── */}
-      {themeSections.map((sectionConfig) => {
-        const themeProducts = getThemeProducts(
-          sectionConfig.themeKeyword,
-          sectionConfig.limit || 4,
-        );
+      {(() => {
+        const activeThemeSections = themeSections
+          .map((sectionConfig) => ({
+            sectionConfig,
+            themeProducts: getThemeProducts(
+              sectionConfig.themeKeyword,
+              sectionConfig.limit || 4,
+            ),
+          }))
+          .filter((item) => item.themeProducts.length > 0);
 
-        if (themeProducts.length === 0) return null;
+        return activeThemeSections.map(
+          ({ sectionConfig, themeProducts }, index) => {
+            // Dynamic wave fill color matching the section rendered directly above it
+            const previousBgColor =
+              index === 0
+                ? "white"
+                : activeThemeSections[index - 1].sectionConfig.bgColor;
 
-        return (
-          <section
-            key={sectionConfig.id}
-            className="relative overflow-hidden"
-            style={{
-              backgroundColor: sectionConfig.bgColor,
-              color: sectionConfig.textColor,
-              paddingTop: "80px",
-              paddingBottom: "100px",
-            }}
-          >
-            {/* Top Wavy Divider */}
-            <div
-              className="absolute top-0 left-0 w-full overflow-hidden"
-              style={{ lineHeight: 0 }}
-            >
-              <svg
-                className="relative block"
-                style={{ width: "calc(100% + 1.3px)", height: "60px" }}
-                fill={sectionConfig.topDividerFill}
-                preserveAspectRatio="none"
-                viewBox="0 0 1200 120"
+            return (
+              <section
+                key={sectionConfig.id}
+                className="relative overflow-hidden"
+                style={{
+                  backgroundColor: sectionConfig.bgColor,
+                  color: sectionConfig.textColor,
+                  paddingTop: "80px",
+                  paddingBottom: "100px",
+                }}
               >
-                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5,73.84-4.36,147.54,16.88,218.2,35.26,69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113,2,1200,0Z" />
-              </svg>
-            </div>
+                {/* Top Wavy Divider */}
+                <div
+                  className="absolute top-0 left-0 w-full overflow-hidden"
+                  style={{ lineHeight: 0 }}
+                >
+                  <svg
+                    className="relative block"
+                    style={{ width: "calc(100% + 1.3px)", height: "60px" }}
+                    fill={previousBgColor}
+                    preserveAspectRatio="none"
+                    viewBox="0 0 1200 120"
+                  >
+                    <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5,73.84-4.36,147.54,16.88,218.2,35.26,69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113,2,1200,0Z" />
+                  </svg>
+                </div>
 
             {/* Decorative Elements */}
             {sectionConfig.decorations?.map((decor) => (
@@ -949,7 +960,8 @@ export default function HomePage() {
             </div>
           </section>
         );
-      })}
+      });
+  })()}
 
       {/* ─── AESTHETIC WAX CANDLES COLLECTION SHOWCASE ─── */}
       {candleProducts.length > 0 && (
