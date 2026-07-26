@@ -1133,12 +1133,12 @@ function ThemeProductCard({
 
         {/* Product Image Container */}
         <Link href={`/product/${product.id}`} className="block">
-          <div className="rounded-2xl mb-3 bg-slate-50/80 p-3 h-36 sm:h-44 flex items-center justify-center overflow-hidden border border-slate-100 relative group-hover:bg-slate-100/80 transition duration-300">
+          <div className="rounded-2xl mb-3 bg-slate-50/80 aspect-square w-full overflow-hidden border border-slate-100 relative transition duration-300">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={product.image}
               alt={product.name}
-              className="max-h-full max-w-full object-contain group-hover:scale-108 transition duration-500 ease-out filter drop-shadow-sm"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition duration-500 ease-out"
             />
           </div>
 
