@@ -16,6 +16,8 @@ import {
   X,
 } from "lucide-react";
 
+import { API_BASE_URL } from "../config/api";
+
 interface ProductLine {
   id: string;
   name: string;
@@ -40,14 +42,14 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/product-lines")
+    fetch(`${API_BASE_URL}/api/product-lines`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setProductLines(data);
       })
       .catch(() => {});
 
-    fetch("http://localhost:5000/api/categories")
+    fetch(`${API_BASE_URL}/api/categories`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setCategories(data);

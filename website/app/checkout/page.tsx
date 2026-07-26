@@ -1,5 +1,6 @@
-"use me";
 "use client";
+
+import { API_BASE_URL } from "../../config/api";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -121,7 +122,7 @@ export default function CheckoutPage() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/orders", {
+      const res = await fetch(`${API_BASE_URL}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth, UserAddress } from '../../context/AuthContext';
 import { Package, MapPin, User as UserIcon, LogOut, Save, Mail, Phone, Home, Plus, Trash2, CheckCircle2, Check } from 'lucide-react';
+import { API_BASE_URL } from '../../config/api';
 import Link from 'next/link';
 
 interface OrderItem {
@@ -68,7 +69,7 @@ export default function AccountPage() {
       return;
     }
 
-    fetch('http://localhost:5000/api/orders/my-orders', {
+    fetch(`${API_BASE_URL}/api/orders/my-orders`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { MessageCircle } from "lucide-react";
 
+import { API_BASE_URL } from "../config/api";
+
 interface SiteSettings {
   isWhatsappEnabled: boolean;
   whatsappNumber: string;
@@ -13,7 +15,7 @@ export default function WhatsappFloatingButton() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/settings")
+    fetch(`${API_BASE_URL}/api/settings`)
       .then((res) => res.json())
       .then((data) => {
         if (data) setSettings(data);
