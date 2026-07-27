@@ -53,9 +53,9 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-800">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800">
             Orders & Fulfillment Management
           </h1>
           <p className="text-slate-500 text-xs mt-1">
@@ -65,7 +65,7 @@ export default function OrdersPage() {
         </div>
         <button
           onClick={fetchOrders}
-          className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center space-x-1 transition"
+          className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center space-x-1 transition shrink-0"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Refresh Orders</span>

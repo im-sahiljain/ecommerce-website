@@ -114,8 +114,8 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Per Product Performance Table */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+      {/* Per Product Performance Table with Horizontal Scroll */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-x-auto">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <h2 className="font-extrabold text-base text-slate-800">
             Per-Product Performance Insights

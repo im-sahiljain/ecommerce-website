@@ -448,9 +448,9 @@ export default function ProductsManagerPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-800">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800">
             Products Catalog Management
           </h1>
           <p className="text-slate-500 text-xs mt-1">
@@ -460,15 +460,15 @@ export default function ProductsManagerPage() {
         </div>
         <button
           onClick={openAddModal}
-          className="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-1.5"
+          className="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center space-x-1.5 shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Add Craft / Candle Product</span>
         </button>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+      {/* Table Container with Horizontal Scroll */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200/80">
             <tr>

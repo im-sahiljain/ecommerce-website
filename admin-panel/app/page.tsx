@@ -34,14 +34,14 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-800">Admin Dashboard Overview</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800">Admin Dashboard Overview</h1>
           <p className="text-slate-500 text-xs mt-1">Manage catalog listings, categories, themes, age groups, and customer orders.</p>
         </div>
         <Link
           href="/products"
-          className="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs transition"
+          className="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs transition shrink-0 inline-flex items-center justify-center"
         >
           + Add New Craft Product
         </Link>
