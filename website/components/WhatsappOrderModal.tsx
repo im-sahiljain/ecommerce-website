@@ -71,15 +71,15 @@ ${itemLines}
 
 💰 *ORDER SUMMARY:*
 • Subtotal: ₹${subtotal}
-• Delivery: ₹${shipping}
-• *Total Amount:* ₹${total}
+• Shipping Fee: Will be confirmed on WhatsApp 🚚
+• *Total Items Amount:* ₹${subtotal}
 
 👤 *CUSTOMER & DELIVERY DETAILS:*
 • Name: ${fullName}
 • Phone: ${phone}
 • Address: ${fullAddress}
 ----------------------------------
-Thank you! Please confirm my order.`;
+Thank you! Please confirm my order and shipping fee.`;
 
     // 1. Dual-register order on backend API so it shows up in Admin Panel /orders
     try {
@@ -99,8 +99,8 @@ Thank you! Please confirm my order.`;
             image: i.image,
           })),
           subtotal,
-          shipping,
-          total,
+          shipping: 0,
+          total: subtotal,
           status: "Pending (WhatsApp)",
         }),
       });
@@ -128,7 +128,9 @@ Thank you! Please confirm my order.`;
               <ShoppingBag className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="font-extrabold text-base">WhatsApp Delivery Address</h2>
+              <h2 className="font-extrabold text-base">
+                WhatsApp Delivery Address
+              </h2>
               <p className="text-xs text-emerald-100 font-medium">
                 Enter your details to confirm your order on WhatsApp
               </p>
@@ -143,16 +145,28 @@ Thank you! Please confirm my order.`;
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5 flex-1">
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 overflow-y-auto space-y-5 flex-1"
+        >
           {/* Order Brief */}
           <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl text-xs space-y-1.5">
             <div className="flex justify-between font-bold text-emerald-900">
-              <span>Items Summary ({items.reduce((s, i) => s + i.quantity, 0)} items)</span>
-              <span>₹{total}</span>
+              <span>
+                Items Subtotal ({items.reduce((s, i) => s + i.quantity, 0)}{" "}
+                items)
+              </span>
+              <span>₹{subtotal}</span>
             </div>
             <p className="text-[11px] text-emerald-700">
               {items.map((i) => `${i.name} (x${i.quantity})`).join(", ")}
             </p>
+            <div className="pt-1.5 border-t border-emerald-200/60 flex justify-between text-[11px] font-extrabold text-emerald-800">
+              <span>Shipping Fee:</span>
+              <span className="bg-emerald-200/60 px-2 py-0.5 rounded-md text-emerald-900">
+                Will be confirmed on WhatsApp 🚚
+              </span>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -165,7 +179,7 @@ Thank you! Please confirm my order.`;
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g. Sahil Jain"
+                placeholder="e.g. Roshan Kumar"
                 required
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500"
               />
@@ -238,7 +252,9 @@ Thank you! Please confirm my order.`;
             className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-2xl shadow-lg transition flex items-center justify-center space-x-2 active:scale-98"
           >
             <Send className="w-4 h-4" />
-            <span>{submitting ? "Opening WhatsApp..." : "Send Order on WhatsApp"}</span>
+            <span>
+              {submitting ? "Opening WhatsApp..." : "Send Order on WhatsApp"}
+            </span>
           </button>
         </form>
       </div>

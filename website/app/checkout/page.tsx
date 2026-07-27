@@ -102,6 +102,9 @@ export default function CheckoutPage() {
     const fullShippingAddress =
       `${addressLine}, ${city}, ${state} ${zipCode}`.trim();
 
+    const shippingFee = 250;
+    const grandTotal = totalPrice + shippingFee;
+
     const orderPayload = {
       customerName,
       shippingAddress: fullShippingAddress,
@@ -117,8 +120,8 @@ export default function CheckoutPage() {
         image: item.image,
       })),
       subtotal: totalPrice,
-      shipping: 0,
-      total: totalPrice,
+      shipping: shippingFee,
+      total: grandTotal,
     };
 
     try {
@@ -477,12 +480,12 @@ export default function CheckoutPage() {
                 <span>₹{totalPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-slate-500">
-                <span>Express Shipping</span>
-                <span className="text-emerald-600 font-bold">FREE</span>
+                <span>Flat Express Shipping</span>
+                <span className="text-slate-800 font-bold">₹250.00</span>
               </div>
               <div className="flex justify-between text-sm font-extrabold text-slate-800 pt-2 border-t border-slate-100">
                 <span>Total Amount</span>
-                <span>₹{totalPrice.toFixed(2)}</span>
+                <span>₹{(totalPrice + 250).toFixed(2)}</span>
               </div>
             </div>
           </div>

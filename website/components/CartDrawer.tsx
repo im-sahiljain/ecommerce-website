@@ -3,7 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "../context/CartContext";
-import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight, MessageCircle } from "lucide-react";
+import {
+  X,
+  ShoppingBag,
+  Plus,
+  Minus,
+  Trash2,
+  ArrowRight,
+  MessageCircle,
+} from "lucide-react";
 import { API_BASE_URL } from "../config/api";
 import WhatsappOrderModal from "./WhatsappOrderModal";
 
@@ -46,8 +54,8 @@ export default function CartDrawer() {
   if (!isCartOpen) return null;
 
   const subtotal = Math.round(totalPrice);
-  const shipping = subtotal > 499 || subtotal === 0 ? 0 : 50;
-  const grandTotal = subtotal + shipping;
+  const onlineShipping = 250;
+  const onlineTotal = subtotal + onlineShipping;
 
   return (
     <>
@@ -74,7 +82,9 @@ export default function CartDrawer() {
             {cart.length === 0 ? (
               <div className="text-center py-16">
                 <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="font-bold text-slate-600">Your basket is empty!</p>
+                <p className="font-bold text-slate-600">
+                  Your basket is empty!
+                </p>
                 <p className="text-xs text-slate-400 mt-1">
                   Explore our ready-to-paint craft kits to get started.
                 </p>
@@ -131,16 +141,22 @@ export default function CartDrawer() {
             <div className="p-6 border-t border-slate-100 bg-slate-50/50 space-y-3">
               <div className="space-y-1 text-xs text-slate-600 font-medium">
                 <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span>₹{subtotal}</span>
+                  <span>Items Subtotal:</span>
+                  <span className="font-bold text-slate-800">₹{subtotal}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Shipping:</span>
-                  <span>{shipping === 0 ? "FREE" : `₹${shipping}`}</span>
+                <div className="flex justify-between text-[11px] text-slate-400">
+                  <span>Online Shipping (Flat):</span>
+                  <span>₹{onlineShipping}</span>
+                </div>
+                <div className="flex justify-between text-[11px] text-emerald-600 font-bold">
+                  <span>WhatsApp Shipping:</span>
+                  <span>Will be confirmed on WhatsApp 🚚</span>
                 </div>
                 <div className="flex justify-between items-center text-sm font-extrabold text-slate-800 pt-1 border-t border-slate-200">
-                  <span>Total Amount:</span>
-                  <span className="text-pink-600 text-base">₹{grandTotal}</span>
+                  <span>Online Order Total:</span>
+                  <span className="text-pink-600 text-base">
+                    ₹{onlineTotal}
+                  </span>
                 </div>
               </div>
 
@@ -151,7 +167,7 @@ export default function CartDrawer() {
                   onClick={() => setIsCartOpen(false)}
                   className="w-full py-3.5 bg-pink-500 hover:bg-pink-600 text-white font-extrabold rounded-2xl flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transition active:scale-98 text-xs"
                 >
-                  <span>Proceed to Checkout</span>
+                  <span>Proceed to Website Checkout (₹{onlineTotal})</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               )}
@@ -163,7 +179,7 @@ export default function CartDrawer() {
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl flex items-center justify-center space-x-2 shadow-lg transition active:scale-98 text-xs"
                 >
                   <MessageCircle className="w-4 h-4 fill-current" />
-                  <span>Order via WhatsApp (Free Message)</span>
+                  <span>Order via WhatsApp (Fee Confirmed on Chat)</span>
                 </button>
               )}
             </div>
@@ -177,8 +193,8 @@ export default function CartDrawer() {
         onClose={() => setIsWaModalOpen(false)}
         items={cart}
         subtotal={subtotal}
-        shipping={shipping}
-        total={grandTotal}
+        shipping={0}
+        total={subtotal}
         whatsappNumber={settings.whatsappNumber}
       />
     </>
