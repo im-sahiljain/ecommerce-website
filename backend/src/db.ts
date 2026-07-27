@@ -322,6 +322,135 @@ export class Database {
           defaultMetaDescription: s.default_meta_description || "",
         };
       }
+
+      // 7. Load & Auto-Seed Homepage Sections from PostgreSQL
+      await this.pgPool
+        .query(
+          `
+        CREATE TABLE IF NOT EXISTS public.homepage_sections (
+          id VARCHAR(255) PRIMARY KEY,
+          type VARCHAR(100) NOT NULL,
+          title VARCHAR(255) NOT NULL,
+          subtitle TEXT,
+          theme_keyword VARCHAR(100),
+          title_layout VARCHAR(50),
+          bg_color VARCHAR(50),
+          text_color VARCHAR(50),
+          top_divider_fill VARCHAR(50),
+          card_size VARCHAR(50),
+          layout_template VARCHAR(50),
+          product_line_id VARCHAR(100),
+          category_id VARCHAR(100),
+          decorations JSONB,
+          is_visible BOOLEAN DEFAULT true,
+          sort_order INTEGER DEFAULT 1
+        );
+      `,
+        )
+        .catch((err) =>
+          console.warn("⚠️ Create homepage_sections table notice:", err.message),
+        );
+
+      const secRes = await this.pgPool
+        .query(`SELECT * FROM public.homepage_sections ORDER BY sort_order ASC`)
+        .catch(() => null);
+
+      if (secRes && secRes.rows.length > 0) {
+        this.data.homepageSections = secRes.rows.map((r) => ({
+          id: r.id,
+          type: r.type,
+          title: r.title,
+          subtitle: r.subtitle || undefined,
+          themeKeyword: r.theme_keyword || undefined,
+          titleLayout: r.title_layout || "left",
+          bgColor: r.bg_color || "#FFFFFF",
+          textColor: r.text_color || "#3C2A21",
+          topDividerFill: r.top_divider_fill || "white",
+          cardSize: r.card_size || "large",
+          layoutTemplate: r.layout_template || "carousel",
+          productLineId: r.product_line_id || undefined,
+          categoryId: r.category_id || undefined,
+          decorations:
+            typeof r.decorations === "string"
+              ? JSON.parse(r.decorations)
+              : r.decorations || [],
+          isVisible: r.is_visible !== false,
+          sortOrder: Number(r.sort_order) || 1,
+        }));
+        console.log(
+          `⚡ Loaded ${this.data.homepageSections.length} homepage sections from PostgreSQL database`,
+        );
+      } else {
+        // Table exists but is empty -> Auto-seed default sections into PostgreSQL
+        this.data.homepageSections = [...DEFAULT_HOMEPAGE_SECTIONS];
+        for (const sec of DEFAULT_HOMEPAGE_SECTIONS) {
+          await this.pgPool
+            .query(
+              `
+            INSERT INTO public.homepage_sections 
+            (id, type, title, subtitle, theme_keyword, title_layout, bg_color, text_color, top_divider_fill, card_size, layout_template, product_line_id, category_id, decorations, is_visible, sort_order)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+            ON CONFLICT (id) DO NOTHING;
+          `,
+              [
+                sec.id,
+                sec.type,
+                sec.title,
+                sec.subtitle || null,
+                sec.themeKeyword || null,
+                sec.titleLayout || "left",
+                sec.bgColor || "#2D366D",
+                sec.textColor || "#FFFFFF",
+                sec.topDividerFill || "white",
+                sec.cardSize || "large",
+                sec.layoutTemplate || "carousel",
+                sec.productLineId || null,
+                sec.categoryId || null,
+                JSON.stringify(sec.decorations || []),
+                sec.isVisible !== false,
+                sec.sortOrder || 1,
+              ],
+            )
+            .catch((err) =>
+              console.warn(`⚠️ Auto-seed section error:`, err.message),
+            );
+        }
+        console.log(
+          `🌱 Auto-seeded ${DEFAULT_HOMEPAGE_SECTIONS.length} default homepage sections into PostgreSQL`,
+        );
+      }
+
+      // 8. Load Themes from PostgreSQL
+      await this.pgPool
+        .query(
+          `
+        CREATE TABLE IF NOT EXISTS public.themes (
+          id VARCHAR(255) PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          slug VARCHAR(255) NOT NULL,
+          description TEXT,
+          icon VARCHAR(50)
+        );
+      `,
+        )
+        .catch(() => null);
+
+      const themeRes = await this.pgPool
+        .query(`SELECT * FROM public.themes`)
+        .catch(() => null);
+
+      if (themeRes && themeRes.rows.length > 0) {
+        this.data.themes = themeRes.rows.map((r) => ({
+          id: r.id,
+          name: r.name,
+          slug: r.slug,
+          description: r.description || undefined,
+          icon: r.icon || "🎨",
+        }));
+        console.log(
+          `⚡ Loaded ${this.data.themes.length} themes from PostgreSQL database`,
+        );
+      }
     } catch (err: any) {
       console.warn("⚠️ Error loading records from PostgreSQL:", err.message);
     }
@@ -465,6 +594,76 @@ export class Database {
           console.warn(`⚠️ Supabase PG sync products notice:`, err.message),
         );
     });
+
+    // 5. Sync Themes
+    (this.data.themes || []).forEach((t) => {
+      this.pgPool
+        ?.query(
+          `
+        INSERT INTO public.themes (id, name, slug, description, icon)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (id) DO UPDATE SET
+          name = EXCLUDED.name,
+          slug = EXCLUDED.slug,
+          description = EXCLUDED.description,
+          icon = EXCLUDED.icon;
+      `,
+          [
+            t.id,
+            t.name,
+            t.slug || t.name.toLowerCase().replace(/\s+/g, "-"),
+            t.description || "",
+            t.icon || "🎨",
+          ],
+        )
+        .catch((err) =>
+          console.warn(`⚠️ Supabase PG sync themes notice:`, err.message),
+        );
+    });
+
+    // 6. Sync Homepage Sections
+    (this.data.homepageSections || []).forEach((sec) => {
+      this.pgPool
+        ?.query(
+          `
+        INSERT INTO public.homepage_sections (id, type, title, subtitle, theme_keyword, title_layout, bg_color, text_color, top_divider_fill, card_size, layout_template, product_line_id, category_id, decorations, is_visible, sort_order)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        ON CONFLICT (id) DO UPDATE SET
+          title = EXCLUDED.title,
+          theme_keyword = EXCLUDED.theme_keyword,
+          title_layout = EXCLUDED.title_layout,
+          bg_color = EXCLUDED.bg_color,
+          text_color = EXCLUDED.text_color,
+          decorations = EXCLUDED.decorations,
+          is_visible = EXCLUDED.is_visible,
+          sort_order = EXCLUDED.sort_order;
+      `,
+          [
+            sec.id,
+            sec.type,
+            sec.title,
+            sec.subtitle || null,
+            sec.themeKeyword || null,
+            sec.titleLayout || "left",
+            sec.bgColor || "#2D366D",
+            sec.textColor || "#FFFFFF",
+            sec.topDividerFill || "white",
+            sec.cardSize || "large",
+            sec.layoutTemplate || "carousel",
+            sec.productLineId || null,
+            sec.categoryId || null,
+            JSON.stringify(sec.decorations || []),
+            sec.isVisible !== false,
+            sec.sortOrder || 1,
+          ],
+        )
+        .catch((err) =>
+          console.warn(
+            `⚠️ Supabase PG sync homepage_sections notice:`,
+            err.message,
+          ),
+        );
+    });
   }
 
   private save() {
@@ -577,24 +776,86 @@ export class Database {
   }
 
   addTheme(theme: Omit<Theme, "id">): Theme {
-    const newTheme: Theme = { ...theme, id: `theme-${Date.now()}` };
+    const newTheme: Theme = {
+      ...theme,
+      id: `theme-${Date.now()}`,
+      slug: theme.slug || theme.name.toLowerCase().replace(/\s+/g, "-"),
+    };
+    if (!this.data.themes) this.data.themes = [];
     this.data.themes.push(newTheme);
     this.save();
+
+    if (this.pgPool) {
+      this.pgPool
+        .query(
+          `
+        INSERT INTO public.themes (id, name, slug, description, icon)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (id) DO UPDATE SET
+          name = EXCLUDED.name,
+          slug = EXCLUDED.slug,
+          description = EXCLUDED.description,
+          icon = EXCLUDED.icon;
+      `,
+          [
+            newTheme.id,
+            newTheme.name,
+            newTheme.slug,
+            newTheme.description || "",
+            newTheme.icon || "🎨",
+          ],
+        )
+        .catch((err) => console.warn("⚠️ PG theme insert notice:", err.message));
+    }
+
     return newTheme;
   }
 
   updateTheme(id: string, updates: Partial<Theme>): Theme | null {
+    if (!this.data.themes) return null;
     const idx = this.data.themes.findIndex((t) => t.id === id);
     if (idx === -1) return null;
-    this.data.themes[idx] = { ...this.data.themes[idx], ...updates };
+    const updatedTheme = { ...this.data.themes[idx], ...updates };
+    this.data.themes[idx] = updatedTheme;
     this.save();
-    return this.data.themes[idx];
+
+    if (this.pgPool) {
+      this.pgPool
+        .query(
+          `
+        UPDATE public.themes
+        SET name = $1, slug = $2, description = $3, icon = $4
+        WHERE id = $5;
+      `,
+          [
+            updatedTheme.name,
+            updatedTheme.slug ||
+              updatedTheme.name.toLowerCase().replace(/\s+/g, "-"),
+            updatedTheme.description || "",
+            updatedTheme.icon || "🎨",
+            id,
+          ],
+        )
+        .catch((err) => console.warn("⚠️ PG theme update notice:", err.message));
+    }
+
+    return updatedTheme;
   }
 
   deleteTheme(id: string): boolean {
+    if (!this.data.themes) return false;
+    const initLen = this.data.themes.length;
     this.data.themes = this.data.themes.filter((t) => t.id !== id);
-    this.save();
-    return true;
+    if (this.data.themes.length < initLen) {
+      this.save();
+      if (this.pgPool) {
+        this.pgPool
+          .query(`DELETE FROM public.themes WHERE id = $1`, [id])
+          .catch(() => null);
+      }
+      return true;
+    }
+    return false;
   }
 
   // Age Groups
@@ -1217,6 +1478,48 @@ export class Database {
     if (!this.data.homepageSections) this.data.homepageSections = [];
     this.data.homepageSections.push(newSection);
     this.save();
+
+    if (this.pgPool) {
+      this.pgPool
+        .query(
+          `
+        INSERT INTO public.homepage_sections 
+        (id, type, title, subtitle, theme_keyword, title_layout, bg_color, text_color, top_divider_fill, card_size, layout_template, product_line_id, category_id, decorations, is_visible, sort_order)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        ON CONFLICT (id) DO UPDATE SET
+          title = EXCLUDED.title,
+          theme_keyword = EXCLUDED.theme_keyword,
+          title_layout = EXCLUDED.title_layout,
+          bg_color = EXCLUDED.bg_color,
+          text_color = EXCLUDED.text_color,
+          decorations = EXCLUDED.decorations,
+          is_visible = EXCLUDED.is_visible,
+          sort_order = EXCLUDED.sort_order;
+      `,
+          [
+            newSection.id,
+            newSection.type,
+            newSection.title,
+            newSection.subtitle || null,
+            newSection.themeKeyword || null,
+            newSection.titleLayout || "left",
+            newSection.bgColor || "#2D366D",
+            newSection.textColor || "#FFFFFF",
+            newSection.topDividerFill || "white",
+            newSection.cardSize || "large",
+            newSection.layoutTemplate || "carousel",
+            newSection.productLineId || null,
+            newSection.categoryId || null,
+            JSON.stringify(newSection.decorations || []),
+            newSection.isVisible !== false,
+            newSection.sortOrder || 1,
+          ],
+        )
+        .catch((err) =>
+          console.warn("⚠️ PG insert section notice:", err.message),
+        );
+    }
+
     return newSection;
   }
 
@@ -1227,19 +1530,56 @@ export class Database {
     if (!this.data.homepageSections) return null;
     const idx = this.data.homepageSections.findIndex((s) => s.id === id);
     if (idx === -1) return null;
-    this.data.homepageSections[idx] = {
+    const updatedSec = {
       ...this.data.homepageSections[idx],
       ...updates,
     };
+    this.data.homepageSections[idx] = updatedSec;
     this.save();
-    return this.data.homepageSections[idx];
+
+    if (this.pgPool) {
+      this.pgPool
+        .query(
+          `
+        UPDATE public.homepage_sections
+        SET title = $1, theme_keyword = $2, title_layout = $3, bg_color = $4, text_color = $5, decorations = $6, is_visible = $7, sort_order = $8
+        WHERE id = $9;
+      `,
+          [
+            updatedSec.title,
+            updatedSec.themeKeyword || null,
+            updatedSec.titleLayout || "left",
+            updatedSec.bgColor || "#FFFFFF",
+            updatedSec.textColor || "#3C2A21",
+            JSON.stringify(updatedSec.decorations || []),
+            updatedSec.isVisible !== false,
+            updatedSec.sortOrder || 1,
+            id,
+          ],
+        )
+        .catch((err) =>
+          console.warn("⚠️ PG update section notice:", err.message),
+        );
+    }
+
+    return updatedSec;
   }
 
   reorderHomepageSections(orderedIds: string[]): HomepageSection[] {
     if (!this.data.homepageSections) return [];
     orderedIds.forEach((id, index) => {
       const section = this.data.homepageSections.find((s) => s.id === id);
-      if (section) section.sortOrder = index + 1;
+      if (section) {
+        section.sortOrder = index + 1;
+        if (this.pgPool) {
+          this.pgPool
+            .query(
+              `UPDATE public.homepage_sections SET sort_order = $1 WHERE id = $2`,
+              [index + 1, id],
+            )
+            .catch(() => null);
+        }
+      }
     });
     this.save();
     return this.getHomepageSections();
@@ -1253,6 +1593,11 @@ export class Database {
     );
     if (this.data.homepageSections.length < initLen) {
       this.save();
+      if (this.pgPool) {
+        this.pgPool
+          .query(`DELETE FROM public.homepage_sections WHERE id = $1`, [id])
+          .catch(() => null);
+      }
       return true;
     }
     return false;

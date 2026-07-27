@@ -16,6 +16,7 @@ import {
   Sparkles,
   LogOut,
   ShieldCheck,
+  Palette,
 } from "lucide-react";
 import { API_BASE_URL } from "../config/api";
 
@@ -148,6 +149,18 @@ export default function AdminAuthGuard({
             >
               <Tags className="w-4 h-4 text-yellow-400" />
               <span>Categories & Facets</span>
+            </Link>
+
+            <Link
+              href="/themes"
+              className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
+                pathname === "/themes"
+                  ? "bg-pink-600 text-white font-bold"
+                  : "hover:bg-slate-800 text-slate-300 hover:text-white"
+              }`}
+            >
+              <Palette className="w-4 h-4 text-purple-400" />
+              <span>Themes Manager</span>
             </Link>
 
             <Link
