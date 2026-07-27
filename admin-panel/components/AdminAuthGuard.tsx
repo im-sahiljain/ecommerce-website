@@ -163,6 +163,18 @@ export default function AdminAuthGuard({
             </Link>
 
             <Link
+              href="/homepage-builder"
+              className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
+                pathname === "/homepage-builder"
+                  ? "bg-pink-600 text-white font-bold"
+                  : "hover:bg-slate-800 text-slate-300 hover:text-white"
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-pink-400" />
+              <span>Homepage CMS Builder</span>
+            </Link>
+
+            <Link
               href="/bundles"
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl transition ${
                 pathname === "/bundles"
