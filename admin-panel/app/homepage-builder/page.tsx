@@ -505,7 +505,87 @@ export default function HomepageBuilderPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-end justify-end space-x-2 sm:col-span-1">
+                  {/* Floating Emojis Decoration Manager */}
+                  <div className="sm:col-span-3 bg-white p-3.5 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+                        <span>Section Floating Emojis / Badges</span>
+                      </label>
+                      <span className="text-[10px] text-slate-400 font-semibold">
+                        Click emoji to remove
+                      </span>
+                    </div>
+
+                    {/* Active Emojis Chips */}
+                    <div className="flex flex-wrap gap-2">
+                      {(editingSection.decorations || []).map((dec, dIdx) => (
+                        <span
+                          key={dec.id || dIdx}
+                          className="inline-flex items-center space-x-1 px-3 py-1 bg-slate-100 hover:bg-rose-50 text-slate-800 rounded-full text-base font-bold border border-slate-200 transition cursor-pointer group"
+                          onClick={() => {
+                            const updatedDecs = (editingSection.decorations || []).filter(
+                              (d) => d.id !== dec.id,
+                            );
+                            setEditingSection({
+                              ...editingSection,
+                              decorations: updatedDecs,
+                            });
+                          }}
+                          title="Click to delete emoji"
+                        >
+                          <span>{dec.content}</span>
+                          <Trash2 className="w-3 h-3 text-slate-400 group-hover:text-rose-600 transition" />
+                        </span>
+                      ))}
+
+                      {(editingSection.decorations || []).length === 0 && (
+                        <span className="text-xs text-slate-400 italic">
+                          No emojis active. Pick preset emojis below:
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Preset Emoji Picker Shortcuts */}
+                    <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">
+                        Add Quick Emoji:
+                      </span>
+                      {[
+                        "🪐", "🚀", "⭐", "✨", "🌍", "🌿", "🌺", "🌸",
+                        "🦋", "🐝", "🏰", "🦄", "👑", "🪄", "🍃", "🐾",
+                        "🦁", "🐘", "🌴", "🎨", "🕯️", "💖", "🎉"
+                      ].map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => {
+                            const newDec: DecorationItem = {
+                              id: `dec-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+                              type: "emoji",
+                              content: emoji,
+                              style: {
+                                top: `${15 + ((editingSection.decorations?.length || 0) * 15) % 65}%`,
+                                left: `${5 + ((editingSection.decorations?.length || 0) * 22) % 75}%`,
+                                fontSize: "38px",
+                                opacity: 0.85,
+                              },
+                              className: "hidden sm:block",
+                            };
+                            setEditingSection({
+                              ...editingSection,
+                              decorations: [...(editingSection.decorations || []), newDec],
+                            });
+                          }}
+                          className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-pink-100 hover:scale-110 text-base flex items-center justify-center transition border border-slate-200/80 shadow-2xs"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-end justify-end space-x-2 sm:col-span-3 pt-2">
                     <button
                       onClick={() => setEditingSection(null)}
                       className="px-4 py-2 bg-slate-200 text-slate-700 font-bold text-xs rounded-xl"
