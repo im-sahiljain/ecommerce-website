@@ -1,12 +1,13 @@
-# Little Creators Craft Hub - Progress Tracking
+# Craft and Kit Craft Hub - Progress Tracking
 
-This document tracks implemented features, active modules, and production enhancements for Little Creators Craft Hub.
+This document tracks implemented features, active modules, and production enhancements for Craft and Kit Craft Hub.
 
 ---
 
 ## 🟢 Implemented & Ready Features
 
 ### 1. Backend REST API (`backend/`)
+
 - [x] Node.js Express server on port 5000 (`src/server.ts`)
 - [x] Database connector supporting **Supabase PostgreSQL** & persistent fallback (`src/db.ts`)
 - [x] **Cloudinary Media Helper** for product image upload (`src/utils/cloudinary.ts`)
@@ -22,12 +23,13 @@ This document tracks implemented features, active modules, and production enhanc
 - [x] **Swagger UI Interactive API Documentation** (`/api-docs`)
 
 ### 2. Storefront Website (`website/`)
+
 - [x] Next.js 14 App Router on port 3000
 - [x] Quicksand Typography & Stitch Pastel Design System (`#FDE8E8`, `#E0F2FE`, `#FEF08A`, `#1E293B`)
 - [x] **Home Page (`app/page.tsx`)**: Recreated matching the provided design image:
   - Free shipping announcement bar
-  - Hero banner "Paint Your World with Little Creators!" & CTA buttons
-  - "Why Little Creators?" section (Cognitive Growth, Screen-Free Fun, Travel-Friendly Hobby)
+  - Hero banner "Paint Your World with Craft and Kit!" & CTA buttons
+  - "Why Craft and Kit?" section (Cognitive Growth, Screen-Free Fun, Travel-Friendly Hobby)
   - Space Adventures, Secret Garden (Floral), Fairytale Magic, Wild Kingdom theme showcases
   - Newsletter signup & custom footer
 - [x] **Shop All Kits Page (`app/shop/page.tsx`)**: Filterable product catalog
@@ -38,6 +40,7 @@ This document tracks implemented features, active modules, and production enhanc
 - [x] **Auto-populated Checkout (`app/checkout/page.tsx`)**: Automatically pre-fills customer address and contact details from account profile
 
 ### 3. Admin Management Panel (`admin panel/`)
+
 - [x] Next.js 14 App Router on port 3001
 - [x] Sidebar navigation layout (`app/layout.tsx`)
 - [x] **Dashboard Overview (`app/page.tsx`)**: Stats metrics (Total Products, Total Orders, Revenue, Pending)
@@ -50,6 +53,7 @@ This document tracks implemented features, active modules, and production enhanc
 ---
 
 ## 🟡 Deferred / Future Production Enhancements
+
 - [ ] Production Stripe / PayPal payment gateway webhooks
 - [ ] Email notifications via SendGrid / Resend
 - [ ] Automated SMS delivery updates via Twilio

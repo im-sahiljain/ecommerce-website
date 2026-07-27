@@ -38,14 +38,72 @@ const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
     isVisible: true,
     sortOrder: 1,
     decorations: [
-      { id: "s1", type: "emoji", content: "🪐", style: { top: "15%", left: "5%", fontSize: "48px", opacity: 0.9, transform: "rotate(-15deg)" } },
-      { id: "s2", type: "emoji", content: "⭐", style: { top: "8%", left: "30%", fontSize: "18px", opacity: 0.8 }, className: "hidden sm:block" },
-      { id: "s3", type: "emoji", content: "✨", style: { top: "12%", right: "8%", fontSize: "14px", opacity: 0.7 }, className: "hidden sm:block" },
-      { id: "s4", type: "emoji", content: "⭐", style: { top: "5%", right: "15%", fontSize: "20px", opacity: 0.8 } },
-      { id: "s5", type: "emoji", content: "🌍", style: { top: "25%", right: "3%", fontSize: "42px", opacity: 0.85 }, className: "hidden md:block" },
-      { id: "s6", type: "emoji", content: "🚀", style: { bottom: "30%", left: "8%", fontSize: "36px", opacity: 0.8, transform: "rotate(25deg)" }, className: "hidden sm:block" },
-      { id: "s7", type: "emoji", content: "🚀", style: { bottom: "15%", right: "5%", fontSize: "38px", opacity: 0.8, transform: "rotate(-20deg) scaleX(-1)" }, className: "hidden sm:block" }
-    ]
+      {
+        id: "s1",
+        type: "emoji",
+        content: "🪐",
+        style: {
+          top: "15%",
+          left: "5%",
+          fontSize: "48px",
+          opacity: 0.9,
+          transform: "rotate(-15deg)",
+        },
+      },
+      {
+        id: "s2",
+        type: "emoji",
+        content: "⭐",
+        style: { top: "8%", left: "30%", fontSize: "18px", opacity: 0.8 },
+        className: "hidden sm:block",
+      },
+      {
+        id: "s3",
+        type: "emoji",
+        content: "✨",
+        style: { top: "12%", right: "8%", fontSize: "14px", opacity: 0.7 },
+        className: "hidden sm:block",
+      },
+      {
+        id: "s4",
+        type: "emoji",
+        content: "⭐",
+        style: { top: "5%", right: "15%", fontSize: "20px", opacity: 0.8 },
+      },
+      {
+        id: "s5",
+        type: "emoji",
+        content: "🌍",
+        style: { top: "25%", right: "3%", fontSize: "42px", opacity: 0.85 },
+        className: "hidden md:block",
+      },
+      {
+        id: "s6",
+        type: "emoji",
+        content: "🚀",
+        style: {
+          bottom: "30%",
+          left: "8%",
+          fontSize: "36px",
+          opacity: 0.8,
+          transform: "rotate(25deg)",
+        },
+        className: "hidden sm:block",
+      },
+      {
+        id: "s7",
+        type: "emoji",
+        content: "🚀",
+        style: {
+          bottom: "15%",
+          right: "5%",
+          fontSize: "38px",
+          opacity: 0.8,
+          transform: "rotate(-20deg) scaleX(-1)",
+        },
+        className: "hidden sm:block",
+      },
+    ],
   },
   {
     id: "sec-garden",
@@ -62,11 +120,40 @@ const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
     isVisible: true,
     sortOrder: 2,
     decorations: [
-      { id: "g1", type: "emoji", content: "🌿", style: { top: "20px", left: "20px", fontSize: "46px", opacity: 0.85 }, className: "hidden sm:block" },
-      { id: "g2", type: "emoji", content: "🌺", style: { bottom: "20px", right: "20px", fontSize: "46px", opacity: 0.85 }, className: "hidden sm:block" },
-      { id: "g3", type: "emoji", content: "🌸", style: { top: "15%", right: "12%", fontSize: "36px", opacity: 0.8 }, className: "hidden sm:block" },
-      { id: "g4", type: "emoji", content: "🦋", style: { top: "25%", left: "10%", fontSize: "38px", opacity: 0.8 }, className: "hidden sm:block" }
-    ]
+      {
+        id: "g1",
+        type: "emoji",
+        content: "🌿",
+        style: { top: "20px", left: "20px", fontSize: "46px", opacity: 0.85 },
+        className: "hidden sm:block",
+      },
+      {
+        id: "g2",
+        type: "emoji",
+        content: "🌺",
+        style: {
+          bottom: "20px",
+          right: "20px",
+          fontSize: "46px",
+          opacity: 0.85,
+        },
+        className: "hidden sm:block",
+      },
+      {
+        id: "g3",
+        type: "emoji",
+        content: "🌸",
+        style: { top: "15%", right: "12%", fontSize: "36px", opacity: 0.8 },
+        className: "hidden sm:block",
+      },
+      {
+        id: "g4",
+        type: "emoji",
+        content: "🦋",
+        style: { top: "25%", left: "10%", fontSize: "38px", opacity: 0.8 },
+        className: "hidden sm:block",
+      },
+    ],
   },
   {
     id: "sec-fairytale",
@@ -83,10 +170,33 @@ const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
     isVisible: true,
     sortOrder: 3,
     decorations: [
-      { id: "f1", type: "emoji", content: "🏰", style: { bottom: "20px", left: "20px", fontSize: "44px", opacity: 0.85 }, className: "hidden md:block" },
-      { id: "f2", type: "emoji", content: "🦄", style: { top: "18%", right: "8%", fontSize: "42px", opacity: 0.85 }, className: "hidden sm:block" },
-      { id: "f3", type: "emoji", content: "👑", style: { top: "12%", left: "25%", fontSize: "32px", opacity: 0.8 }, className: "hidden sm:block" }
-    ]
+      {
+        id: "f1",
+        type: "emoji",
+        content: "🏰",
+        style: {
+          bottom: "20px",
+          left: "20px",
+          fontSize: "44px",
+          opacity: 0.85,
+        },
+        className: "hidden md:block",
+      },
+      {
+        id: "f2",
+        type: "emoji",
+        content: "🦄",
+        style: { top: "18%", right: "8%", fontSize: "42px", opacity: 0.85 },
+        className: "hidden sm:block",
+      },
+      {
+        id: "f3",
+        type: "emoji",
+        content: "👑",
+        style: { top: "12%", left: "25%", fontSize: "32px", opacity: 0.8 },
+        className: "hidden sm:block",
+      },
+    ],
   },
   {
     id: "sec-wild",
@@ -103,12 +213,41 @@ const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
     isVisible: true,
     sortOrder: 4,
     decorations: [
-      { id: "w1", type: "emoji", content: "🍃", style: { bottom: "20px", left: "20px", fontSize: "46px", opacity: 0.85 }, className: "hidden sm:block" },
-      { id: "w2", type: "emoji", content: "🐾", style: { top: "20px", right: "20px", fontSize: "38px", opacity: 0.75 }, className: "hidden sm:block" },
-      { id: "w3", type: "emoji", content: "🦁", style: { top: "15%", left: "12%", fontSize: "40px", opacity: 0.85 }, className: "hidden sm:block" },
-      { id: "w4", type: "emoji", content: "🐘", style: { bottom: "15%", right: "10%", fontSize: "40px", opacity: 0.85 }, className: "hidden sm:block" }
-    ]
-  }
+      {
+        id: "w1",
+        type: "emoji",
+        content: "🍃",
+        style: {
+          bottom: "20px",
+          left: "20px",
+          fontSize: "46px",
+          opacity: 0.85,
+        },
+        className: "hidden sm:block",
+      },
+      {
+        id: "w2",
+        type: "emoji",
+        content: "🐾",
+        style: { top: "20px", right: "20px", fontSize: "38px", opacity: 0.75 },
+        className: "hidden sm:block",
+      },
+      {
+        id: "w3",
+        type: "emoji",
+        content: "🦁",
+        style: { top: "15%", left: "12%", fontSize: "40px", opacity: 0.85 },
+        className: "hidden sm:block",
+      },
+      {
+        id: "w4",
+        type: "emoji",
+        content: "🐘",
+        style: { bottom: "15%", right: "10%", fontSize: "40px", opacity: 0.85 },
+        className: "hidden sm:block",
+      },
+    ],
+  },
 ];
 
 export class Database {
@@ -128,7 +267,7 @@ export class Database {
       whatsappNumber: "",
       whatsappMessageTemplate: "",
       isWhatsappEnabled: false,
-      siteTitle: "Little Creators",
+      siteTitle: "Craft and Kit",
       defaultMetaDescription: "",
     };
 
@@ -318,11 +457,12 @@ export class Database {
         this.data.settings = {
           isGlobalOrderingEnabled: s.is_global_ordering_enabled !== false,
           isWhatsappOrderingEnabled: s.is_whatsapp_ordering_enabled !== false,
-          isWhatsappChatButtonEnabled: s.is_whatsapp_chat_button_enabled !== false,
+          isWhatsappChatButtonEnabled:
+            s.is_whatsapp_chat_button_enabled !== false,
           whatsappNumber: s.whatsapp_number || "",
           whatsappMessageTemplate: s.whatsapp_message_template || "",
           isWhatsappEnabled: s.is_whatsapp_enabled !== false,
-          siteTitle: s.site_title || "Little Creators",
+          siteTitle: s.site_title || "Craft and Kit",
           defaultMetaDescription: s.default_meta_description || "",
         };
       }
@@ -352,7 +492,10 @@ export class Database {
       `,
         )
         .catch((err) =>
-          console.warn("⚠️ Create homepage_sections table notice:", err.message),
+          console.warn(
+            "⚠️ Create homepage_sections table notice:",
+            err.message,
+          ),
         );
 
       const secRes = await this.pgPool
@@ -865,7 +1008,9 @@ export class Database {
             newTheme.icon || "🎨",
           ],
         )
-        .catch((err) => console.warn("⚠️ PG theme insert notice:", err.message));
+        .catch((err) =>
+          console.warn("⚠️ PG theme insert notice:", err.message),
+        );
     }
 
     return newTheme;
@@ -896,7 +1041,9 @@ export class Database {
             id,
           ],
         )
-        .catch((err) => console.warn("⚠️ PG theme update notice:", err.message));
+        .catch((err) =>
+          console.warn("⚠️ PG theme update notice:", err.message),
+        );
     }
 
     return updatedTheme;
@@ -1501,7 +1648,30 @@ export class Database {
   }
 
   // Site Settings
-  getSettings(): SiteSettings {
+  async getSettings(): Promise<SiteSettings> {
+    if (this.pgPool) {
+      try {
+        const res = await this.pgPool.query(
+          `SELECT * FROM public.site_settings LIMIT 1`,
+        );
+        if (res && res.rows.length > 0) {
+          const s = res.rows[0];
+          return {
+            isGlobalOrderingEnabled: s.is_global_ordering_enabled !== false,
+            isWhatsappOrderingEnabled: s.is_whatsapp_ordering_enabled !== false,
+            isWhatsappChatButtonEnabled:
+              s.is_whatsapp_chat_button_enabled !== false,
+            whatsappNumber: s.whatsapp_number || "",
+            whatsappMessageTemplate: s.whatsapp_message_template || "",
+            isWhatsappEnabled: s.is_whatsapp_enabled !== false,
+            siteTitle: s.site_title || "Craft and Kit",
+            defaultMetaDescription: s.default_meta_description || "",
+          };
+        }
+      } catch (err: any) {
+        console.warn("⚠️ PG settings get notice:", err.message);
+      }
+    }
     return (
       this.data.settings || {
         isGlobalOrderingEnabled: true,
@@ -1511,21 +1681,21 @@ export class Database {
         whatsappMessageTemplate:
           "Hi! I am interested in {productName} ({productUrl}). Can you help me with details?",
         isWhatsappEnabled: true,
-        siteTitle: "Little Creators Craft Hub",
+        siteTitle: "Craft and Kit Craft Hub",
         defaultMetaDescription:
           "Ready-to-paint craft figurines, scented aesthetic wax candles, and creative art kits.",
       }
     );
   }
 
-  updateSettings(updates: Partial<SiteSettings>): SiteSettings {
-    const updated = { ...this.getSettings(), ...updates };
+  async updateSettings(updates: Partial<SiteSettings>): Promise<SiteSettings> {
+    const current = await this.getSettings();
+    const updated = { ...current, ...updates };
     this.data.settings = updated;
-    this.save();
 
     if (this.pgPool) {
-      this.pgPool
-        .query(
+      try {
+        await this.pgPool.query(
           `
         CREATE TABLE IF NOT EXISTS public.site_settings (
           id INT PRIMARY KEY DEFAULT 1,
@@ -1539,10 +1709,10 @@ export class Database {
           default_meta_description TEXT
         );
       `,
-        )
-        .then(() =>
-          this.pgPool?.query(
-            `
+        );
+
+        await this.pgPool.query(
+          `
           INSERT INTO public.site_settings (id, is_global_ordering_enabled, is_whatsapp_ordering_enabled, is_whatsapp_chat_button_enabled, whatsapp_number, whatsapp_message_template, is_whatsapp_enabled, site_title, default_meta_description)
           VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8)
           ON CONFLICT (id) DO UPDATE SET
@@ -1555,21 +1725,21 @@ export class Database {
             site_title = EXCLUDED.site_title,
             default_meta_description = EXCLUDED.default_meta_description;
         `,
-            [
-              updated.isGlobalOrderingEnabled !== false,
-              updated.isWhatsappOrderingEnabled !== false,
+          [
+            updated.isGlobalOrderingEnabled !== false,
+            updated.isWhatsappOrderingEnabled !== false,
+            updated.isWhatsappChatButtonEnabled !== false,
+            updated.whatsappNumber || "",
+            updated.whatsappMessageTemplate || "",
+            updated.isWhatsappOrderingEnabled !== false ||
               updated.isWhatsappChatButtonEnabled !== false,
-              updated.whatsappNumber || "",
-              updated.whatsappMessageTemplate || "",
-              updated.isWhatsappOrderingEnabled !== false || updated.isWhatsappChatButtonEnabled !== false,
-              updated.siteTitle || "Little Creators",
-              updated.defaultMetaDescription || "",
-            ],
-          ),
-        )
-        .catch((err) =>
-          console.warn("⚠️ PG site_settings update notice:", err.message),
+            updated.siteTitle || "Craft and Kit",
+            updated.defaultMetaDescription || "",
+          ],
         );
+      } catch (err: any) {
+        console.warn("⚠️ PG site_settings update error:", err.message);
+      }
     }
 
     return updated;
@@ -1577,7 +1747,10 @@ export class Database {
 
   // Homepage Sections Management
   getHomepageSections(): HomepageSection[] {
-    if (!this.data.homepageSections || this.data.homepageSections.length === 0) {
+    if (
+      !this.data.homepageSections ||
+      this.data.homepageSections.length === 0
+    ) {
       this.data.homepageSections = [...DEFAULT_HOMEPAGE_SECTIONS];
     }
     return (this.data.homepageSections || []).sort(

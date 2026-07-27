@@ -1,14 +1,22 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ShieldCheck, Lock, Mail, Eye, EyeOff, Sparkles, ArrowRight } from 'lucide-react';
-import { API_BASE_URL } from '../../config/api';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ShieldCheck,
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
+import { API_BASE_URL } from "../../config/api";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState('admin@littlecreators.com');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("admin@littlecreators.com");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,24 +28,24 @@ export default function AdminLoginPage() {
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Invalid admin credentials');
+        throw new Error(data.error || "Invalid admin credentials");
       }
 
       if (data.token) {
-        localStorage.setItem('admin_token', data.token);
-        localStorage.setItem('admin_user', JSON.stringify(data.admin));
-        router.push('/products');
+        localStorage.setItem("admin_token", data.token);
+        localStorage.setItem("admin_user", JSON.stringify(data.admin));
+        router.push("/products");
         router.refresh();
       }
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError(err.message || "Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -52,9 +60,11 @@ export default function AdminLoginPage() {
             <ShieldCheck className="w-8 h-8" />
           </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-2">
-            Little Creators <Sparkles className="w-5 h-5 text-pink-500" />
+            Craft and Kit <Sparkles className="w-5 h-5 text-pink-500" />
           </h1>
-          <p className="text-slate-500 text-xs mt-1 font-semibold">Admin Control Panel Authentication</p>
+          <p className="text-slate-500 text-xs mt-1 font-semibold">
+            Admin Control Panel Authentication
+          </p>
         </div>
 
         {/* Error Alert */}
@@ -95,7 +105,7 @@ export default function AdminLoginPage() {
                 <Lock className="w-4 h-4" />
               </div>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -107,7 +117,11 @@ export default function AdminLoginPage() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
@@ -132,7 +146,7 @@ export default function AdminLoginPage() {
 
         <div className="mt-8 text-center border-t border-slate-100 pt-4">
           <p className="text-[11px] text-slate-400 font-medium">
-            Protected Admin Route • Little Creators Commerce Platform
+            Protected Admin Route • Craft and Kit Commerce Platform
           </p>
         </div>
       </div>

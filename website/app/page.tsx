@@ -358,7 +358,7 @@ export default function HomePage() {
             >
               Paint Your World
               <br />
-              with Little Creators!
+              with Craft and Kit!
             </h1>
             <p className="mb-8 max-w-md mx-auto md:mx-0 text-slate-600 text-base sm:text-lg leading-relaxed font-medium">
               Complete ready-to-paint plaster craft kits designed to ignite
@@ -751,14 +751,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── WHY LITTLE CREATORS ─── */}
+      {/* ─── WHY Craft and Kit ─── */}
       <section style={{ backgroundColor: "white", padding: "64px 0" }}>
         <div className="max-w-7xl mx-auto px-6">
           <h2
             className="text-center font-bold mb-12"
             style={{ fontSize: "30px", color: "#3C2A21" }}
           >
-            Why Little Creators?
+            Why Craft and Kit?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <WhyCard

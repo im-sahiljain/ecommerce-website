@@ -25,7 +25,7 @@ export default function SettingsPage() {
     isWhatsappOrderingEnabled: true,
     isWhatsappChatButtonEnabled: true,
     whatsappNumber: "",
-    siteTitle: "Little Creators Craft & Candle Hub",
+    siteTitle: "Craft and Kit Craft & Candle Hub",
     defaultMetaDescription:
       "Ready-to-paint craft figurines, scented aesthetic wax candles, and creative art kits.",
   });
@@ -41,9 +41,10 @@ export default function SettingsPage() {
           setSettings({
             isGlobalOrderingEnabled: data.isGlobalOrderingEnabled !== false,
             isWhatsappOrderingEnabled: data.isWhatsappOrderingEnabled !== false,
-            isWhatsappChatButtonEnabled: data.isWhatsappChatButtonEnabled !== false,
+            isWhatsappChatButtonEnabled:
+              data.isWhatsappChatButtonEnabled !== false,
             whatsappNumber: data.whatsappNumber || "",
-            siteTitle: data.siteTitle || "Little Creators",
+            siteTitle: data.siteTitle || "Craft and Kit",
             defaultMetaDescription: data.defaultMetaDescription || "",
           });
         }
@@ -81,7 +82,8 @@ export default function SettingsPage() {
           Global Storefront Settings
         </h1>
         <p className="text-slate-500 text-xs mt-1">
-          Configure independent ordering controls, WhatsApp integration switches, and SEO defaults.
+          Configure independent ordering controls, WhatsApp integration
+          switches, and SEO defaults.
         </p>
       </div>
 
@@ -108,7 +110,8 @@ export default function SettingsPage() {
                 Enable Website Online Cart & Checkout
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                When turned OFF, standard website cart checkout is disabled across the store.
+                When turned OFF, standard website cart checkout is disabled
+                across the store.
               </p>
             </div>
 
@@ -144,7 +147,9 @@ export default function SettingsPage() {
                 Enable "Order via WhatsApp" in Cart Drawer
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                When turned ON, customers can click "Order via WhatsApp" in their cart, fill out their delivery address, and send the order receipt to your WhatsApp.
+                When turned ON, customers can click "Order via WhatsApp" in
+                their cart, fill out their delivery address, and send the order
+                receipt to your WhatsApp.
               </p>
             </div>
 
@@ -179,7 +184,8 @@ export default function SettingsPage() {
               className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500"
             />
             <p className="text-[10px] text-slate-400 mt-1">
-              All WhatsApp order receipts will be routed directly to this phone number.
+              All WhatsApp order receipts will be routed directly to this phone
+              number.
             </p>
           </div>
         </div>
@@ -199,7 +205,8 @@ export default function SettingsPage() {
                 Show Floating WhatsApp Chat Button
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                Displays a floating chat widget in the bottom-right corner of storefront pages for general inquiries.
+                Displays a floating chat widget in the bottom-right corner of
+                storefront pages for general inquiries.
               </p>
             </div>
 

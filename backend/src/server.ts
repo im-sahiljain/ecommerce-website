@@ -48,11 +48,9 @@ app.post("/api/admin/login", async (req, res) => {
 
   const adminUser = await db.getAdminUserFromDatabase(username);
   if (!adminUser) {
-    return res
-      .status(401)
-      .json({
-        error: "Invalid admin credentials or account not found in database.",
-      });
+    return res.status(401).json({
+      error: "Invalid admin credentials or account not found in database.",
+    });
   }
 
   if (adminUser.password !== password) {
@@ -193,12 +191,10 @@ app.post(
       isDefault,
     } = req.body;
     if (!addressLine || !city || !state || !zipCode) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Please provide full address details (street, city, state, zip code).",
-        });
+      return res.status(400).json({
+        error:
+          "Please provide full address details (street, city, state, zip code).",
+      });
     }
 
     const newAddress = db.addUserAddress(userIdentifier, {
@@ -380,12 +376,13 @@ app.delete("/api/bundles/:id", requireAdminAuth, (req, res) => {
 });
 
 // Site Settings API (Global Ordering & WhatsApp Switches)
-app.get("/api/settings", (req, res) => {
-  res.json(db.getSettings());
+app.get("/api/settings", async (req, res) => {
+  const settings = await db.getSettings();
+  res.json(settings);
 });
 
-app.put("/api/settings", requireAdminAuth, (req, res) => {
-  const updated = db.updateSettings(req.body);
+app.put("/api/settings", requireAdminAuth, async (req, res) => {
+  const updated = await db.updateSettings(req.body);
   res.json(updated);
 });
 
@@ -450,11 +447,9 @@ app.delete("/api/homepage-sections/:id", requireAdminAuth, (req, res) => {
 app.post("/api/products/:id/stock-adjustment", requireAdminAuth, (req, res) => {
   const { changeAmount, reason, updatedBy } = req.body;
   if (typeof changeAmount !== "number" || !reason) {
-    return res
-      .status(400)
-      .json({
-        error: "changeAmount (number) and reason (string) are required.",
-      });
+    return res.status(400).json({
+      error: "changeAmount (number) and reason (string) are required.",
+    });
   }
   const updated = db.adjustProductStock(
     req.params.id,
@@ -823,9 +818,7 @@ app.post("/api/orders", (req: AuthenticatedRequest, res) => {
     "guest@littlecreators.com";
 
   if (!items || !items.length || !customerName || !shippingAddress) {
-    return res
-      .status(400)
-      .json({ error: "Please fill in all order details." });
+    return res.status(400).json({ error: "Please fill in all order details." });
   }
 
   // 1. Auto-create user in database if not registered yet
@@ -888,10 +881,7 @@ app.post("/api/orders", (req: AuthenticatedRequest, res) => {
       totalAmount: newOrder.total,
     })
     .catch((err: any) => {
-      console.warn(
-        "⚠️ BullMQ queue push failed (Queue offline):",
-        err.message,
-      );
+      console.warn("⚠️ BullMQ queue push failed (Queue offline):", err.message);
     });
 
   res.status(201).json(newOrder);
@@ -923,5 +913,5 @@ app.get("/api/admin/stats", requireAdminAuth, (req: any, res: any) => {
 
 const HOST = "0.0.0.0";
 app.listen(PORT, HOST, () => {
-  console.log(`🚀 Little Creators Backend listening on http://${HOST}:${PORT}`);
+  console.log(`🚀 Craft and Kit Backend listening on http://${HOST}:${PORT}`);
 });

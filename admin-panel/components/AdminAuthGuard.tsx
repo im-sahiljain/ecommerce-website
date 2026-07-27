@@ -188,7 +188,7 @@ export default function AdminAuthGuard({
               <Sparkles className="w-4 h-4" />
             </div>
             <span className="font-extrabold text-sm text-white tracking-tight">
-              Little Creators
+              Craft and Kit
             </span>
           </div>
         </div>
@@ -215,7 +215,9 @@ export default function AdminAuthGuard({
       {/* Desktop & Mobile Slide-out Sidebar */}
       <aside
         className={`bg-slate-900 text-white flex flex-col justify-between p-4 lg:p-5 fixed top-0 bottom-0 left-0 z-50 shadow-2xl transition-all duration-300 ease-in-out ${
-          isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0"
+          isMobileOpen
+            ? "translate-x-0 w-64"
+            : "-translate-x-full lg:translate-x-0"
         } ${isCollapsed ? "lg:w-20" : "lg:w-64"}`}
       >
         <div className="space-y-6">
@@ -228,7 +230,7 @@ export default function AdminAuthGuard({
               {!isCollapsed && (
                 <div className="truncate transition-opacity duration-200">
                   <h1 className="font-extrabold text-base tracking-tight text-white truncate">
-                    Little Creators
+                    Craft and Kit
                   </h1>
                   <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest block">
                     Admin Control

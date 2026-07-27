@@ -64,7 +64,7 @@ export default function WhatsappOrderModal({
     const fullAddress = `${addressLine}, ${city} - ${zipCode}`.trim();
 
     // Structured WhatsApp Message
-    const message = `🛍️ *NEW ORDER - LITTLE CREATORS* 🛍️
+    const message = `🛍️ *NEW ORDER - Craft and Kit* 🛍️
 ----------------------------------
 📦 *ITEMS ORDERED:*
 ${itemLines}

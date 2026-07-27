@@ -88,7 +88,7 @@ export default function Navbar() {
                 e.target.src =
                   "https://placehold.co/150x50?text=Little+Creators";
               }}
-              alt="Little Creators Logo"
+              alt="Craft and Kit Logo"
               className="h-9 w-auto"
             />
           </Link>
