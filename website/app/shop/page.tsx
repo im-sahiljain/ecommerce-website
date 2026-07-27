@@ -22,6 +22,8 @@ interface Product {
   inStock: boolean;
   featured?: boolean;
   attributes?: Record<string, string>;
+  isPack?: boolean;
+  productIds?: string[];
 }
 
 interface ProductLine {
@@ -43,9 +45,11 @@ function ShopPageContent() {
   const initialCategory = searchParams.get("category") || "";
   const initialAge = searchParams.get("ageGroup") || "";
   const initialProductLineId = searchParams.get("productLineId") || "";
+  const initialPackId = searchParams.get("packId") || "";
 
   const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
+  const [packs, setPacks] = useState<any[]>([]);
   const [productLines, setProductLines] = useState<ProductLine[]>([]);
   const [facets, setFacets] = useState<CategoryFacet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,6 +60,7 @@ function ShopPageContent() {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedTheme, setSelectedTheme] = useState(initialTheme);
   const [selectedAge, setSelectedAge] = useState(initialAge);
+  const [selectedPackId, setSelectedPackId] = useState(initialPackId);
   const [selectedScent, setSelectedScent] = useState("");
   const [inStockOnly, setInStockOnly] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number>(2000);
@@ -71,6 +76,13 @@ function ShopPageContent() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+
+    fetch(`${API_BASE_URL}/api/packs`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setPacks(data);
+      })
+      .catch(() => {});
 
     fetch(`${API_BASE_URL}/api/product-lines`)
       .then((res) => res.json())
@@ -88,8 +100,33 @@ function ShopPageContent() {
   }, []);
 
   const filteredProducts = useMemo(() => {
-    let list = [...products];
+    // Map packs to product-like format
+    const packProducts: Product[] = packs.map((pack) => ({
+      id: pack.id,
+      name: pack.name,
+      price: pack.price,
+      originalPrice: pack.originalPrice,
+      theme: "General",
+      category: pack.category || "Pack Set",
+      ageGroup: "All Ages",
+      productLineId: pack.productLineId,
+      isNonToxic: true,
+      image:
+        pack.image ||
+        products.find((p) => pack.productIds?.includes(p.id))?.image ||
+        "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500",
+      description: pack.description || "",
+      inStock: pack.inStock !== false,
+      featured: pack.featured,
+      isPack: true,
+      productIds: pack.productIds || [],
+    }));
 
+    let list = [...products, ...packProducts];
+
+    if (selectedPackId) {
+      list = list.filter((p) => p.id === selectedPackId || (p.isPack && p.id === selectedPackId));
+    }
     if (selectedProductLineId) {
       list = list.filter((p) => p.productLineId === selectedProductLineId);
     }
@@ -208,6 +245,7 @@ function ShopPageContent() {
                   setSelectedTheme("");
                   setSelectedCategory("");
                   setSelectedAge("");
+                  setSelectedPackId("");
                   setSelectedScent("");
                   setInStockOnly(false);
                   setMaxPrice(2000);
@@ -362,6 +400,7 @@ function ShopPageContent() {
                   setSelectedTheme("");
                   setSelectedCategory("");
                   setSelectedAge("");
+                  setSelectedPackId("");
                   setSelectedScent("");
                   setInStockOnly(false);
                   setMaxPrice(2000);
@@ -390,16 +429,22 @@ function ShopPageContent() {
                           className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                         />
                         <div className="absolute top-2 left-2 flex flex-col space-y-1 z-10">
-                          <span className="px-2.5 py-1 bg-sky-100 text-sky-800 rounded-full text-[10px] font-bold shadow-xs">
-                            {product.ageGroup}
-                          </span>
-                          {/* {product.isNonToxic && (
+                          {product.isPack ? (
+                            <span className="px-2.5 py-1 bg-amber-500 text-white rounded-full text-[10px] font-black shadow-xs tracking-wider uppercase">
+                              🎁 Pack of {product.productIds?.length || 1}
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-1 bg-sky-100 text-sky-800 rounded-full text-[10px] font-bold shadow-xs">
+                              {product.ageGroup}
+                            </span>
+                          )}
+                        </div>
+                        {/* {product.isNonToxic && (
                             <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[10px] font-bold shadow-xs flex items-center space-x-1">
                               <ShieldCheck className="w-3 h-3 inline" />
                               <span>Non-Toxic</span>
                             </span>
                           )} */}
-                        </div>
                       </div>
 
                       <span className="text-[10px] font-bold uppercase tracking-wider text-pink-500">

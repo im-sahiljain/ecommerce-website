@@ -39,6 +39,7 @@ export default function Navbar() {
 
   const [productLines, setProductLines] = useState<ProductLine[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [packs, setPacks] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
 
@@ -67,6 +68,13 @@ export default function Navbar() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setCategories(data);
+      })
+      .catch(() => {});
+
+    fetch(`${API_BASE_URL}/api/packs`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setPacks(data);
       })
       .catch(() => {});
   }, []);
@@ -185,6 +193,21 @@ export default function Navbar() {
                               {cat.name}
                             </Link>
                           ))}
+                          {packs
+                            .filter(
+                              (p) =>
+                                !p.productLineId || p.productLineId === line.id,
+                            )
+                            .map((pack) => (
+                              <Link
+                                key={pack.id}
+                                href={`/shop?packId=${pack.id}`}
+                                onClick={() => setIsProductsOpen(false)}
+                                className="block text-xs font-extrabold text-amber-600 hover:text-amber-700 py-1 transition"
+                              >
+                                🎁 {pack.name}
+                              </Link>
+                            ))}
                         </div>
                       </div>
                     );

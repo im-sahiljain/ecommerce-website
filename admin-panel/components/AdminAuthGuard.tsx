@@ -21,6 +21,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  Boxes,
 } from "lucide-react";
 import { API_BASE_URL } from "../config/api";
 
@@ -54,6 +55,12 @@ const navItems = [
     label: "Products Catalog",
     icon: Package,
     color: "text-emerald-400",
+  },
+  {
+    href: "/packs",
+    label: "Packs Builder",
+    icon: Boxes,
+    color: "text-amber-400",
   },
   {
     href: "/homepage-builder",

@@ -375,6 +375,53 @@ app.delete("/api/bundles/:id", requireAdminAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// Packs Builder API
+app.get("/api/packs", async (req, res) => {
+  res.json(await db.getPacks());
+});
+
+app.get("/api/packs/:id", async (req, res) => {
+  const pack = await db.getPackById(req.params.id);
+  if (!pack) return res.status(404).json({ error: "Pack not found" });
+  res.json(pack);
+});
+
+app.post("/api/packs", requireAdminAuth, async (req, res) => {
+  const { name, slug, price, originalPrice, description, image, images, productIds, productLineId, categoryId, inStock, featured } = req.body;
+  if (!name || !price || !Array.isArray(productIds)) {
+    return res.status(400).json({ error: "Pack name, price, and selected productIds array are required." });
+  }
+
+  const newPack = await db.addPack({
+    name,
+    slug: slug || name.toLowerCase().replace(/\s+/g, "-"),
+    price: Number(price),
+    originalPrice: originalPrice ? Number(originalPrice) : undefined,
+    description: description || "",
+    image: image || "",
+    images: images || [],
+    productIds,
+    productLineId: productLineId || undefined,
+    categoryId: categoryId || undefined,
+    inStock: inStock !== undefined ? Boolean(inStock) : true,
+    featured: Boolean(featured),
+  });
+
+  res.status(201).json(newPack);
+});
+
+app.put("/api/packs/:id", requireAdminAuth, async (req, res) => {
+  const updated = await db.updatePack(req.params.id, req.body);
+  if (!updated) return res.status(404).json({ error: "Pack not found" });
+  res.json(updated);
+});
+
+app.delete("/api/packs/:id", requireAdminAuth, async (req, res) => {
+  const deleted = await db.deletePack(req.params.id);
+  if (!deleted) return res.status(404).json({ error: "Pack not found" });
+  res.json({ success: true });
+});
+
 // Site Settings API (Global Ordering & WhatsApp Switches)
 app.get("/api/settings", async (req, res) => {
   const settings = await db.getSettings();

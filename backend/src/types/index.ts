@@ -224,6 +224,24 @@ export interface SlugRedirect {
   createdAt: string;
 }
 
+export interface Pack {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  originalPrice?: number;
+  description: string;
+  image?: string;
+  images?: string[];
+  productIds: string[];
+  productLineId?: string;
+  categoryId?: string;
+  inStock: boolean;
+  featured?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface DatabaseSchema {
   products: Product[];
   productLines: ProductLine[];
@@ -240,4 +258,6 @@ export interface DatabaseSchema {
   settings: SiteSettings;
   homepageSections: HomepageSection[];
   slugRedirects: SlugRedirect[];
+  packs: Pack[];
 }
+

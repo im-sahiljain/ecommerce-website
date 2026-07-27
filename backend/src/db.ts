@@ -16,6 +16,7 @@ import {
   ProductAnalytics,
   SiteSettings,
   HomepageSection,
+  Pack,
 } from "./types";
 
 export * from "./types";
@@ -45,6 +46,35 @@ function parseProductImages(r: any): string[] {
     parsedImages = [r.image];
   }
   return parsedImages;
+}
+
+// ─── Helper: map PG row to Pack ───
+function mapRowToPack(r: any): Pack {
+  let productIds: string[] = [];
+  if (r.product_ids) {
+    productIds = typeof r.product_ids === "string" ? JSON.parse(r.product_ids) : r.product_ids;
+  }
+  let images: string[] = [];
+  if (r.images) {
+    images = typeof r.images === "string" ? JSON.parse(r.images) : r.images;
+  }
+  return {
+    id: r.id,
+    name: r.name,
+    slug: r.slug || r.id,
+    price: Number(r.price),
+    originalPrice: r.original_price ? Number(r.original_price) : undefined,
+    description: r.description || "",
+    image: r.image || images[0] || "",
+    images,
+    productIds,
+    productLineId: r.product_line_id || undefined,
+    categoryId: r.category_id || undefined,
+    inStock: r.in_stock !== false,
+    featured: Boolean(r.featured),
+    createdAt: r.created_at ? new Date(r.created_at).toISOString() : undefined,
+    updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : undefined,
+  };
 }
 
 // ─── Helper: map PG row to Product ───
@@ -121,6 +151,27 @@ export class Database {
           icon VARCHAR(50)
         );
       `).catch(() => null);
+
+      // Ensure packs table exists
+      this.pgPool.query(`
+        CREATE TABLE IF NOT EXISTS public.packs (
+          id VARCHAR(255) PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          slug VARCHAR(255) NOT NULL,
+          price NUMERIC NOT NULL,
+          original_price NUMERIC,
+          description TEXT,
+          image TEXT,
+          images JSONB,
+          product_ids JSONB NOT NULL,
+          product_line_id VARCHAR(100),
+          category_id VARCHAR(100),
+          in_stock BOOLEAN DEFAULT true,
+          featured BOOLEAN DEFAULT false,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `).catch((err) => console.warn("⚠️ Create packs table notice:", err.message));
 
       console.log("⚡ Database initialized — all operations will query PostgreSQL directly");
     }
@@ -983,6 +1034,111 @@ export class Database {
       return (res.rowCount || 0) > 0;
     } catch (err: any) {
       console.warn("⚠️ PG deleteHomepageSection error:", err.message);
+      return false;
+    }
+  }
+
+  // ═══════════════════════════════════════════
+  // PACKS BUILDER
+  // ═══════════════════════════════════════════
+
+  async getPacks(): Promise<Pack[]> {
+    if (!this.pgPool) return [];
+    try {
+      const res = await this.pgPool.query(`SELECT * FROM public.packs ORDER BY created_at DESC`);
+      return res.rows.map(mapRowToPack);
+    } catch (err: any) {
+      console.warn("⚠️ PG getPacks error:", err.message);
+      return [];
+    }
+  }
+
+  async getPackById(id: string): Promise<Pack | undefined> {
+    if (!this.pgPool) return undefined;
+    try {
+      const res = await this.pgPool.query(`SELECT * FROM public.packs WHERE id = $1`, [id]);
+      if (res.rows.length === 0) return undefined;
+      return mapRowToPack(res.rows[0]);
+    } catch (err: any) {
+      console.warn("⚠️ PG getPackById error:", err.message);
+      return undefined;
+    }
+  }
+
+  async addPack(packData: Omit<Pack, "id">): Promise<Pack> {
+    const id = `pack-${Date.now()}`;
+    const now = new Date().toISOString();
+    const newPack: Pack = {
+      ...packData,
+      id,
+      slug: packData.slug || packData.name.toLowerCase().replace(/\s+/g, "-"),
+      inStock: packData.inStock !== false,
+      featured: Boolean(packData.featured),
+      createdAt: packData.createdAt || now,
+      updatedAt: packData.updatedAt || now,
+    };
+
+    if (this.pgPool) {
+      try {
+        await this.pgPool.query(`
+          INSERT INTO public.packs (id, name, slug, price, original_price, description, image, images, product_ids, product_line_id, category_id, in_stock, featured, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+          ON CONFLICT (id) DO NOTHING;
+        `, [
+          newPack.id, newPack.name, newPack.slug, newPack.price,
+          newPack.originalPrice || null, newPack.description || "",
+          newPack.image || "", JSON.stringify(newPack.images || []),
+          JSON.stringify(newPack.productIds || []),
+          newPack.productLineId || null, newPack.categoryId || null,
+          newPack.inStock, newPack.featured, newPack.createdAt, newPack.updatedAt,
+        ]);
+      } catch (err: any) {
+        console.warn("⚠️ PG addPack error:", err.message);
+      }
+    }
+    return newPack;
+  }
+
+  async updatePack(id: string, updates: Partial<Pack>): Promise<Pack | null> {
+    if (!this.pgPool) return null;
+    try {
+      const current = await this.getPackById(id);
+      if (!current) return null;
+
+      const merged: Pack = {
+        ...current,
+        ...updates,
+        updatedAt: new Date().toISOString(),
+      };
+
+      await this.pgPool.query(`
+        UPDATE public.packs SET
+          name = $1, slug = $2, price = $3, original_price = $4,
+          description = $5, image = $6, images = $7, product_ids = $8,
+          product_line_id = $9, category_id = $10, in_stock = $11,
+          featured = $12, updated_at = $13
+        WHERE id = $14
+      `, [
+        merged.name, merged.slug || id, merged.price, merged.originalPrice || null,
+        merged.description || "", merged.image || "", JSON.stringify(merged.images || []),
+        JSON.stringify(merged.productIds || []), merged.productLineId || null,
+        merged.categoryId || null, merged.inStock, merged.featured, merged.updatedAt, id,
+      ]);
+
+      return merged;
+    } catch (err: any) {
+      console.warn("⚠️ PG updatePack error:", err.message);
+      return null;
+    }
+  }
+
+  async deletePack(id: string): Promise<boolean> {
+    if (!this.pgPool) return false;
+    try {
+      const res = await this.pgPool.query(`DELETE FROM public.packs WHERE id = $1`, [id]);
+      return (res.rowCount || 0) > 0;
+    } catch (err: any) {
+      console.warn("⚠️ PG deletePack error:", err.message);
       return false;
     }
   }
