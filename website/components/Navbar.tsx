@@ -125,14 +125,22 @@ export default function Navbar() {
 
             {/* Mega-Menu Dropdown Panel with hover bridge & smooth transition */}
             <div
-              className={`absolute top-full -left-4 pt-2 w-[680px] max-w-[90vw] transition-all duration-200 z-50 ${
+              className={`absolute top-full -left-4 pt-2 transition-all duration-200 z-50 ${
+                productLines.length <= 1 ? "w-[360px]" : "w-[640px]"
+              } max-w-[90vw] ${
                 isProductsOpen
-                  ? "opacity-100 translate-y-0 pointer-events-auto"
-                  : "opacity-0 translate-y-2 pointer-events-none"
+                  ? "opacity-100 translate-y-0 pointer-events-auto block"
+                  : "opacity-0 translate-y-2 pointer-events-none hidden"
               }`}
             >
-              <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-7">
-                <div className="grid grid-cols-2 gap-8">
+              <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-6">
+                <div
+                  className={`grid ${
+                    productLines.length <= 1
+                      ? "grid-cols-1 gap-4"
+                      : "grid-cols-2 gap-6"
+                  }`}
+                >
                   {productLines.map((line) => {
                     const subCats = categories.filter(
                       (c) => c.productLineId === line.id,
@@ -141,6 +149,7 @@ export default function Navbar() {
                       <div key={line.id} className="space-y-3">
                         <Link
                           href={`/shop?productLineId=${line.id}`}
+                          onClick={() => setIsProductsOpen(false)}
                           className="flex items-start space-x-3 pb-3 border-b border-slate-100 group/title"
                         >
                           <span className="text-2xl p-1.5 bg-pink-50 rounded-xl flex-shrink-0">
@@ -161,6 +170,7 @@ export default function Navbar() {
                         <div className="space-y-1.5 pl-2">
                           <Link
                             href={`/shop?productLineId=${line.id}`}
+                            onClick={() => setIsProductsOpen(false)}
                             className="inline-flex items-center text-xs font-extrabold text-pink-600 hover:text-pink-700 py-1 transition"
                           >
                             View All {line.name} →
@@ -169,6 +179,7 @@ export default function Navbar() {
                             <Link
                               key={cat.id}
                               href={`/shop?category=${encodeURIComponent(cat.name)}`}
+                              onClick={() => setIsProductsOpen(false)}
                               className="block text-xs font-semibold text-slate-600 hover:text-pink-600 py-1 transition"
                             >
                               {cat.name}
@@ -180,11 +191,12 @@ export default function Navbar() {
                   })}
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-500 bg-pink-50/60 -mx-7 -mb-7 p-4 px-7 rounded-b-3xl">
+                <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-bold text-slate-500 bg-pink-50/60 -mx-6 -mb-6 p-4 px-6 rounded-b-3xl">
                   <span>Mix & Match any items for bulk savings</span>
                   <Link
                     href="/bundles"
-                    className="text-pink-600 hover:text-pink-700 flex items-center space-x-1 font-extrabold"
+                    onClick={() => setIsProductsOpen(false)}
+                    className="text-pink-600 hover:text-pink-700 flex items-center space-x-1 font-extrabold shrink-0"
                   >
                     <Sparkles className="w-4 h-4" />
                     <span>Build Package (10% Off)</span>
@@ -194,11 +206,24 @@ export default function Navbar() {
             </div>
           </div>
 
-          <Link href="/shop" className="hover:text-pink-500 transition">
+          <Link
+            href="/shop"
+            onMouseEnter={() => {
+              if (hoverTimeoutRef.current)
+                clearTimeout(hoverTimeoutRef.current);
+              setIsProductsOpen(false);
+            }}
+            className="hover:text-pink-500 transition"
+          >
             Shop All
           </Link>
           <Link
             href="/bundles"
+            onMouseEnter={() => {
+              if (hoverTimeoutRef.current)
+                clearTimeout(hoverTimeoutRef.current);
+              setIsProductsOpen(false);
+            }}
             className="hover:text-pink-500 transition text-pink-600 flex items-center space-x-1"
           >
             <Sparkles className="w-4 h-4" />
@@ -208,7 +233,7 @@ export default function Navbar() {
 
         {/* Utility Icons */}
         <div className="flex items-center space-x-2 sm:space-x-3">
-          <Link
+          {/* <Link
             href="/shop"
             aria-label="Search"
             className="p-2 hover:bg-gray-100 rounded-full text-gray-700"
@@ -226,7 +251,7 @@ export default function Navbar() {
                 <ChevronDown className="w-3 h-3 text-pink-600 group-hover:rotate-180 transition-transform duration-200" />
               </button>
 
-              {/* User Dropdown Menu */}
+              {/* User Dropdown Menu 
               <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 z-50">
                 <div className="px-3 py-2 border-b border-slate-100 mb-1 bg-pink-50/50 rounded-xl">
                   <p className="text-[10px] font-extrabold text-pink-500 uppercase tracking-wider">
@@ -261,7 +286,7 @@ export default function Navbar() {
             >
               <UserIcon className="w-5 h-5" />
             </button>
-          )}
+          )} */}
 
           {/* Cart Icon */}
           <div
