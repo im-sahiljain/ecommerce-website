@@ -99,6 +99,15 @@ function ShopPageContent() {
       .catch(() => {});
   }, []);
 
+  // Sync state when URL searchParams change (e.g. clicking Shop All or changing category links)
+  useEffect(() => {
+    setSelectedProductLineId(searchParams.get("productLineId") || "");
+    setSelectedCategory(searchParams.get("category") || "");
+    setSelectedTheme(searchParams.get("theme") || "");
+    setSelectedAge(searchParams.get("ageGroup") || "");
+    setSelectedPackId(searchParams.get("packId") || "");
+  }, [searchParams]);
+
   const filteredProducts = useMemo(() => {
     // Map packs to product-like format
     const packProducts: Product[] = packs.map((pack) => ({
@@ -125,7 +134,7 @@ function ShopPageContent() {
     let list = [...products, ...packProducts];
 
     if (selectedPackId) {
-      list = list.filter((p) => p.id === selectedPackId || (p.isPack && p.id === selectedPackId));
+      return list.filter((p) => p.id === selectedPackId);
     }
     if (selectedProductLineId) {
       list = list.filter((p) => p.productLineId === selectedProductLineId);

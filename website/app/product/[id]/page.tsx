@@ -19,6 +19,7 @@ import {
   ZoomIn,
   Maximize2,
   X,
+  Boxes,
 } from "lucide-react";
 import { API_BASE_URL } from "../../../config/api";
 
@@ -37,6 +38,8 @@ interface Product {
   inStock: boolean;
   isOrderingEnabled?: boolean;
   attributes?: Record<string, string>;
+  isPack?: boolean;
+  includedProducts?: any[];
 }
 
 interface SiteSettings {
@@ -66,13 +69,98 @@ export default function ProductDetailPage() {
   const [isFullscreenModalOpen, setIsFullscreenModalOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/products/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.id) setProduct(data);
+    async function loadProductOrPack() {
+      setLoading(true);
+      try {
+        if (id.startsWith("pack-")) {
+          // Fetch Pack directly
+          const [packRes, prodsRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/api/packs/${id}`),
+            fetch(`${API_BASE_URL}/api/products`),
+          ]);
+          const packData = await packRes.json();
+          const allProds = await prodsRes.json();
+
+          if (packData && packData.id) {
+            const included = Array.isArray(allProds)
+              ? allProds.filter((p: any) => packData.productIds?.includes(p.id))
+              : [];
+
+            const comboImages = [
+              ...(packData.image ? [packData.image] : []),
+              ...included.map((p: any) => p.image).filter(Boolean),
+            ];
+
+            setProduct({
+              id: packData.id,
+              name: packData.name,
+              price: Number(packData.price),
+              originalPrice: packData.originalPrice ? Number(packData.originalPrice) : undefined,
+              theme: "Curated Pack Set",
+              category: `Pack of ${packData.productIds?.length || 1}`,
+              ageGroup: "All Ages",
+              isNonToxic: true,
+              image: comboImages[0] || "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500",
+              images: Array.from(new Set(comboImages)),
+              description: packData.description || "",
+              inStock: packData.inStock !== false,
+              isOrderingEnabled: true,
+              isPack: true,
+              includedProducts: included,
+            });
+          }
+        } else {
+          // Fetch Regular Product
+          const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
+          const data = await res.json();
+
+          if (data && data.id) {
+            setProduct(data);
+          } else {
+            // Fallback: try fetching as Pack
+            const packRes = await fetch(`${API_BASE_URL}/api/packs/${id}`);
+            const packData = await packRes.json();
+
+            if (packData && packData.id) {
+              const prodsRes = await fetch(`${API_BASE_URL}/api/products`);
+              const allProds = await prodsRes.json();
+              const included = Array.isArray(allProds)
+                ? allProds.filter((p: any) => packData.productIds?.includes(p.id))
+                : [];
+
+              const comboImages = [
+                ...(packData.image ? [packData.image] : []),
+                ...included.map((p: any) => p.image).filter(Boolean),
+              ];
+
+              setProduct({
+                id: packData.id,
+                name: packData.name,
+                price: Number(packData.price),
+                originalPrice: packData.originalPrice ? Number(packData.originalPrice) : undefined,
+                theme: "Curated Pack Set",
+                category: `Pack of ${packData.productIds?.length || 1}`,
+                ageGroup: "All Ages",
+                isNonToxic: true,
+                image: comboImages[0] || "",
+                images: Array.from(new Set(comboImages)),
+                description: packData.description || "",
+                inStock: packData.inStock !== false,
+                isOrderingEnabled: true,
+                isPack: true,
+                includedProducts: included,
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error loading product/pack data:", err);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    }
+
+    loadProductOrPack();
 
     fetch(`${API_BASE_URL}/api/settings`)
       .then((res) => res.json())
@@ -389,19 +477,45 @@ export default function ProductDetailPage() {
                 {product.description}
               </p>
 
-              {/* Product Attributes (Candle Scent / Burn Time) */}
-              {product.attributes &&
-                Object.keys(product.attributes).length > 0 && (
-                  <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5 text-xs">
-                    {Object.entries(product.attributes).map(([key, val]) => (
-                      <div
-                        key={key}
-                        className="flex justify-between font-semibold"
-                      >
-                        <span className="text-slate-500">{key}:</span>
-                        <span className="text-slate-800 font-bold">{val}</span>
-                      </div>
-                    ))}
+              {/* Included Items Showcase for Packs */}
+              {product.isPack &&
+                product.includedProducts &&
+                product.includedProducts.length > 0 && (
+                  <div className="mt-6 p-5 bg-amber-50/70 border border-amber-200/80 rounded-3xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-extrabold text-xs text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <Boxes className="w-4 h-4 text-amber-600" />
+                        <span>
+                          Included Products in this Pack ({product.includedProducts.length})
+                        </span>
+                      </h4>
+                      <span className="text-[10px] font-extrabold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        Bundled Set
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {product.includedProducts.map((incItem: any) => (
+                        <div
+                          key={incItem.id}
+                          className="bg-white p-2.5 rounded-2xl border border-amber-100/80 flex items-center space-x-2.5 shadow-2xs hover:shadow-xs transition"
+                        >
+                          <img
+                            src={incItem.image}
+                            alt={incItem.name}
+                            className="w-10 h-10 rounded-xl object-cover border border-slate-100 shrink-0"
+                          />
+                          <div className="overflow-hidden">
+                            <p className="text-xs font-extrabold text-slate-800 leading-tight truncate">
+                              {incItem.name}
+                            </p>
+                            <span className="text-[10px] font-semibold text-slate-400 truncate block mt-0.5">
+                              {incItem.category}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
             </div>

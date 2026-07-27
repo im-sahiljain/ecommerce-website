@@ -201,7 +201,7 @@ export default function Navbar() {
                             .map((pack) => (
                               <Link
                                 key={pack.id}
-                                href={`/shop?packId=${pack.id}`}
+                                href={`/product/${pack.id}`}
                                 onClick={() => setIsProductsOpen(false)}
                                 className="block text-xs font-extrabold text-amber-600 hover:text-amber-700 py-1 transition"
                               >
