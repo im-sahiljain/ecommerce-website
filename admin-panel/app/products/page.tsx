@@ -54,6 +54,7 @@ export default function ProductsManagerPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [productLines, setProductLines] = useState<ProductLine[]>([]);
   const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
+  const [themesList, setThemesList] = useState<{ id: string; name: string }[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -64,15 +65,15 @@ export default function ProductsManagerPage() {
   const [stockChangeAmount, setStockChangeAmount] = useState(5);
   const [stockReason, setStockReason] = useState("Restock inventory");
 
-  // Form State
+  // Dynamic Form State (Initializes 100% dynamically from Database APIs)
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
   const [price, setPrice] = useState("");
   const [originalPrice, setOriginalPrice] = useState("");
   const [costPrice, setCostPrice] = useState("");
-  const [productLineId, setProductLineId] = useState("line-1");
-  const [category, setCategory] = useState("Painting Kits");
-  const [theme, setTheme] = useState("Space Adventures");
+  const [productLineId, setProductLineId] = useState("");
+  const [category, setCategory] = useState("");
+  const [theme, setTheme] = useState("");
 
   // Filter Categories by selected Product Line dynamically
   const filteredCatList = categoriesList.filter(
@@ -89,14 +90,14 @@ export default function ProductsManagerPage() {
     ),
   );
 
-  // Filter Themes by selected Product Line dynamically
+  // Filter Themes combining /api/themes database records & product themes dynamically
+  const dbThemeNames = themesList.map((t) => t.name).filter(Boolean);
+  const prodThemeNames = products
+    .filter((p) => !p.productLineId || p.productLineId === productLineId)
+    .map((p) => p.theme)
+    .filter(Boolean);
   const availableThemes = Array.from(
-    new Set(
-      products
-        .filter((p) => !p.productLineId || p.productLineId === productLineId)
-        .map((p) => p.theme)
-        .filter(Boolean),
-    ),
+    new Set([...dbThemeNames, ...prodThemeNames]),
   );
 
   const handleProductLineChange = (newLineId: string) => {
@@ -115,12 +116,13 @@ export default function ProductsManagerPage() {
     }
 
     const newThemes = Array.from(
-      new Set(
-        products
+      new Set([
+        ...dbThemeNames,
+        ...products
           .filter((p) => !p.productLineId || p.productLineId === newLineId)
           .map((p) => p.theme)
           .filter(Boolean),
-      ),
+      ]),
     );
     if (newThemes.length > 0) {
       setTheme(newThemes[0]);
@@ -158,6 +160,13 @@ export default function ProductsManagerPage() {
         if (Array.isArray(data)) setCategoriesList(data);
       })
       .catch(() => {});
+
+    adminFetch("/api/themes")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setThemesList(data);
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -171,9 +180,21 @@ export default function ProductsManagerPage() {
     setPrice("");
     setOriginalPrice("");
     setCostPrice("");
-    setProductLineId("line-1");
-    setCategory("Painting Kits");
-    setTheme("Space Adventures");
+
+    const initialLine = productLines[0]?.id || "line-1";
+    const initialCats = categoriesList
+      .filter((c) => !c.productLineId || c.productLineId === initialLine)
+      .map((c) => c.name);
+    const initialThemes = Array.from(
+      new Set([
+        ...themesList.map((t) => t.name),
+        ...products.map((p) => p.theme).filter(Boolean),
+      ]),
+    );
+
+    setProductLineId(initialLine);
+    setCategory(initialCats[0] || "General");
+    setTheme(initialThemes[0] || "General");
     setAgeGroup("Ages 4+");
     setIsNonToxic(true);
     setIsOrderingEnabled(true);

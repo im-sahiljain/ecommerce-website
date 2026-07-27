@@ -10,16 +10,9 @@ import {
   Plus,
   Trash2,
   Edit2,
-  Check,
-  Palette,
-  Layout,
   Layers,
   Save,
   Sliders,
-  Maximize2,
-  Minimize2,
-  Smartphone,
-  Monitor,
 } from "lucide-react";
 import { adminFetch } from "../../config/auth";
 
@@ -53,15 +46,22 @@ export interface HomepageSection {
 
 export default function HomepageBuilderPage() {
   const [sections, setSections] = useState<HomepageSection[]>([]);
+  const [dbThemes, setDbThemes] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingSection, setEditingSection] = useState<HomepageSection | null>(null);
-  const [activeEmojiEditId, setActiveEmojiEditId] = useState<string | null>(null);
+  const [editingSection, setEditingSection] = useState<HomepageSection | null>(
+    null,
+  );
+  const [activeEmojiEditId, setActiveEmojiEditId] = useState<string | null>(
+    null,
+  );
   const [isAddingNew, setIsAddingNew] = useState(false);
 
   // New section form state
   const [newTitle, setNewTitle] = useState("");
-  const [newThemeKeyword, setNewThemeKeyword] = useState("General");
-  const [newTitleLayout, setNewTitleLayout] = useState<"left" | "center" | "right">("left");
+  const [newThemeKeyword, setNewThemeKeyword] = useState("");
+  const [newTitleLayout, setNewTitleLayout] = useState<
+    "left" | "center" | "right"
+  >("left");
   const [newBgColor, setNewBgColor] = useState("#2D366D");
   const [newTextColor, setNewTextColor] = useState("#FFFFFF");
 
@@ -75,11 +75,22 @@ export default function HomepageBuilderPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+
+    adminFetch("/api/themes")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setDbThemes(data);
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
     fetchSections();
   }, []);
+
+  const availableThemeNames = Array.from(
+    new Set(dbThemes.map((t) => t.name).filter(Boolean)),
+  );
 
   const handleToggleVisibility = async (id: string, currentVal: boolean) => {
     setSections((prev) =>
@@ -110,7 +121,8 @@ export default function HomepageBuilderPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this homepage section?")) return;
+    if (!confirm("Are you sure you want to remove this homepage section?"))
+      return;
     setSections((prev) => prev.filter((s) => s.id !== id));
     await adminFetch(`/api/homepage-sections/${id}`, {
       method: "DELETE",
@@ -210,8 +222,9 @@ export default function HomepageBuilderPage() {
             Homepage Layout Builder
           </h1>
           <p className="text-xs text-slate-400 mt-1 max-w-lg leading-relaxed">
-            Reorder sections, toggle visibility, customize background colors, and
-            fine-tune floating emoji positions, font sizes, opacity, & device visibility.
+            Reorder sections, toggle visibility, customize background colors,
+            and fine-tune floating emoji positions, font sizes, opacity, &
+            device visibility.
           </p>
         </div>
 
@@ -252,16 +265,25 @@ export default function HomepageBuilderPage() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Theme Filter Keyword
+                Select Theme
               </label>
-              <input
-                type="text"
+              <select
                 value={newThemeKeyword}
-                onChange={(e) => setNewThemeKeyword(e.target.value)}
-                placeholder="e.g. Space, Garden, Wild, Ocean"
+                onChange={(e) => {
+                  const sel = e.target.value;
+                  setNewThemeKeyword(sel);
+                  if (!newTitle) setNewTitle(sel);
+                }}
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-pink-500"
-              />
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-pink-500 bg-white"
+              >
+                <option value="">-- Select Theme --</option>
+                {availableThemeNames.map((tName) => (
+                  <option key={tName} value={tName}>
+                    {tName}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -354,7 +376,9 @@ export default function HomepageBuilderPage() {
             <div
               key={section.id}
               className={`bg-white rounded-3xl border transition p-5 shadow-sm space-y-4 ${
-                section.isVisible ? "border-slate-200" : "border-slate-200 opacity-60 bg-slate-50"
+                section.isVisible
+                  ? "border-slate-200"
+                  : "border-slate-200 opacity-60 bg-slate-50"
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -398,10 +422,19 @@ export default function HomepageBuilderPage() {
                     </div>
 
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Layout: <span className="font-bold text-slate-700 uppercase">{section.titleLayout || "left"}</span> • Bg Color:{" "}
-                      <span className="font-mono text-slate-700">{section.bgColor || "#FFFFFF"}</span> • Emojis:{" "}
+                      Layout:{" "}
+                      <span className="font-bold text-slate-700 uppercase">
+                        {section.titleLayout || "left"}
+                      </span>{" "}
+                      • Bg Color:{" "}
+                      <span className="font-mono text-slate-700">
+                        {section.bgColor || "#FFFFFF"}
+                      </span>{" "}
+                      • Emojis:{" "}
                       <span className="font-bold text-slate-800">
-                        {(section.decorations || []).map((d) => d.content).join(" ")}
+                        {(section.decorations || [])
+                          .map((d) => d.content)
+                          .join(" ")}
                       </span>
                     </p>
                   </div>
@@ -410,7 +443,9 @@ export default function HomepageBuilderPage() {
                 {/* Section Action Controls */}
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => handleToggleVisibility(section.id, section.isVisible)}
+                    onClick={() =>
+                      handleToggleVisibility(section.id, section.isVisible)
+                    }
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${
                       section.isVisible
                         ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
@@ -465,7 +500,10 @@ export default function HomepageBuilderPage() {
                       type="text"
                       value={editingSection.title}
                       onChange={(e) =>
-                        setEditingSection({ ...editingSection, title: e.target.value })
+                        setEditingSection({
+                          ...editingSection,
+                          title: e.target.value,
+                        })
                       }
                       className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white"
                     />
@@ -475,14 +513,23 @@ export default function HomepageBuilderPage() {
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">
                       Theme Keyword
                     </label>
-                    <input
-                      type="text"
+                    <select
                       value={editingSection.themeKeyword || ""}
                       onChange={(e) =>
-                        setEditingSection({ ...editingSection, themeKeyword: e.target.value })
+                        setEditingSection({
+                          ...editingSection,
+                          themeKeyword: e.target.value,
+                        })
                       }
                       className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white"
-                    />
+                    >
+                      <option value="">-- Select Theme --</option>
+                      {availableThemeNames.map((tName) => (
+                        <option key={tName} value={tName}>
+                          {tName}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
@@ -492,7 +539,10 @@ export default function HomepageBuilderPage() {
                     <select
                       value={editingSection.titleLayout || "left"}
                       onChange={(e: any) =>
-                        setEditingSection({ ...editingSection, titleLayout: e.target.value })
+                        setEditingSection({
+                          ...editingSection,
+                          titleLayout: e.target.value,
+                        })
                       }
                       className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white"
                     >
@@ -511,7 +561,10 @@ export default function HomepageBuilderPage() {
                         type="color"
                         value={editingSection.bgColor || "#FFFFFF"}
                         onChange={(e) =>
-                          setEditingSection({ ...editingSection, bgColor: e.target.value })
+                          setEditingSection({
+                            ...editingSection,
+                            bgColor: e.target.value,
+                          })
                         }
                         className="w-8 h-8 rounded border-0 cursor-pointer"
                       />
@@ -519,7 +572,10 @@ export default function HomepageBuilderPage() {
                         type="text"
                         value={editingSection.bgColor || "#FFFFFF"}
                         onChange={(e) =>
-                          setEditingSection({ ...editingSection, bgColor: e.target.value })
+                          setEditingSection({
+                            ...editingSection,
+                            bgColor: e.target.value,
+                          })
                         }
                         className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
                       />
@@ -535,7 +591,10 @@ export default function HomepageBuilderPage() {
                         type="color"
                         value={editingSection.textColor || "#3C2A21"}
                         onChange={(e) =>
-                          setEditingSection({ ...editingSection, textColor: e.target.value })
+                          setEditingSection({
+                            ...editingSection,
+                            textColor: e.target.value,
+                          })
                         }
                         className="w-8 h-8 rounded border-0 cursor-pointer"
                       />
@@ -543,7 +602,10 @@ export default function HomepageBuilderPage() {
                         type="text"
                         value={editingSection.textColor || "#3C2A21"}
                         onChange={(e) =>
-                          setEditingSection({ ...editingSection, textColor: e.target.value })
+                          setEditingSection({
+                            ...editingSection,
+                            textColor: e.target.value,
+                          })
                         }
                         className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
                       />
@@ -555,7 +617,9 @@ export default function HomepageBuilderPage() {
                     <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                       <label className="text-xs font-black text-slate-800 flex items-center space-x-2">
                         <Sparkles className="w-4 h-4 text-pink-500" />
-                        <span>Section Floating Emojis & Position Inspector</span>
+                        <span>
+                          Section Floating Emojis & Position Inspector
+                        </span>
                       </label>
                       <span className="text-[10px] text-slate-400 font-semibold">
                         Configure position, size, opacity, & device visibility
@@ -569,16 +633,19 @@ export default function HomepageBuilderPage() {
                         const vPos = dec.style?.top
                           ? `top: ${dec.style.top}`
                           : dec.style?.bottom
-                          ? `bottom: ${dec.style.bottom}`
-                          : "top: 15%";
+                            ? `bottom: ${dec.style.bottom}`
+                            : "top: 15%";
                         const hPos = dec.style?.left
                           ? `left: ${dec.style.left}`
                           : dec.style?.right
-                          ? `right: ${dec.style.right}`
-                          : "left: 10%";
+                            ? `right: ${dec.style.right}`
+                            : "left: 10%";
 
                         return (
-                          <div key={dec.id || dIdx} className="flex items-center space-x-1">
+                          <div
+                            key={dec.id || dIdx}
+                            className="flex items-center space-x-1"
+                          >
                             <button
                               type="button"
                               onClick={() =>
@@ -630,9 +697,9 @@ export default function HomepageBuilderPage() {
                     {activeEmojiEditId && (
                       <div className="p-4 bg-slate-50 rounded-2xl border border-pink-200/80 space-y-3">
                         {(() => {
-                          const activeDec = (editingSection.decorations || []).find(
-                            (d) => d.id === activeEmojiEditId,
-                          );
+                          const activeDec = (
+                            editingSection.decorations || []
+                          ).find((d) => d.id === activeEmojiEditId);
                           if (!activeDec) return null;
 
                           const isTop = activeDec.style?.top !== undefined;
@@ -709,7 +776,8 @@ export default function HomepageBuilderPage() {
                               {/* Horizontal Position */}
                               <div>
                                 <label className="block font-bold text-slate-600 mb-1">
-                                  Horizontal Position ({isLeft ? "Left" : "Right"})
+                                  Horizontal Position (
+                                  {isLeft ? "Left" : "Right"})
                                 </label>
                                 <div className="flex items-center space-x-1">
                                   <select
@@ -816,7 +884,9 @@ export default function HomepageBuilderPage() {
                                   Device Visibility Class
                                 </label>
                                 <select
-                                  value={activeDec.className || "hidden sm:block"}
+                                  value={
+                                    activeDec.className || "hidden sm:block"
+                                  }
                                   onChange={(e) =>
                                     updateDecorationItem(
                                       activeDec.id,
@@ -827,13 +897,15 @@ export default function HomepageBuilderPage() {
                                   className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-white font-semibold"
                                 >
                                   <option value="hidden sm:block">
-                                    Hidden on Mobile (Visible on Tablet & Desktop)
+                                    Hidden on Mobile (Visible on Tablet &
+                                    Desktop)
                                   </option>
                                   <option value="hidden md:block">
                                     Hidden on Mobile & Tablet (Desktop Only)
                                   </option>
                                   <option value="">
-                                    Visible on All Devices (Mobile, Tablet, Desktop)
+                                    Visible on All Devices (Mobile, Tablet,
+                                    Desktop)
                                   </option>
                                 </select>
                               </div>
@@ -849,9 +921,29 @@ export default function HomepageBuilderPage() {
                         Add Preset Emoji:
                       </span>
                       {[
-                        "🪐", "🚀", "⭐", "✨", "🌍", "🌿", "🌺", "🌸",
-                        "🦋", "🐝", "🏰", "🦄", "👑", "🪄", "🍃", "🐾",
-                        "🦁", "🐘", "🌴", "🎨", "🕯️", "💖", "🎉"
+                        "🪐",
+                        "🚀",
+                        "⭐",
+                        "✨",
+                        "🌍",
+                        "🌿",
+                        "🌺",
+                        "🌸",
+                        "🦋",
+                        "🐝",
+                        "🏰",
+                        "🦄",
+                        "👑",
+                        "🪄",
+                        "🍃",
+                        "🐾",
+                        "🦁",
+                        "🐘",
+                        "🌴",
+                        "🎨",
+                        "🕯️",
+                        "💖",
+                        "🎉",
                       ].map((emoji) => (
                         <button
                           key={emoji}
@@ -862,8 +954,8 @@ export default function HomepageBuilderPage() {
                               type: "emoji",
                               content: emoji,
                               style: {
-                                top: `${15 + ((editingSection.decorations?.length || 0) * 15) % 65}%`,
-                                left: `${5 + ((editingSection.decorations?.length || 0) * 22) % 75}%`,
+                                top: `${15 + (((editingSection.decorations?.length || 0) * 15) % 65)}%`,
+                                left: `${5 + (((editingSection.decorations?.length || 0) * 22) % 75)}%`,
                                 fontSize: "38px",
                                 opacity: 0.85,
                               },
@@ -871,7 +963,10 @@ export default function HomepageBuilderPage() {
                             };
                             setEditingSection({
                               ...editingSection,
-                              decorations: [...(editingSection.decorations || []), newDec],
+                              decorations: [
+                                ...(editingSection.decorations || []),
+                                newDec,
+                              ],
                             });
                           }}
                           className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-pink-100 hover:scale-110 text-base flex items-center justify-center transition border border-slate-200/80 shadow-2xs"
