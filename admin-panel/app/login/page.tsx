@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
             <ShieldCheck className="w-8 h-8" />
           </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-2">
-            Craft and Kit <Sparkles className="w-5 h-5 text-pink-500" />
+            Kits and Craft <Sparkles className="w-5 h-5 text-pink-500" />
           </h1>
           <p className="text-slate-500 text-xs mt-1 font-semibold">
             Admin Control Panel Authentication
@@ -146,7 +146,7 @@ export default function AdminLoginPage() {
 
         <div className="mt-8 text-center border-t border-slate-100 pt-4">
           <p className="text-[11px] text-slate-400 font-medium">
-            Protected Admin Route • Craft and Kit Commerce Platform
+            Protected Admin Route • Kits and Craft Commerce Platform
           </p>
         </div>
       </div>

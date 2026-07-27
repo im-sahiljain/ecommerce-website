@@ -1,7 +1,7 @@
 {
   "name": "little-creators-backend",
   "version": "1.0.0",
-  "description": "Backend API for Craft and Kit Craft Hub with Supabase PSQL, Cloudinary & Auth",
+  "description": "Backend API for Kits and Craft Craft Hub with Supabase PSQL, Cloudinary & Auth",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",

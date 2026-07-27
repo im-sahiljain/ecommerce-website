@@ -159,7 +159,7 @@ export default function CheckoutPage() {
             Order Confirmed!
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Thank you for ordering with Craft and Kit Craft Hub!
+            Thank you for ordering with Kits and Craft Craft Hub!
           </p>
         </div>
 

@@ -25,7 +25,7 @@ export default function SettingsPage() {
     isWhatsappOrderingEnabled: true,
     isWhatsappChatButtonEnabled: true,
     whatsappNumber: "",
-    siteTitle: "Craft and Kit Craft & Candle Hub",
+    siteTitle: "Kits and Craft Craft & Candle Hub",
     defaultMetaDescription:
       "Ready-to-paint craft figurines, scented aesthetic wax candles, and creative art kits.",
   });
@@ -44,7 +44,7 @@ export default function SettingsPage() {
             isWhatsappChatButtonEnabled:
               data.isWhatsappChatButtonEnabled !== false,
             whatsappNumber: data.whatsappNumber || "",
-            siteTitle: data.siteTitle || "Craft and Kit",
+            siteTitle: data.siteTitle || "Kits and Craft",
             defaultMetaDescription: data.defaultMetaDescription || "",
           });
         }

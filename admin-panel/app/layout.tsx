@@ -3,7 +3,7 @@ import React from "react";
 import AdminAuthGuard from "../components/AdminAuthGuard";
 
 export const metadata = {
-  title: "Craft and Kit Admin Control Panel",
+  title: "Kits and Craft Admin Control Panel",
   description:
     "Generic Multi-Category Catalog, Product Lines, Bundles, Analytics, Homepage CMS Builder & Settings.",
 };

@@ -81,16 +81,19 @@ export default function Navbar() {
           </button>
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2.5 group">
             <img
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_UQUMwLrsnDMCn3_g3cToAVSI3k4qukosF44ecbU05eSe91otMhXSkPxDTBzsC4MhKORdnU2q61582CqZP3irVG3T33y7di3j99Z2cpQdYg6YqjMy3LRdCtCecGKFnZb7OI-AHJitGYfIx2Tg_xI8dkjOAuMGesnUaCQpfpP_JKRlFMv-JnZP9sDnSt5DVJn1mwC5h__mkiCVEkcgQhMx1H9zROXqzzoQQHNYsQwWXeYJjtuwVTX-1Os30Si01k240O0t6CRMoqM"
               onError={(e: any) => {
                 e.target.src =
-                  "https://placehold.co/150x50?text=Little+Creators";
+                  "https://placehold.co/150x50?text=Kits+and+Craft";
               }}
-              alt="Craft and Kit Logo"
-              className="h-9 w-auto"
+              alt="Kits and Craft Logo"
+              className="h-9 w-auto group-hover:scale-102 transition duration-200"
             />
+            <span className="hidden sm:block font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-[#3C2A21] bg-clip-text text-transparent group-hover:opacity-90 transition">
+              Kits & Craft
+            </span>
           </Link>
         </div>
 

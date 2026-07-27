@@ -40,7 +40,7 @@ export default function Footer() {
 
           {subscribed ? (
             <div className="p-4 bg-emerald-50 text-emerald-800 font-bold text-sm rounded-full max-w-md mx-auto border border-emerald-200">
-              🎉 Thank you for joining the Craft and Kit Club!
+              🎉 Thank you for joining the Kits and Craft Club!
             </div>
           ) : (
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
@@ -68,7 +68,7 @@ export default function Footer() {
         <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-1">
             <h3 className="font-bold text-xl mb-4 text-[#3C2A21]">
-              Craft and Kit
+              Kits and Craft
             </h3>
             <p className="text-gray-500 text-sm leading-relaxed">
               Sparking joy through painting kits. Safe, fun, and creative
@@ -169,7 +169,7 @@ export default function Footer() {
 
         <div className="container mx-auto px-6 pt-8 border-t border-gray-50 text-center md:text-left">
           <p className="text-gray-400 text-xs">
-            © 2024 Craft and Kit. Sparking joy through painting kits.
+            © 2024 Kits and Craft. Sparking joy through painting kits.
           </p>
         </div>
       </footer>

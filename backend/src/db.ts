@@ -267,7 +267,7 @@ export class Database {
       whatsappNumber: "",
       whatsappMessageTemplate: "",
       isWhatsappEnabled: false,
-      siteTitle: "Craft and Kit",
+      siteTitle: "Kits and Craft",
       defaultMetaDescription: "",
     };
 
@@ -462,7 +462,7 @@ export class Database {
           whatsappNumber: s.whatsapp_number || "",
           whatsappMessageTemplate: s.whatsapp_message_template || "",
           isWhatsappEnabled: s.is_whatsapp_enabled !== false,
-          siteTitle: s.site_title || "Craft and Kit",
+          siteTitle: s.site_title || "Kits and Craft",
           defaultMetaDescription: s.default_meta_description || "",
         };
       }
@@ -1664,7 +1664,7 @@ export class Database {
             whatsappNumber: s.whatsapp_number || "",
             whatsappMessageTemplate: s.whatsapp_message_template || "",
             isWhatsappEnabled: s.is_whatsapp_enabled !== false,
-            siteTitle: s.site_title || "Craft and Kit",
+            siteTitle: s.site_title || "Kits and Craft",
             defaultMetaDescription: s.default_meta_description || "",
           };
         }
@@ -1681,7 +1681,7 @@ export class Database {
         whatsappMessageTemplate:
           "Hi! I am interested in {productName} ({productUrl}). Can you help me with details?",
         isWhatsappEnabled: true,
-        siteTitle: "Craft and Kit Craft Hub",
+        siteTitle: "Kits and Craft Craft Hub",
         defaultMetaDescription:
           "Ready-to-paint craft figurines, scented aesthetic wax candles, and creative art kits.",
       }
@@ -1733,7 +1733,7 @@ export class Database {
             updated.whatsappMessageTemplate || "",
             updated.isWhatsappOrderingEnabled !== false ||
               updated.isWhatsappChatButtonEnabled !== false,
-            updated.siteTitle || "Craft and Kit",
+            updated.siteTitle || "Kits and Craft",
             updated.defaultMetaDescription || "",
           ],
         );

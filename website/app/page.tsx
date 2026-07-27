@@ -358,7 +358,7 @@ export default function HomePage() {
             >
               Paint Your World
               <br />
-              with Craft and Kit!
+              with Kits and Craft!
             </h1>
             <p className="mb-8 max-w-md mx-auto md:mx-0 text-slate-600 text-base sm:text-lg leading-relaxed font-medium">
               Complete ready-to-paint plaster craft kits designed to ignite
@@ -751,14 +751,88 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── WHY Craft and Kit ─── */}
+      {/* ─── WHAT DO WE SELL ? SECTION ─── */}
+      <section className="bg-gradient-to-b from-white to-pink-50/30 py-16 px-6 relative overflow-hidden">
+        {/* Decorative background blur shapes */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl -z-10 animate-pulse duration-[6s]" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-sky-100/30 rounded-full blur-3xl -z-10 animate-pulse duration-[8s]" />
+
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="text-center max-w-3xl mx-auto space-y-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-pink-100 text-pink-700 tracking-wider uppercase">
+              ✨ Discover Our Handcrafted Collections
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#3C2A21] tracking-tight">
+              What do we sell?
+            </h2>
+            <p className="text-slate-600 font-medium text-sm sm:text-base leading-relaxed">
+              We sell the best **POP painting kits**, ready-to-paint plaster figurines, and premium home decor art activities in India. Ignite your child’s imagination with child-safe, 100% non-toxic creative craft activity boxes, or spruce up your living space with our hand-poured, aesthetic botanical scented soy candles.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
+            {/* Card 1: Plaster Kits */}
+            <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between group">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center text-2xl group-hover:scale-105 transition transform">
+                  🎨
+                </div>
+                <h3 className="text-lg font-bold text-[#3C2A21]">Ready-To-Paint Plaster Figurines</h3>
+                <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
+                  Detailed, screen-free plaster of paris (POP) painting kits for kids. Perfect for school activities, birthday party return gifts, and creative weekend fun!
+                </p>
+              </div>
+              <div className="pt-6 border-t border-slate-50 mt-6 flex justify-between items-center">
+                <span className="text-xs font-bold text-pink-600">Explore Collection</span>
+                <ChevronRight className="w-4 h-4 text-pink-500 group-hover:translate-x-1 transition transform" />
+              </div>
+            </div>
+
+            {/* Card 2: Soy Candles */}
+            <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between group">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-2xl group-hover:scale-105 transition transform">
+                  🕯️
+                </div>
+                <h3 className="text-lg font-bold text-[#3C2A21]">Aesthetic Scented Soy Candles</h3>
+                <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
+                  Hand-poured, natural botanical wax candles crafted with eco-friendly ingredients. Enhance your home decor with clean-burning, luxurious scented aromatherapy.
+                </p>
+              </div>
+              <div className="pt-6 border-t border-slate-50 mt-6 flex justify-between items-center">
+                <span className="text-xs font-bold text-amber-600">Explore Collection</span>
+                <ChevronRight className="w-4 h-4 text-amber-500 group-hover:translate-x-1 transition transform" />
+              </div>
+            </div>
+
+            {/* Card 3: Birthday Return Gifts / Custom Bundles */}
+            <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between group">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center text-2xl group-hover:scale-105 transition transform">
+                  🎁
+                </div>
+                <h3 className="text-lg font-bold text-[#3C2A21]">Creative Return Gift Kits</h3>
+                <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
+                  Simplify your party planning with customizable kids activity boxes. Premium non-toxic painting sets that make thoughtful and educational return gifts.
+                </p>
+              </div>
+              <div className="pt-6 border-t border-slate-50 mt-6 flex justify-between items-center">
+                <span className="text-xs font-bold text-sky-600">Explore Collection</span>
+                <ChevronRight className="w-4 h-4 text-sky-500 group-hover:translate-x-1 transition transform" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── WHY Kits and Craft ─── */}
       <section style={{ backgroundColor: "white", padding: "64px 0" }}>
         <div className="max-w-7xl mx-auto px-6">
           <h2
             className="text-center font-bold mb-12"
             style={{ fontSize: "30px", color: "#3C2A21" }}
           >
-            Why Craft and Kit?
+            Why Kits and Craft?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <WhyCard

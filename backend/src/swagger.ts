@@ -4,12 +4,12 @@ const options: swaggerJSDoc.Options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Craft and Kit Craft Hub API",
+      title: "Kits and Craft Craft Hub API",
       version: "1.0.0",
       description:
-        "Production REST API for Craft and Kit Craft Hub featuring Supabase PostgreSQL, Redis Caching, BullMQ Order Queueing, and Auth.",
+        "Production REST API for Kits and Craft Craft Hub featuring Supabase PostgreSQL, Redis Caching, BullMQ Order Queueing, and Auth.",
       contact: {
-        name: "Craft and Kit Engineering",
+        name: "Kits and Craft Engineering",
         email: "support@littlecreators.com",
       },
     },

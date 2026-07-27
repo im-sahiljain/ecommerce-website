@@ -913,5 +913,5 @@ app.get("/api/admin/stats", requireAdminAuth, (req: any, res: any) => {
 
 const HOST = "0.0.0.0";
 app.listen(PORT, HOST, () => {
-  console.log(`🚀 Craft and Kit Backend listening on http://${HOST}:${PORT}`);
+  console.log(`🚀 Kits and Craft Backend listening on http://${HOST}:${PORT}`);
 });

@@ -407,60 +407,40 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="space-y-6 pt-4 border-t border-slate-100">
-              {isOrderingAllowed ? (
-                <>
-                  {/* Quantity Selector */}
-                  <div className="flex items-center space-x-4">
-                    <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                      Quantity:
-                    </span>
-                    <div className="flex items-center space-x-3 bg-slate-50 border border-slate-200 rounded-full p-1">
-                      <button
-                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                        className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-xs"
-                      >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="font-bold text-sm w-6 text-center">
-                        {quantity}
-                      </span>
-                      <button
-                        onClick={() => setQuantity((q) => q + 1)}
-                        className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-xs"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Add to Cart CTA */}
+              {/* Quantity Selector */}
+              <div className="flex items-center space-x-4">
+                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  Quantity:
+                </span>
+                <div className="flex items-center space-x-3 bg-slate-50 border border-slate-200 rounded-full p-1">
                   <button
-                    onClick={() => addToCart(product, quantity)}
-                    className="w-full py-4 bg-pink-300 hover:bg-pink-400 text-slate-800 font-extrabold text-base rounded-full flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transition transform active:scale-98"
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-xs"
                   >
-                    <ShoppingBag className="w-5 h-5" />
-                    <span>
-                      Add to Basket — ₹{(product.price * quantity).toFixed(2)}
-                    </span>
+                    <Minus className="w-3.5 h-3.5" />
                   </button>
-                </>
-              ) : (
-                /* WhatsApp Order Link when Online Ordering is Disabled */
-                <div className="space-y-3 p-4 bg-amber-50 rounded-2xl border border-amber-200 text-center">
-                  <p className="text-xs font-bold text-amber-800">
-                    Online checkout paused for this item.
-                  </p>
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm rounded-full flex items-center justify-center space-x-2 shadow transition"
+                  <span className="font-bold text-sm w-6 text-center">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity((q) => q + 1)}
+                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-xs"
                   >
-                    <MessageCircle className="w-5 h-5 fill-current" />
-                    <span>Order / Inquire via WhatsApp</span>
-                  </a>
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-              )}
+              </div>
+
+              {/* Add to Cart CTA */}
+              <button
+                onClick={() => addToCart(product, quantity)}
+                className="w-full py-4 bg-pink-300 hover:bg-pink-400 text-slate-800 font-extrabold text-base rounded-full flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transition transform active:scale-98"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                <span>
+                  Add to Basket — ₹{(product.price * quantity).toFixed(2)}
+                </span>
+              </button>
 
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-2 pt-4 text-center border-t border-slate-100 text-[11px] font-bold text-slate-600">

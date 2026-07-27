@@ -188,7 +188,7 @@ export default function AdminAuthGuard({
               <Sparkles className="w-4 h-4" />
             </div>
             <span className="font-extrabold text-sm text-white tracking-tight">
-              Craft and Kit
+              Kits and Craft
             </span>
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function AdminAuthGuard({
               {!isCollapsed && (
                 <div className="truncate transition-opacity duration-200">
                   <h1 className="font-extrabold text-base tracking-tight text-white truncate">
-                    Craft and Kit
+                    Kits and Craft
                   </h1>
                   <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest block">
                     Admin Control
