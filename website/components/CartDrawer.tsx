@@ -140,24 +140,47 @@ export default function CartDrawer() {
           {cart.length > 0 && (
             <div className="p-6 border-t border-slate-100 bg-slate-50/50 space-y-3">
               <div className="space-y-1 text-xs text-slate-600 font-medium">
-                <div className="flex justify-between">
-                  <span>Items Subtotal:</span>
-                  <span className="font-bold text-slate-800">₹{subtotal}</span>
-                </div>
-                <div className="flex justify-between text-[11px] text-slate-400">
-                  <span>Online Shipping (Flat):</span>
-                  <span>₹{onlineShipping}</span>
-                </div>
-                <div className="flex justify-between text-[11px] text-emerald-600 font-bold">
-                  <span>WhatsApp Shipping:</span>
-                  <span>Will be confirmed on WhatsApp 🚚</span>
-                </div>
-                <div className="flex justify-between items-center text-sm font-extrabold text-slate-800 pt-1 border-t border-slate-200">
-                  <span>Online Order Total:</span>
-                  <span className="text-pink-600 text-base">
-                    ₹{onlineTotal}
-                  </span>
-                </div>
+                {settings.isGlobalOrderingEnabled ? (
+                  <>
+                    <div className="flex justify-between">
+                      <span>Items Subtotal:</span>
+                      <span className="font-bold text-slate-800">₹{subtotal}</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] text-slate-400">
+                      <span>Online Shipping (Flat):</span>
+                      <span>₹{onlineShipping}</span>
+                    </div>
+                    {settings.isWhatsappOrderingEnabled !== false && (
+                      <div className="flex justify-between text-[11px] text-emerald-600 font-bold">
+                        <span>WhatsApp Shipping:</span>
+                        <span>Will be confirmed on WhatsApp 🚚</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center text-sm font-extrabold text-slate-800 pt-1 border-t border-slate-200">
+                      <span>Online Order Total:</span>
+                      <span className="text-pink-600 text-base">
+                        ₹{onlineTotal}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between">
+                      <span>Items Subtotal:</span>
+                      <span className="font-bold text-slate-800">₹{subtotal}</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] text-emerald-600 font-bold">
+                      <span>Shipping Fee:</span>
+                      <span>Will be confirmed on WhatsApp 🚚</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm font-extrabold text-slate-800 pt-1 border-t border-slate-200">
+                      <span>Total Items Amount:</span>
+                      <span className="text-emerald-600 text-base">
+                        ₹{subtotal}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Standard Website Checkout (if enabled) */}
