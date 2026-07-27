@@ -1455,9 +1455,54 @@ export class Database {
   }
 
   updateSettings(updates: Partial<SiteSettings>): SiteSettings {
-    this.data.settings = { ...this.getSettings(), ...updates };
+    const updated = { ...this.getSettings(), ...updates };
+    this.data.settings = updated;
     this.save();
-    return this.data.settings;
+
+    if (this.pgPool) {
+      this.pgPool
+        .query(
+          `
+        CREATE TABLE IF NOT EXISTS public.site_settings (
+          id INT PRIMARY KEY DEFAULT 1,
+          is_global_ordering_enabled BOOLEAN DEFAULT TRUE,
+          whatsapp_number VARCHAR(100),
+          whatsapp_message_template TEXT,
+          is_whatsapp_enabled BOOLEAN DEFAULT TRUE,
+          site_title VARCHAR(255),
+          default_meta_description TEXT
+        );
+      `,
+        )
+        .then(() =>
+          this.pgPool?.query(
+            `
+          INSERT INTO public.site_settings (id, is_global_ordering_enabled, whatsapp_number, whatsapp_message_template, is_whatsapp_enabled, site_title, default_meta_description)
+          VALUES (1, $1, $2, $3, $4, $5, $6)
+          ON CONFLICT (id) DO UPDATE SET
+            is_global_ordering_enabled = EXCLUDED.is_global_ordering_enabled,
+            whatsapp_number = EXCLUDED.whatsapp_number,
+            whatsapp_message_template = EXCLUDED.whatsapp_message_template,
+            is_whatsapp_enabled = EXCLUDED.is_whatsapp_enabled,
+            site_title = EXCLUDED.site_title,
+            default_meta_description = EXCLUDED.default_meta_description;
+        `,
+            [
+              updated.isGlobalOrderingEnabled !== false,
+              updated.whatsappNumber || "",
+              updated.whatsappMessageTemplate || "",
+              updated.isWhatsappEnabled !== false,
+              updated.siteTitle || "Little Creators",
+              updated.defaultMetaDescription || "",
+            ],
+          ),
+        )
+        .catch((err) =>
+          console.warn("⚠️ PG site_settings update notice:", err.message),
+        );
+    }
+
+    return updated;
   }
 
   // Homepage Sections Management
