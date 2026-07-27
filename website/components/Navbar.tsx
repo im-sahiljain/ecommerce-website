@@ -60,7 +60,9 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm font-quicksand">
       <div className="bg-gradient-to-r from-yellow-100 via-pink-100 to-sky-100 py-2 text-center text-xs font-bold text-[#3C2A21]">
-        ✨ Unleash Creative Magic with <span className="font-extrabold text-pink-600">Kits & Craft</span>! Free Shipping on plaster shape painting sets & soy candles over ₹499! 🎨🚚
+        {/* ✨ Unleash Creative Magic with <span className="font-extrabold text-pink-600">Kits & Craft</span>! Free Shipping on plaster shape painting sets & soy candles over ₹499! 🎨🚚 */}
+        🎉 Launching{" "}
+        <span className="font-extrabold text-pink-600">Kits & Craft </span>
       </div>
 
       {/* Main Header Container */}
