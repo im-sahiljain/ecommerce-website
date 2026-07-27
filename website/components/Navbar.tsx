@@ -61,8 +61,10 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm font-quicksand">
       {/* Announcement Banner */}
       <div className="bg-gradient-to-r from-yellow-100 via-pink-100 to-sky-100 py-2 text-center text-xs font-bold text-[#3C2A21]">
-        🎉 Free Express Shipping across India on orders over ₹499! Code:{" "}
-        <span className="font-extrabold text-pink-600">CREATIVEKIDS</span>
+        {/* 🎉 Free Express Shipping across India on orders over ₹499! Code:{" "}
+        <span className="font-extrabold text-pink-600">CREATIVEKIDS</span> */}
+        🎉 Launching{" "}
+        <span className="font-extrabold text-pink-600">Kits and Craft </span>
       </div>
 
       {/* Main Header Container */}
