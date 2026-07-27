@@ -15,7 +15,11 @@ import {
   Layout,
   Layers,
   Save,
-  RotateCcw,
+  Sliders,
+  Maximize2,
+  Minimize2,
+  Smartphone,
+  Monitor,
 } from "lucide-react";
 import { adminFetch } from "../../config/auth";
 
@@ -51,6 +55,7 @@ export default function HomepageBuilderPage() {
   const [sections, setSections] = useState<HomepageSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingSection, setEditingSection] = useState<HomepageSection | null>(null);
+  const [activeEmojiEditId, setActiveEmojiEditId] = useState<string | null>(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
 
   // New section form state
@@ -122,6 +127,7 @@ export default function HomepageBuilderPage() {
       body: JSON.stringify(editingSection),
     });
     setEditingSection(null);
+    setActiveEmojiEditId(null);
   };
 
   const handleCreateNew = async (e: React.FormEvent) => {
@@ -139,6 +145,7 @@ export default function HomepageBuilderPage() {
       layoutTemplate: "carousel",
       isVisible: true,
       sortOrder: sections.length + 1,
+      decorations: [],
     };
 
     const res = await adminFetch("/api/homepage-sections", {
@@ -151,6 +158,35 @@ export default function HomepageBuilderPage() {
       setIsAddingNew(false);
       fetchSections();
     }
+  };
+
+  const updateDecorationItem = (
+    decId: string,
+    field: string,
+    value: any,
+    isStyleProp: boolean = false,
+  ) => {
+    if (!editingSection) return;
+    const updated = (editingSection.decorations || []).map((dec) => {
+      if (dec.id !== decId) return dec;
+      if (isStyleProp) {
+        const newStyle = { ...(dec.style || {}) };
+        if (field === "vPos") {
+          delete newStyle.top;
+          delete newStyle.bottom;
+          newStyle[value.type] = value.val;
+        } else if (field === "hPos") {
+          delete newStyle.left;
+          delete newStyle.right;
+          newStyle[value.type] = value.val;
+        } else {
+          newStyle[field] = value;
+        }
+        return { ...dec, style: newStyle };
+      }
+      return { ...dec, [field]: value };
+    });
+    setEditingSection({ ...editingSection, decorations: updated });
   };
 
   if (loading) {
@@ -174,8 +210,8 @@ export default function HomepageBuilderPage() {
             Homepage Layout Builder
           </h1>
           <p className="text-xs text-slate-400 mt-1 max-w-lg leading-relaxed">
-            Reorder, toggle, or customize homepage sections, background colors,
-            title layouts, and theme keywords in real-time.
+            Reorder sections, toggle visibility, customize background colors, and
+            fine-tune floating emoji positions, font sizes, opacity, & device visibility.
           </p>
         </div>
 
@@ -363,7 +399,10 @@ export default function HomepageBuilderPage() {
 
                     <p className="text-xs text-slate-500 mt-0.5">
                       Layout: <span className="font-bold text-slate-700 uppercase">{section.titleLayout || "left"}</span> • Bg Color:{" "}
-                      <span className="font-mono text-slate-700">{section.bgColor || "#FFFFFF"}</span>
+                      <span className="font-mono text-slate-700">{section.bgColor || "#FFFFFF"}</span> • Emojis:{" "}
+                      <span className="font-bold text-slate-800">
+                        {(section.decorations || []).map((d) => d.content).join(" ")}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -392,9 +431,15 @@ export default function HomepageBuilderPage() {
                   </button>
 
                   <button
-                    onClick={() =>
-                      setEditingSection(isEditing ? null : { ...section })
-                    }
+                    onClick={() => {
+                      if (isEditing) {
+                        setEditingSection(null);
+                        setActiveEmojiEditId(null);
+                      } else {
+                        setEditingSection({ ...section });
+                        setActiveEmojiEditId(null);
+                      }
+                    }}
                     className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
                   >
                     <Edit2 className="w-4 h-4" />
@@ -411,7 +456,7 @@ export default function HomepageBuilderPage() {
 
               {/* Inline Section Edit Form */}
               {isEditing && editingSection && (
-                <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl">
+                <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-5 rounded-2xl">
                   <div>
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">
                       Title
@@ -505,51 +550,303 @@ export default function HomepageBuilderPage() {
                     </div>
                   </div>
 
-                  {/* Floating Emojis Decoration Manager */}
-                  <div className="sm:col-span-3 bg-white p-3.5 rounded-2xl border border-slate-200 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-pink-500" />
-                        <span>Section Floating Emojis / Badges</span>
+                  {/* Floating Emojis & Position/Size Property Inspector */}
+                  <div className="sm:col-span-3 bg-white p-4 rounded-2xl border border-slate-200 space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <label className="text-xs font-black text-slate-800 flex items-center space-x-2">
+                        <Sparkles className="w-4 h-4 text-pink-500" />
+                        <span>Section Floating Emojis & Position Inspector</span>
                       </label>
                       <span className="text-[10px] text-slate-400 font-semibold">
-                        Click emoji to remove
+                        Configure position, size, opacity, & device visibility
                       </span>
                     </div>
 
-                    {/* Active Emojis Chips */}
-                    <div className="flex flex-wrap gap-2">
-                      {(editingSection.decorations || []).map((dec, dIdx) => (
-                        <span
-                          key={dec.id || dIdx}
-                          className="inline-flex items-center space-x-1 px-3 py-1 bg-slate-100 hover:bg-rose-50 text-slate-800 rounded-full text-base font-bold border border-slate-200 transition cursor-pointer group"
-                          onClick={() => {
-                            const updatedDecs = (editingSection.decorations || []).filter(
-                              (d) => d.id !== dec.id,
-                            );
-                            setEditingSection({
-                              ...editingSection,
-                              decorations: updatedDecs,
-                            });
-                          }}
-                          title="Click to delete emoji"
-                        >
-                          <span>{dec.content}</span>
-                          <Trash2 className="w-3 h-3 text-slate-400 group-hover:text-rose-600 transition" />
-                        </span>
-                      ))}
+                    {/* Emoji Chips List */}
+                    <div className="flex flex-wrap gap-2.5">
+                      {(editingSection.decorations || []).map((dec, dIdx) => {
+                        const isSelected = activeEmojiEditId === dec.id;
+                        const vPos = dec.style?.top
+                          ? `top: ${dec.style.top}`
+                          : dec.style?.bottom
+                          ? `bottom: ${dec.style.bottom}`
+                          : "top: 15%";
+                        const hPos = dec.style?.left
+                          ? `left: ${dec.style.left}`
+                          : dec.style?.right
+                          ? `right: ${dec.style.right}`
+                          : "left: 10%";
+
+                        return (
+                          <div key={dec.id || dIdx} className="flex items-center space-x-1">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setActiveEmojiEditId(isSelected ? null : dec.id)
+                              }
+                              className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-2xl text-sm font-extrabold border transition ${
+                                isSelected
+                                  ? "bg-pink-500 text-white border-pink-600 shadow"
+                                  : "bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200"
+                              }`}
+                            >
+                              <span className="text-base">{dec.content}</span>
+                              <span className="text-[10px] opacity-80 font-mono">
+                                ({vPos}, {hPos})
+                              </span>
+                              <Sliders className="w-3 h-3 opacity-60" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updatedDecs = (
+                                  editingSection.decorations || []
+                                ).filter((d) => d.id !== dec.id);
+                                setEditingSection({
+                                  ...editingSection,
+                                  decorations: updatedDecs,
+                                });
+                                if (activeEmojiEditId === dec.id)
+                                  setActiveEmojiEditId(null);
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                              title="Delete Emoji"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        );
+                      })}
 
                       {(editingSection.decorations || []).length === 0 && (
                         <span className="text-xs text-slate-400 italic">
-                          No emojis active. Pick preset emojis below:
+                          No emojis added yet. Pick preset emojis below to add:
                         </span>
                       )}
                     </div>
 
-                    {/* Preset Emoji Picker Shortcuts */}
+                    {/* Emoji Inspector Detailed Property Editor Panel */}
+                    {activeEmojiEditId && (
+                      <div className="p-4 bg-slate-50 rounded-2xl border border-pink-200/80 space-y-3">
+                        {(() => {
+                          const activeDec = (editingSection.decorations || []).find(
+                            (d) => d.id === activeEmojiEditId,
+                          );
+                          if (!activeDec) return null;
+
+                          const isTop = activeDec.style?.top !== undefined;
+                          const vVal = isTop
+                            ? activeDec.style?.top || "15%"
+                            : activeDec.style?.bottom || "20px";
+
+                          const isLeft = activeDec.style?.left !== undefined;
+                          const hVal = isLeft
+                            ? activeDec.style?.left || "10%"
+                            : activeDec.style?.right || "12%";
+
+                          return (
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                              {/* Emoji Character */}
+                              <div>
+                                <label className="block font-bold text-slate-600 mb-1">
+                                  Emoji Icon / Content
+                                </label>
+                                <input
+                                  type="text"
+                                  value={activeDec.content}
+                                  onChange={(e) =>
+                                    updateDecorationItem(
+                                      activeDec.id,
+                                      "content",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-sm bg-white font-extrabold"
+                                />
+                              </div>
+
+                              {/* Vertical Position */}
+                              <div>
+                                <label className="block font-bold text-slate-600 mb-1">
+                                  Vertical Position ({isTop ? "Top" : "Bottom"})
+                                </label>
+                                <div className="flex items-center space-x-1">
+                                  <select
+                                    value={isTop ? "top" : "bottom"}
+                                    onChange={(e) =>
+                                      updateDecorationItem(
+                                        activeDec.id,
+                                        "vPos",
+                                        { type: e.target.value, val: vVal },
+                                        true,
+                                      )
+                                    }
+                                    className="px-2 py-1.5 rounded-xl border border-slate-200 text-xs bg-white font-bold"
+                                  >
+                                    <option value="top">Top</option>
+                                    <option value="bottom">Bottom</option>
+                                  </select>
+                                  <input
+                                    type="text"
+                                    value={vVal}
+                                    onChange={(e) =>
+                                      updateDecorationItem(
+                                        activeDec.id,
+                                        "vPos",
+                                        {
+                                          type: isTop ? "top" : "bottom",
+                                          val: e.target.value,
+                                        },
+                                        true,
+                                      )
+                                    }
+                                    className="w-full px-2 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Horizontal Position */}
+                              <div>
+                                <label className="block font-bold text-slate-600 mb-1">
+                                  Horizontal Position ({isLeft ? "Left" : "Right"})
+                                </label>
+                                <div className="flex items-center space-x-1">
+                                  <select
+                                    value={isLeft ? "left" : "right"}
+                                    onChange={(e) =>
+                                      updateDecorationItem(
+                                        activeDec.id,
+                                        "hPos",
+                                        { type: e.target.value, val: hVal },
+                                        true,
+                                      )
+                                    }
+                                    className="px-2 py-1.5 rounded-xl border border-slate-200 text-xs font-bold"
+                                  >
+                                    <option value="left">Left</option>
+                                    <option value="right">Right</option>
+                                  </select>
+                                  <input
+                                    type="text"
+                                    value={hVal}
+                                    onChange={(e) =>
+                                      updateDecorationItem(
+                                        activeDec.id,
+                                        "hPos",
+                                        {
+                                          type: isLeft ? "left" : "right",
+                                          val: e.target.value,
+                                        },
+                                        true,
+                                      )
+                                    }
+                                    className="w-full px-2 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Font Size */}
+                              <div>
+                                <label className="block font-bold text-slate-600 mb-1">
+                                  Font Size (e.g. 36px, 48px)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={activeDec.style?.fontSize || "38px"}
+                                  onChange={(e) =>
+                                    updateDecorationItem(
+                                      activeDec.id,
+                                      "fontSize",
+                                      e.target.value,
+                                      true,
+                                    )
+                                  }
+                                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                                />
+                              </div>
+
+                              {/* Opacity */}
+                              <div>
+                                <label className="block font-bold text-slate-600 mb-1">
+                                  Opacity (0.1 to 1.0)
+                                </label>
+                                <input
+                                  type="number"
+                                  step="0.05"
+                                  min="0.1"
+                                  max="1.0"
+                                  value={activeDec.style?.opacity ?? 0.85}
+                                  onChange={(e) =>
+                                    updateDecorationItem(
+                                      activeDec.id,
+                                      "opacity",
+                                      Number(e.target.value),
+                                      true,
+                                    )
+                                  }
+                                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                                />
+                              </div>
+
+                              {/* Rotation / Transform */}
+                              <div>
+                                <label className="block font-bold text-slate-600 mb-1">
+                                  Transform / Rotation
+                                </label>
+                                <input
+                                  type="text"
+                                  value={activeDec.style?.transform || ""}
+                                  onChange={(e) =>
+                                    updateDecorationItem(
+                                      activeDec.id,
+                                      "transform",
+                                      e.target.value,
+                                      true,
+                                    )
+                                  }
+                                  placeholder="e.g. rotate(-15deg)"
+                                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                                />
+                              </div>
+
+                              {/* Device Visibility */}
+                              <div className="sm:col-span-2">
+                                <label className="block font-bold text-slate-600 mb-1">
+                                  Device Visibility Class
+                                </label>
+                                <select
+                                  value={activeDec.className || "hidden sm:block"}
+                                  onChange={(e) =>
+                                    updateDecorationItem(
+                                      activeDec.id,
+                                      "className",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-white font-semibold"
+                                >
+                                  <option value="hidden sm:block">
+                                    Hidden on Mobile (Visible on Tablet & Desktop)
+                                  </option>
+                                  <option value="hidden md:block">
+                                    Hidden on Mobile & Tablet (Desktop Only)
+                                  </option>
+                                  <option value="">
+                                    Visible on All Devices (Mobile, Tablet, Desktop)
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+
+                    {/* Quick Add Emoji Palette */}
                     <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-1.5">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">
-                        Add Quick Emoji:
+                        Add Preset Emoji:
                       </span>
                       {[
                         "🪐", "🚀", "⭐", "✨", "🌍", "🌿", "🌺", "🌸",
@@ -587,7 +884,10 @@ export default function HomepageBuilderPage() {
 
                   <div className="flex items-end justify-end space-x-2 sm:col-span-3 pt-2">
                     <button
-                      onClick={() => setEditingSection(null)}
+                      onClick={() => {
+                        setEditingSection(null);
+                        setActiveEmojiEditId(null);
+                      }}
                       className="px-4 py-2 bg-slate-200 text-slate-700 font-bold text-xs rounded-xl"
                     >
                       Cancel
