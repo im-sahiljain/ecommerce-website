@@ -1451,7 +1451,7 @@ export class Database {
         isGlobalOrderingEnabled: true,
         isWhatsappOrderingEnabled: true,
         isWhatsappChatButtonEnabled: true,
-        whatsappNumber: "+919876543210",
+        whatsappNumber: "",
         whatsappMessageTemplate:
           "Hi! I am interested in {productName} ({productUrl}). Can you help me with details?",
         isWhatsappEnabled: true,
@@ -1505,7 +1505,7 @@ export class Database {
               updated.isWhatsappChatButtonEnabled !== false,
               updated.whatsappNumber || "",
               updated.whatsappMessageTemplate || "",
-              updated.isWhatsappEnabled !== false,
+              updated.isWhatsappOrderingEnabled !== false || updated.isWhatsappChatButtonEnabled !== false,
               updated.siteTitle || "Little Creators",
               updated.defaultMetaDescription || "",
             ],

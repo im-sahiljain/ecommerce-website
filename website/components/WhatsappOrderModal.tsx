@@ -49,7 +49,7 @@ export default function WhatsappOrderModal({
 
     setSubmitting(true);
 
-    const cleanPhone = (whatsappNumber || "+919876543210").replace(/[^0-9]/g, "");
+    const cleanPhone = (whatsappNumber || "").replace(/[^0-9]/g, "");
 
     // Format item lines
     const itemLines = items

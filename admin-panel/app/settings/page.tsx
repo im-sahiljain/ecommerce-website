@@ -24,7 +24,7 @@ export default function SettingsPage() {
     isGlobalOrderingEnabled: true,
     isWhatsappOrderingEnabled: true,
     isWhatsappChatButtonEnabled: true,
-    whatsappNumber: "+919876543210",
+    whatsappNumber: "",
     siteTitle: "Little Creators Craft & Candle Hub",
     defaultMetaDescription:
       "Ready-to-paint craft figurines, scented aesthetic wax candles, and creative art kits.",
@@ -40,9 +40,9 @@ export default function SettingsPage() {
         if (data) {
           setSettings({
             isGlobalOrderingEnabled: data.isGlobalOrderingEnabled !== false,
-            isWhatsappOrderingEnabled: data.isWhatsappOrderingEnabled !== false && data.isWhatsappEnabled !== false,
-            isWhatsappChatButtonEnabled: data.isWhatsappChatButtonEnabled !== false && data.isWhatsappEnabled !== false,
-            whatsappNumber: data.whatsappNumber || "+919876543210",
+            isWhatsappOrderingEnabled: data.isWhatsappOrderingEnabled !== false,
+            isWhatsappChatButtonEnabled: data.isWhatsappChatButtonEnabled !== false,
+            whatsappNumber: data.whatsappNumber || "",
             siteTitle: data.siteTitle || "Little Creators",
             defaultMetaDescription: data.defaultMetaDescription || "",
           });

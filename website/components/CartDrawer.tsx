@@ -30,7 +30,7 @@ export default function CartDrawer() {
     isWhatsappOrderingEnabled: true,
     isWhatsappChatButtonEnabled: true,
     isWhatsappEnabled: true,
-    whatsappNumber: "+919876543210",
+    whatsappNumber: "",
   });
   const [isWaModalOpen, setIsWaModalOpen] = useState(false);
 
