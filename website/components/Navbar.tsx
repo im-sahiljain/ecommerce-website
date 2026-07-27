@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -40,6 +40,20 @@ export default function Navbar() {
   const [productLines, setProductLines] = useState<ProductLine[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProductsOpen, setIsProductsOpen] = useState(false);
+
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setIsProductsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsProductsOpen(false);
+    }, 250); // 250ms grace delay
+  };
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/product-lines`)
@@ -91,66 +105,91 @@ export default function Navbar() {
         {/* Desktop Navigation with Dynamic Mega-Menu */}
         <nav className="hidden md:flex items-center space-x-8 font-extrabold text-sm text-[#3C2A21]">
           {/* DYNAMIC PRODUCTS MEGA-MENU */}
-          <div className="relative group cursor-pointer flex items-center gap-1.5 hover:text-pink-500 py-2">
-            <Package className="w-4 h-4 text-pink-500" />
-            <span>Products</span>
-            <ChevronDown className="w-4 h-4 text-gray-400 group-hover:rotate-180 transition transform duration-200" />
+          <div
+            className="relative"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <Link
+              href="/shop"
+              className="flex items-center gap-1.5 hover:text-pink-500 py-2 transition"
+            >
+              <Package className="w-4 h-4 text-pink-500" />
+              <span>Products</span>
+              <ChevronDown
+                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                  isProductsOpen ? "rotate-180 text-pink-500" : ""
+                }`}
+              />
+            </Link>
 
-            {/* Mega-Menu Dropdown Panel */}
-            <div className="absolute top-full left-0 mt-1 w-[540px] bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 hidden group-hover:block animate-in fade-in zoom-in-95 duration-150 z-50">
-              <div className="grid grid-cols-2 gap-6">
-                {productLines.map((line) => {
-                  const subCats = categories.filter(
-                    (c) => c.productLineId === line.id,
-                  );
-                  return (
-                    <div key={line.id} className="space-y-3">
-                      <Link
-                        href={`/shop?productLineId=${line.id}`}
-                        className="flex items-center space-x-2 pb-2 border-b border-slate-100 group/title"
-                      >
-                        <span className="text-xl">{line.icon || "📦"}</span>
-                        <div>
-                          <h4 className="font-extrabold text-sm text-slate-800 group-hover/title:text-pink-500 transition">
-                            {line.name}
-                          </h4>
-                          <p className="text-[10px] font-medium text-slate-400 line-clamp-1">
-                            {line.description}
-                          </p>
-                        </div>
-                      </Link>
-
-                      <div className="space-y-1 pl-7">
+            {/* Mega-Menu Dropdown Panel with hover bridge & smooth transition */}
+            <div
+              className={`absolute top-full -left-4 pt-2 w-[680px] max-w-[90vw] transition-all duration-200 z-50 ${
+                isProductsOpen
+                  ? "opacity-100 translate-y-0 pointer-events-auto"
+                  : "opacity-0 translate-y-2 pointer-events-none"
+              }`}
+            >
+              <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-7">
+                <div className="grid grid-cols-2 gap-8">
+                  {productLines.map((line) => {
+                    const subCats = categories.filter(
+                      (c) => c.productLineId === line.id,
+                    );
+                    return (
+                      <div key={line.id} className="space-y-3">
                         <Link
                           href={`/shop?productLineId=${line.id}`}
-                          className="block text-xs font-bold text-pink-600 hover:text-pink-700 py-1"
+                          className="flex items-start space-x-3 pb-3 border-b border-slate-100 group/title"
                         >
-                          View All {line.name} →
+                          <span className="text-2xl p-1.5 bg-pink-50 rounded-xl flex-shrink-0">
+                            {line.icon || "📦"}
+                          </span>
+                          <div>
+                            <h4 className="font-extrabold text-sm text-slate-800 group-hover/title:text-pink-500 transition">
+                              {line.name}
+                            </h4>
+                            {line.description && (
+                              <p className="text-xs font-medium text-slate-400 mt-0.5 leading-snug">
+                                {line.description}
+                              </p>
+                            )}
+                          </div>
                         </Link>
-                        {subCats.map((cat) => (
-                          <Link
-                            key={cat.id}
-                            href={`/shop?category=${encodeURIComponent(cat.name)}`}
-                            className="block text-xs font-semibold text-slate-600 hover:text-slate-900 py-1 transition"
-                          >
-                            {cat.name}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
 
-              <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-500 bg-pink-50/50 -mx-6 -mb-6 p-4 rounded-b-3xl">
-                <span>Mix & Match any items for bulk savings</span>
-                <Link
-                  href="/bundles"
-                  className="text-pink-600 hover:text-pink-700 flex items-center space-x-1"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Build Package (10% Off)</span>
-                </Link>
+                        <div className="space-y-1.5 pl-2">
+                          <Link
+                            href={`/shop?productLineId=${line.id}`}
+                            className="inline-flex items-center text-xs font-extrabold text-pink-600 hover:text-pink-700 py-1 transition"
+                          >
+                            View All {line.name} →
+                          </Link>
+                          {subCats.map((cat) => (
+                            <Link
+                              key={cat.id}
+                              href={`/shop?category=${encodeURIComponent(cat.name)}`}
+                              className="block text-xs font-semibold text-slate-600 hover:text-pink-600 py-1 transition"
+                            >
+                              {cat.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-500 bg-pink-50/60 -mx-7 -mb-7 p-4 px-7 rounded-b-3xl">
+                  <span>Mix & Match any items for bulk savings</span>
+                  <Link
+                    href="/bundles"
+                    className="text-pink-600 hover:text-pink-700 flex items-center space-x-1 font-extrabold"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>Build Package (10% Off)</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
