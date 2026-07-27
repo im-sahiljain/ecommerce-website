@@ -74,70 +74,54 @@ export default function ProductsManagerPage() {
   const [category, setCategory] = useState("Painting Kits");
   const [theme, setTheme] = useState("Space Adventures");
 
-  // Parent-Child Classification Mappings
-  const PRODUCT_LINE_CATEGORIES: Record<string, string[]> = {
-    "line-1": [
-      "Painting Kits",
-      "Plaster Figurines",
-      "DIY Craft Kits",
-      "Party Packs",
-    ],
-    "line-2": [
-      "Scented Candles",
-      "Unscented Candles",
-      "Botanical Candles",
-      "Aesthetic Pillar Candles",
-    ],
-  };
+  // Filter Categories by selected Product Line dynamically
+  const filteredCatList = categoriesList.filter(
+    (c) => !c.productLineId || c.productLineId === productLineId,
+  );
+  const availableCategories = Array.from(
+    new Set(
+      filteredCatList.length > 0
+        ? filteredCatList.map((c) => c.name)
+        : products
+            .filter((p) => !p.productLineId || p.productLineId === productLineId)
+            .map((p) => p.category)
+            .filter(Boolean),
+    ),
+  );
 
-  const PRODUCT_LINE_THEMES: Record<string, string[]> = {
-    "line-1": [
-      "Space Adventures",
-      "Secret Garden (Floral)",
-      "Fairytale Magic",
-      "Wild Kingdom",
-      "Classic",
-    ],
-    "line-2": [
-      "Aesthetic",
-      "Floral & Botanical",
-      "Citrus & Fresh",
-      "Vanilla & Spice",
-      "Signature Scents",
-    ],
-  };
-
-  // Filter Categories by selected Product Line
-  const availableCategories = categoriesList
-    .filter((c) => c.productLineId === productLineId)
-    .map((c) => c.name)
-    .concat(PRODUCT_LINE_CATEGORIES[productLineId] || ["General"])
-    .reduce(
-      (acc: string[], item: string) =>
-        acc.includes(item) ? acc : [...acc, item],
-      [],
-    );
-
-  // Filter Themes by selected Product Line
-  const availableThemes = PRODUCT_LINE_THEMES[productLineId] || [
-    "General",
-    "Classic",
-    "Aesthetic",
-  ];
+  // Filter Themes by selected Product Line dynamically
+  const availableThemes = Array.from(
+    new Set(
+      products
+        .filter((p) => !p.productLineId || p.productLineId === productLineId)
+        .map((p) => p.theme)
+        .filter(Boolean),
+    ),
+  );
 
   const handleProductLineChange = (newLineId: string) => {
     setProductLineId(newLineId);
 
     const dbCats = categoriesList
-      .filter((c) => c.productLineId === newLineId)
+      .filter((c) => !c.productLineId || c.productLineId === newLineId)
       .map((c) => c.name);
-    const defaultCats = PRODUCT_LINE_CATEGORIES[newLineId] || ["General"];
-    const newCats = Array.from(new Set([...dbCats, ...defaultCats]));
+    const prodCats = products
+      .filter((p) => !p.productLineId || p.productLineId === newLineId)
+      .map((p) => p.category)
+      .filter(Boolean);
+    const newCats = Array.from(new Set([...dbCats, ...prodCats]));
     if (newCats.length > 0) {
       setCategory(newCats[0]);
     }
 
-    const newThemes = PRODUCT_LINE_THEMES[newLineId] || ["General"];
+    const newThemes = Array.from(
+      new Set(
+        products
+          .filter((p) => !p.productLineId || p.productLineId === newLineId)
+          .map((p) => p.theme)
+          .filter(Boolean),
+      ),
+    );
     if (newThemes.length > 0) {
       setTheme(newThemes[0]);
     }

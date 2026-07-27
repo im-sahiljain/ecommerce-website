@@ -61,6 +61,7 @@ export default function HomePage() {
     (state: RootState) => state.products.items,
   ) as Product[];
   const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
+  const [dbThemeSections, setDbThemeSections] = useState<ThemeSectionConfig[]>([]);
 
   const products = reduxProducts.length > 0 ? reduxProducts : fetchedProducts;
 
@@ -69,6 +70,13 @@ export default function HomePage() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setFetchedProducts(data);
+      })
+      .catch(() => {});
+
+    fetch(`${API_BASE_URL}/api/homepage-sections`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setDbThemeSections(data);
       })
       .catch(() => {});
   }, []);
@@ -84,7 +92,12 @@ export default function HomePage() {
       .slice(0, limit);
   };
 
-  const candleProducts = products.filter((p) => p.productLineId === "line-2");
+  const candleProducts = products.filter(
+    (p) =>
+      p.category.toLowerCase().includes("candle") ||
+      (p.productLineId && p.productLineId.toLowerCase().includes("candle")) ||
+      p.productLineId === "line-2",
+  );
 
   // HERO CAROUSEL SLIDES DEFINITION
   const heroSlides = [
@@ -407,8 +420,11 @@ export default function HomePage() {
     setTouchStartX(null);
   };
 
-  // HARDCODED THEME SECTIONS CONFIGURATION (WITH DYNAMIC DATABASE PRODUCTS)
-  const themeSections: ThemeSectionConfig[] = [
+  // DYNAMIC THEME SECTIONS FROM DATABASE (FALLBACK TO STATIC SEED DEFAULTS)
+  const themeSections: ThemeSectionConfig[] =
+    dbThemeSections.length > 0
+      ? dbThemeSections
+      : [
     {
       id: "space",
       title: (

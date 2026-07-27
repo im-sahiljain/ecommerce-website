@@ -166,6 +166,7 @@ export default function ProductDetailPage() {
     );
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ecommerce-website-pink-eight.vercel.app';
   const isOrderingAllowed =
     (settings?.isGlobalOrderingEnabled ?? true) &&
     (product.isOrderingEnabled ?? true);
@@ -173,7 +174,7 @@ export default function ProductDetailPage() {
     /[^0-9]/g,
     "",
   );
-  const productUrl = `http://localhost:3000/product/${product.id}`;
+  const productUrl = `${siteUrl}/product/${product.id}`;
   const rawMessage = (
     settings?.whatsappMessageTemplate ||
     "Hi! I am interested in {productName} ({productUrl})."
@@ -187,11 +188,12 @@ export default function ProductDetailPage() {
     "@context": "https://schema.org/",
     "@type": "Product",
     name: product.name,
-    image: [product.image],
+    image: allImages.length > 0 ? allImages : [product.image],
     description: product.description,
+    sku: (product as any).sku || product.id,
     brand: {
       "@type": "Brand",
-      name: "Little Creators",
+      name: "POP Craft & Candle Store",
     },
     category: product.category,
     offers: {
@@ -199,6 +201,7 @@ export default function ProductDetailPage() {
       url: productUrl,
       priceCurrency: "INR",
       price: product.price,
+      itemCondition: "https://schema.org/NewCondition",
       availability: product.inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",

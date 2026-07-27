@@ -254,12 +254,9 @@ function ShopPageContent() {
               <div className="space-y-1">
                 {[
                   "",
-                  "Space Adventures",
-                  "Secret Garden (Floral)",
-                  "Fairytale Magic",
-                  "Wild Kingdom",
-                  "Aesthetic",
-                  "Classic",
+                  ...Array.from(
+                    new Set(products.map((p) => p.theme).filter(Boolean)),
+                  ),
                 ].map((t) => (
                   <button
                     key={t || "all-themes"}
@@ -276,29 +273,40 @@ function ShopPageContent() {
               </div>
             </div>
 
-            {/* Scent Filter (Candles) */}
-            {selectedProductLineId === "line-2" && (
-              <div>
-                <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
-                  Scent Type
-                </h4>
-                <div className="space-y-1">
-                  {["", "Scented", "Unscented"].map((s) => (
-                    <button
-                      key={s || "all-scents"}
-                      onClick={() => setSelectedScent(s)}
-                      className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                        selectedScent === s
-                          ? "bg-yellow-100 text-slate-800 font-bold"
-                          : "text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {s || "All Scents"}
-                    </button>
-                  ))}
+            {/* Scent Filter */}
+            {(() => {
+              const availableScents = Array.from(
+                new Set(
+                  products
+                    .map((p) => p.attributes?.Scent || "")
+                    .filter(Boolean),
+                ),
+              );
+              if (availableScents.length === 0) return null;
+
+              return (
+                <div>
+                  <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
+                    Scent Type
+                  </h4>
+                  <div className="space-y-1">
+                    {["", ...availableScents].map((s) => (
+                      <button
+                        key={s || "all-scents"}
+                        onClick={() => setSelectedScent(s)}
+                        className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                          selectedScent === s
+                            ? "bg-yellow-100 text-slate-800 font-bold"
+                            : "text-slate-600 hover:bg-slate-50"
+                        }`}
+                      >
+                        {s || "All Scents"}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </aside>
 

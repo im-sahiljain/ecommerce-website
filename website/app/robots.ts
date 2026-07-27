@@ -1,12 +1,14 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ecommerce-website-pink-eight.vercel.app';
+
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/checkout', '/account'],
+      disallow: ['/api/', '/admin/', '/checkout/confirmation'],
     },
-    sitemap: 'http://localhost:3000/sitemap.xml',
+    sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

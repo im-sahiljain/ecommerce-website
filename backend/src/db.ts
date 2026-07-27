@@ -22,7 +22,94 @@ import {
 
 export * from "./types";
 
-dotenv.config();
+const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
+  {
+    id: "sec-space",
+    type: "theme_section",
+    title: "Space Adventures",
+    themeKeyword: "Space",
+    titleLayout: "left",
+    bgColor: "#2D366D",
+    textColor: "#FFFFFF",
+    topDividerFill: "white",
+    cardSize: "large",
+    layoutTemplate: "carousel",
+    productLineId: "line-1",
+    isVisible: true,
+    sortOrder: 1,
+    decorations: [
+      { id: "s1", type: "emoji", content: "🪐", style: { top: "15%", left: "5%", fontSize: "48px", opacity: 0.9, transform: "rotate(-15deg)" } },
+      { id: "s2", type: "emoji", content: "⭐", style: { top: "8%", left: "30%", fontSize: "18px", opacity: 0.8 }, className: "hidden sm:block" },
+      { id: "s3", type: "emoji", content: "✨", style: { top: "12%", right: "8%", fontSize: "14px", opacity: 0.7 }, className: "hidden sm:block" },
+      { id: "s4", type: "emoji", content: "⭐", style: { top: "5%", right: "15%", fontSize: "20px", opacity: 0.8 } },
+      { id: "s5", type: "emoji", content: "🌍", style: { top: "25%", right: "3%", fontSize: "42px", opacity: 0.85 }, className: "hidden md:block" },
+      { id: "s6", type: "emoji", content: "🚀", style: { bottom: "30%", left: "8%", fontSize: "36px", opacity: 0.8, transform: "rotate(25deg)" }, className: "hidden sm:block" },
+      { id: "s7", type: "emoji", content: "🚀", style: { bottom: "15%", right: "5%", fontSize: "38px", opacity: 0.8, transform: "rotate(-20deg) scaleX(-1)" }, className: "hidden sm:block" }
+    ]
+  },
+  {
+    id: "sec-garden",
+    type: "theme_section",
+    title: "Secret Garden (Floral)",
+    themeKeyword: "Garden",
+    titleLayout: "center",
+    bgColor: "#D1E7D2",
+    textColor: "#3C2A21",
+    topDividerFill: "#2D366D",
+    cardSize: "large",
+    layoutTemplate: "carousel",
+    productLineId: "line-1",
+    isVisible: true,
+    sortOrder: 2,
+    decorations: [
+      { id: "g1", type: "emoji", content: "🌿", style: { top: "20px", left: "20px", fontSize: "46px", opacity: 0.85 }, className: "hidden sm:block" },
+      { id: "g2", type: "emoji", content: "🌺", style: { bottom: "20px", right: "20px", fontSize: "46px", opacity: 0.85 }, className: "hidden sm:block" },
+      { id: "g3", type: "emoji", content: "🌸", style: { top: "15%", right: "12%", fontSize: "36px", opacity: 0.8 }, className: "hidden sm:block" },
+      { id: "g4", type: "emoji", content: "🦋", style: { top: "25%", left: "10%", fontSize: "38px", opacity: 0.8 }, className: "hidden sm:block" }
+    ]
+  },
+  {
+    id: "sec-fairytale",
+    type: "theme_section",
+    title: "Fairytale Magic",
+    themeKeyword: "Fairytale",
+    titleLayout: "left",
+    bgColor: "#F1E4F7",
+    textColor: "#3C2A21",
+    topDividerFill: "#D1E7D2",
+    cardSize: "small",
+    layoutTemplate: "carousel",
+    productLineId: "line-1",
+    isVisible: true,
+    sortOrder: 3,
+    decorations: [
+      { id: "f1", type: "emoji", content: "🏰", style: { bottom: "20px", left: "20px", fontSize: "44px", opacity: 0.85 }, className: "hidden md:block" },
+      { id: "f2", type: "emoji", content: "🦄", style: { top: "18%", right: "8%", fontSize: "42px", opacity: 0.85 }, className: "hidden sm:block" },
+      { id: "f3", type: "emoji", content: "👑", style: { top: "12%", left: "25%", fontSize: "32px", opacity: 0.8 }, className: "hidden sm:block" }
+    ]
+  },
+  {
+    id: "sec-wild",
+    type: "theme_section",
+    title: "Wild Kingdom",
+    themeKeyword: "Wild",
+    titleLayout: "right",
+    bgColor: "#F9E6C3",
+    textColor: "#3C2A21",
+    topDividerFill: "#F1E4F7",
+    cardSize: "small",
+    layoutTemplate: "carousel",
+    productLineId: "line-1",
+    isVisible: true,
+    sortOrder: 4,
+    decorations: [
+      { id: "w1", type: "emoji", content: "🍃", style: { bottom: "20px", left: "20px", fontSize: "46px", opacity: 0.85 }, className: "hidden sm:block" },
+      { id: "w2", type: "emoji", content: "🐾", style: { top: "20px", right: "20px", fontSize: "38px", opacity: 0.75 }, className: "hidden sm:block" },
+      { id: "w3", type: "emoji", content: "🦁", style: { top: "15%", left: "12%", fontSize: "40px", opacity: 0.85 }, className: "hidden sm:block" },
+      { id: "w4", type: "emoji", content: "🐘", style: { bottom: "15%", right: "10%", fontSize: "40px", opacity: 0.85 }, className: "hidden sm:block" }
+    ]
+  }
+];
 
 export class Database {
   private data: DatabaseSchema;
@@ -1114,6 +1201,9 @@ export class Database {
 
   // Homepage Sections Management
   getHomepageSections(): HomepageSection[] {
+    if (!this.data.homepageSections || this.data.homepageSections.length === 0) {
+      this.data.homepageSections = [...DEFAULT_HOMEPAGE_SECTIONS];
+    }
     return (this.data.homepageSections || []).sort(
       (a, b) => a.sortOrder - b.sortOrder,
     );
