@@ -23,6 +23,19 @@ export * from "./types";
 
 dotenv.config();
 
+// ─── Helper: parse boolean safely ───
+function parseBoolean(val: any, defaultVal = true): boolean {
+  if (val === undefined || val === null) return defaultVal;
+  if (typeof val === "boolean") return val;
+  if (typeof val === "string") {
+    const s = val.trim().toLowerCase();
+    if (s === "false" || s === "f" || s === "0" || s === "off") return false;
+    if (s === "true" || s === "t" || s === "1" || s === "on") return true;
+  }
+  if (typeof val === "number") return val !== 0;
+  return Boolean(val);
+}
+
 // ─── Helper: parse product images from PG row ───
 function parseProductImages(r: any): string[] {
   let parsedImages: string[] = [];
@@ -172,6 +185,21 @@ export class Database {
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
       `).catch((err) => console.warn("⚠️ Create packs table notice:", err.message));
+
+      // Ensure site_settings table exists
+      this.pgPool.query(`
+        CREATE TABLE IF NOT EXISTS public.site_settings (
+          id VARCHAR(255) PRIMARY KEY,
+          is_global_ordering_enabled BOOLEAN DEFAULT true,
+          is_whatsapp_ordering_enabled BOOLEAN DEFAULT true,
+          is_whatsapp_chat_button_enabled BOOLEAN DEFAULT true,
+          whatsapp_number VARCHAR(100),
+          whatsapp_message_template TEXT,
+          is_whatsapp_enabled BOOLEAN DEFAULT true,
+          site_title VARCHAR(255),
+          default_meta_description TEXT
+        );
+      `).catch((err) => console.warn("⚠️ Create site_settings table notice:", err.message));
 
       console.log("⚡ Database initialized — all operations will query PostgreSQL directly");
     }
@@ -882,12 +910,12 @@ export class Database {
         if (res && res.rows.length > 0) {
           const s = res.rows[0];
           return {
-            isGlobalOrderingEnabled: s.is_global_ordering_enabled !== false,
-            isWhatsappOrderingEnabled: s.is_whatsapp_ordering_enabled !== false,
-            isWhatsappChatButtonEnabled: s.is_whatsapp_chat_button_enabled !== false,
+            isGlobalOrderingEnabled: parseBoolean(s.is_global_ordering_enabled, true),
+            isWhatsappOrderingEnabled: parseBoolean(s.is_whatsapp_ordering_enabled, true),
+            isWhatsappChatButtonEnabled: parseBoolean(s.is_whatsapp_chat_button_enabled, true),
             whatsappNumber: s.whatsapp_number || "",
             whatsappMessageTemplate: s.whatsapp_message_template || "",
-            isWhatsappEnabled: s.is_whatsapp_enabled !== false,
+            isWhatsappEnabled: parseBoolean(s.is_whatsapp_enabled, true),
             siteTitle: s.site_title || "Kits and Craft",
             defaultMetaDescription: s.default_meta_description || "",
           };
@@ -907,7 +935,13 @@ export class Database {
 
   async updateSettings(updates: Partial<SiteSettings>): Promise<SiteSettings> {
     const current = await this.getSettings();
-    const updated: SiteSettings = { ...current, ...updates };
+    const updated: SiteSettings = {
+      ...current,
+      ...updates,
+      isGlobalOrderingEnabled: parseBoolean(updates.isGlobalOrderingEnabled, current.isGlobalOrderingEnabled),
+      isWhatsappOrderingEnabled: parseBoolean(updates.isWhatsappOrderingEnabled, current.isWhatsappOrderingEnabled),
+      isWhatsappChatButtonEnabled: parseBoolean(updates.isWhatsappChatButtonEnabled, current.isWhatsappChatButtonEnabled),
+    };
 
     if (this.pgPool) {
       try {
@@ -924,11 +958,14 @@ export class Database {
             site_title = EXCLUDED.site_title,
             default_meta_description = EXCLUDED.default_meta_description;
         `, [
-          updated.isGlobalOrderingEnabled !== false, updated.isWhatsappOrderingEnabled !== false,
-          updated.isWhatsappChatButtonEnabled !== false, updated.whatsappNumber || "",
+          updated.isGlobalOrderingEnabled,
+          updated.isWhatsappOrderingEnabled,
+          updated.isWhatsappChatButtonEnabled,
+          updated.whatsappNumber || "",
           updated.whatsappMessageTemplate || "",
-          updated.isWhatsappOrderingEnabled !== false || updated.isWhatsappChatButtonEnabled !== false,
-          updated.siteTitle || "Kits and Craft", updated.defaultMetaDescription || "",
+          updated.isWhatsappOrderingEnabled || updated.isWhatsappChatButtonEnabled,
+          updated.siteTitle || "Kits and Craft",
+          updated.defaultMetaDescription || "",
         ]);
       } catch (err: any) {
         console.warn("⚠️ PG site_settings update error:", err.message);
