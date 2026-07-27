@@ -954,28 +954,62 @@ export class Database {
 
     if (this.pgPool) {
       try {
-        await this.pgPool.query(`
-          INSERT INTO public.site_settings (id, is_global_ordering_enabled, is_whatsapp_ordering_enabled, is_whatsapp_chat_button_enabled, whatsapp_number, whatsapp_message_template, is_whatsapp_enabled, site_title, default_meta_description)
-          VALUES ('main', $1, $2, $3, $4, $5, $6, $7, $8)
-          ON CONFLICT (id) DO UPDATE SET
-            is_global_ordering_enabled = EXCLUDED.is_global_ordering_enabled,
-            is_whatsapp_ordering_enabled = EXCLUDED.is_whatsapp_ordering_enabled,
-            is_whatsapp_chat_button_enabled = EXCLUDED.is_whatsapp_chat_button_enabled,
-            whatsapp_number = EXCLUDED.whatsapp_number,
-            whatsapp_message_template = EXCLUDED.whatsapp_message_template,
-            is_whatsapp_enabled = EXCLUDED.is_whatsapp_enabled,
-            site_title = EXCLUDED.site_title,
-            default_meta_description = EXCLUDED.default_meta_description;
-        `, [
-          updated.isGlobalOrderingEnabled,
-          updated.isWhatsappOrderingEnabled,
-          updated.isWhatsappChatButtonEnabled,
-          updated.whatsappNumber || "",
-          updated.whatsappMessageTemplate || "",
-          updated.isWhatsappOrderingEnabled || updated.isWhatsappChatButtonEnabled,
-          updated.siteTitle || "Kits and Craft",
-          updated.defaultMetaDescription || "",
-        ]);
+        const checkRes = await this.pgPool.query(`SELECT id FROM public.site_settings LIMIT 1`);
+        if (checkRes && checkRes.rows.length > 0) {
+          const rowId = checkRes.rows[0].id;
+          await this.pgPool.query(`
+            UPDATE public.site_settings SET
+              is_global_ordering_enabled = $1,
+              is_whatsapp_ordering_enabled = $2,
+              is_whatsapp_chat_button_enabled = $3,
+              whatsapp_number = $4,
+              whatsapp_message_template = $5,
+              is_whatsapp_enabled = $6,
+              site_title = $7,
+              default_meta_description = $8
+            WHERE id = $9;
+          `, [
+            updated.isGlobalOrderingEnabled,
+            updated.isWhatsappOrderingEnabled,
+            updated.isWhatsappChatButtonEnabled,
+            updated.whatsappNumber || "",
+            updated.whatsappMessageTemplate || "",
+            updated.isWhatsappOrderingEnabled || updated.isWhatsappChatButtonEnabled,
+            updated.siteTitle || "Kits and Craft",
+            updated.defaultMetaDescription || "",
+            rowId,
+          ]);
+        } else {
+          try {
+            await this.pgPool.query(`
+              INSERT INTO public.site_settings (id, is_global_ordering_enabled, is_whatsapp_ordering_enabled, is_whatsapp_chat_button_enabled, whatsapp_number, whatsapp_message_template, is_whatsapp_enabled, site_title, default_meta_description)
+              VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8);
+            `, [
+              updated.isGlobalOrderingEnabled,
+              updated.isWhatsappOrderingEnabled,
+              updated.isWhatsappChatButtonEnabled,
+              updated.whatsappNumber || "",
+              updated.whatsappMessageTemplate || "",
+              updated.isWhatsappOrderingEnabled || updated.isWhatsappChatButtonEnabled,
+              updated.siteTitle || "Kits and Craft",
+              updated.defaultMetaDescription || "",
+            ]);
+          } catch (e) {
+            await this.pgPool.query(`
+              INSERT INTO public.site_settings (is_global_ordering_enabled, is_whatsapp_ordering_enabled, is_whatsapp_chat_button_enabled, whatsapp_number, whatsapp_message_template, is_whatsapp_enabled, site_title, default_meta_description)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+            `, [
+              updated.isGlobalOrderingEnabled,
+              updated.isWhatsappOrderingEnabled,
+              updated.isWhatsappChatButtonEnabled,
+              updated.whatsappNumber || "",
+              updated.whatsappMessageTemplate || "",
+              updated.isWhatsappOrderingEnabled || updated.isWhatsappChatButtonEnabled,
+              updated.siteTitle || "Kits and Craft",
+              updated.defaultMetaDescription || "",
+            ]);
+          }
+        }
       } catch (err: any) {
         console.warn("⚠️ PG site_settings update error:", err.message);
       }
