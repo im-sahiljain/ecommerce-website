@@ -126,7 +126,18 @@ export class Database {
       // Ensure required columns and admin user exist
       this.pgPool.query(`
         ALTER TABLE public.users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'customer';
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS sku TEXT;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS slug TEXT;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS original_price NUMERIC;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS cost_price NUMERIC;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS product_line_id TEXT;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_non_toxic BOOLEAN DEFAULT true;
         ALTER TABLE public.products ADD COLUMN IF NOT EXISTS images TEXT;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS stock_quantity INTEGER DEFAULT 10;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_ordering_enabled BOOLEAN DEFAULT true;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
         INSERT INTO public.users (id, identifier, email, name, password, role)
         VALUES ('admin-1', 'admin@littlecreators.com', 'admin@littlecreators.com', 'Admin User', 'Admin@123456', 'admin')
         ON CONFLICT (id) DO UPDATE SET role = 'admin', password = EXCLUDED.password;
