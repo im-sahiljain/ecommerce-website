@@ -78,7 +78,7 @@ app.get("/api/admin/me", requireAdminAuth, (req, res) => {
 });
 
 // Auth / Login Route
-app.post("/api/users/login", (req, res) => {
+app.post("/api/users/login", async (req, res) => {
   const { identifier, name, password } = req.body;
   if (!identifier) {
     return res
@@ -86,7 +86,7 @@ app.post("/api/users/login", (req, res) => {
       .json({ error: "Email or phone number is required." });
   }
 
-  const user = db.findOrCreateUser(identifier, name, password);
+  const user = await db.findOrCreateUser(identifier, name, password);
   const token = generateUserToken({
     id: user.id,
     identifier: user.identifier,
@@ -101,7 +101,7 @@ app.post("/api/users/login", (req, res) => {
   });
 });
 
-app.post("/api/users/signup", (req, res) => {
+app.post("/api/users/signup", async (req, res) => {
   const { identifier, name, password } = req.body;
   if (!identifier) {
     return res
@@ -109,7 +109,7 @@ app.post("/api/users/signup", (req, res) => {
       .json({ error: "Email or phone number is required." });
   }
 
-  const user = db.findOrCreateUser(identifier, name, password);
+  const user = await db.findOrCreateUser(identifier, name, password);
   const token = generateUserToken({
     id: user.id,
     identifier: user.identifier,
@@ -127,11 +127,11 @@ app.post("/api/users/signup", (req, res) => {
 app.get(
   "/api/users/profile",
   requireCustomerAuth,
-  (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res) => {
     const userIdentifier = req.user?.identifier;
     if (!userIdentifier) return res.status(401).json({ error: "Unauthorized" });
 
-    const user = db.getUserByIdentifier(userIdentifier);
+    const user = await db.getUserByIdentifier(userIdentifier);
     if (!user) return res.status(404).json({ error: "User profile not found" });
 
     // Exclude password from response
@@ -144,11 +144,11 @@ app.get(
 app.put(
   "/api/users/profile",
   requireCustomerAuth,
-  (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res) => {
     const userIdentifier = req.user?.identifier;
     if (!userIdentifier) return res.status(401).json({ error: "Unauthorized" });
 
-    const updatedUser = db.updateUserProfile(userIdentifier, req.body);
+    const updatedUser = await db.updateUserProfile(userIdentifier, req.body);
     if (!updatedUser) return res.status(404).json({ error: "User not found" });
 
     const { password, ...profile } = updatedUser;
@@ -164,11 +164,11 @@ app.put(
 app.get(
   "/api/users/addresses",
   requireCustomerAuth,
-  (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res) => {
     const userIdentifier = req.user?.identifier;
     if (!userIdentifier) return res.status(401).json({ error: "Unauthorized" });
 
-    const addresses = db.getUserAddresses(userIdentifier);
+    const addresses = await db.getUserAddresses(userIdentifier);
     res.json(addresses);
   },
 );
@@ -176,7 +176,7 @@ app.get(
 app.post(
   "/api/users/addresses",
   requireCustomerAuth,
-  (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res) => {
     const userIdentifier = req.user?.identifier;
     if (!userIdentifier) return res.status(401).json({ error: "Unauthorized" });
 
@@ -197,7 +197,7 @@ app.post(
       });
     }
 
-    const newAddress = db.addUserAddress(userIdentifier, {
+    const newAddress = await db.addUserAddress(userIdentifier, {
       label: label || "Home",
       fullName: fullName || req.user?.name || "",
       phone: phone || "",
@@ -215,11 +215,11 @@ app.post(
 app.put(
   "/api/users/addresses/:id/default",
   requireCustomerAuth,
-  (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res) => {
     const userIdentifier = req.user?.identifier;
     if (!userIdentifier) return res.status(401).json({ error: "Unauthorized" });
 
-    const success = db.setDefaultAddress(userIdentifier, req.params.id);
+    const success = await db.setDefaultAddress(userIdentifier, req.params.id);
     if (!success) return res.status(404).json({ error: "Address not found" });
 
     res.json({ success: true, message: "Default address updated" });
@@ -229,11 +229,11 @@ app.put(
 app.delete(
   "/api/users/addresses/:id",
   requireCustomerAuth,
-  (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res) => {
     const userIdentifier = req.user?.identifier;
     if (!userIdentifier) return res.status(401).json({ error: "Unauthorized" });
 
-    const success = db.deleteUserAddress(userIdentifier, req.params.id);
+    const success = await db.deleteUserAddress(userIdentifier, req.params.id);
     if (!success) return res.status(404).json({ error: "Address not found" });
 
     res.json({ success: true, message: "Address deleted" });
@@ -254,16 +254,16 @@ app.post("/api/upload", requireAdminAuth, async (req, res) => {
 });
 
 // Product Lines API
-app.get("/api/product-lines", (req, res) => {
-  res.json(db.getProductLines());
+app.get("/api/product-lines", async (req, res) => {
+  res.json(await db.getProductLines());
 });
 
-app.post("/api/product-lines", requireAdminAuth, (req, res) => {
+app.post("/api/product-lines", requireAdminAuth, async (req, res) => {
   const { name, slug, description, coverImage, icon, isVisible, sortOrder } =
     req.body;
   if (!name)
     return res.status(400).json({ error: "Product line name is required" });
-  const newLine = db.addProductLine({
+  const newLine = await db.addProductLine({
     name,
     slug: slug || name.toLowerCase().replace(/\s+/g, "-"),
     description,
@@ -275,26 +275,26 @@ app.post("/api/product-lines", requireAdminAuth, (req, res) => {
   res.status(201).json(newLine);
 });
 
-app.put("/api/product-lines/:id", requireAdminAuth, (req, res) => {
-  const updated = db.updateProductLine(req.params.id, req.body);
+app.put("/api/product-lines/:id", requireAdminAuth, async (req, res) => {
+  const updated = await db.updateProductLine(req.params.id, req.body);
   if (!updated)
     return res.status(404).json({ error: "Product line not found" });
   res.json(updated);
 });
 
-app.delete("/api/product-lines/:id", requireAdminAuth, (req, res) => {
-  const deleted = db.deleteProductLine(req.params.id);
+app.delete("/api/product-lines/:id", requireAdminAuth, async (req, res) => {
+  const deleted = await db.deleteProductLine(req.params.id);
   if (!deleted)
     return res.status(404).json({ error: "Product line not found" });
   res.json({ success: true });
 });
 
 // Category Facets API
-app.get("/api/facets", (req, res) => {
-  res.json(db.getFacets());
+app.get("/api/facets", async (req, res) => {
+  res.json(await db.getFacets());
 });
 
-app.post("/api/facets", requireAdminAuth, (req, res) => {
+app.post("/api/facets", requireAdminAuth, async (req, res) => {
   const {
     name,
     slug,
@@ -310,7 +310,7 @@ app.post("/api/facets", requireAdminAuth, (req, res) => {
     sortOrder,
   } = req.body;
   if (!name) return res.status(400).json({ error: "Facet name is required" });
-  const newFacet = db.addFacet({
+  const newFacet = await db.addFacet({
     name,
     slug: slug || name.toLowerCase().replace(/\s+/g, "-"),
     parentId,
@@ -327,24 +327,24 @@ app.post("/api/facets", requireAdminAuth, (req, res) => {
   res.status(201).json(newFacet);
 });
 
-app.put("/api/facets/:id", requireAdminAuth, (req, res) => {
-  const updated = db.updateFacet(req.params.id, req.body);
+app.put("/api/facets/:id", requireAdminAuth, async (req, res) => {
+  const updated = await db.updateFacet(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: "Facet not found" });
   res.json(updated);
 });
 
-app.delete("/api/facets/:id", requireAdminAuth, (req, res) => {
-  const deleted = db.deleteFacet(req.params.id);
+app.delete("/api/facets/:id", requireAdminAuth, async (req, res) => {
+  const deleted = await db.deleteFacet(req.params.id);
   if (!deleted) return res.status(404).json({ error: "Facet not found" });
   res.json({ success: true });
 });
 
 // Bundle Rules API
-app.get("/api/bundles", (req, res) => {
-  res.json(db.getBundleRules());
+app.get("/api/bundles", async (req, res) => {
+  res.json(await db.getBundleRules());
 });
 
-app.post("/api/bundles", requireAdminAuth, (req, res) => {
+app.post("/api/bundles", requireAdminAuth, async (req, res) => {
   const { name, applicableScope, scopeValue, tiers, isActive, priority } =
     req.body;
   if (!name || !tiers || !Array.isArray(tiers)) {
@@ -352,7 +352,7 @@ app.post("/api/bundles", requireAdminAuth, (req, res) => {
       .status(400)
       .json({ error: "Bundle name and discount tiers are required." });
   }
-  const newRule = db.addBundleRule({
+  const newRule = await db.addBundleRule({
     name,
     applicableScope: applicableScope || "all",
     scopeValue,
@@ -363,14 +363,14 @@ app.post("/api/bundles", requireAdminAuth, (req, res) => {
   res.status(201).json(newRule);
 });
 
-app.put("/api/bundles/:id", requireAdminAuth, (req, res) => {
-  const updated = db.updateBundleRule(req.params.id, req.body);
+app.put("/api/bundles/:id", requireAdminAuth, async (req, res) => {
+  const updated = await db.updateBundleRule(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: "Bundle rule not found" });
   res.json(updated);
 });
 
-app.delete("/api/bundles/:id", requireAdminAuth, (req, res) => {
-  const deleted = db.deleteBundleRule(req.params.id);
+app.delete("/api/bundles/:id", requireAdminAuth, async (req, res) => {
+  const deleted = await db.deleteBundleRule(req.params.id);
   if (!deleted) return res.status(404).json({ error: "Bundle rule not found" });
   res.json({ success: true });
 });
@@ -387,11 +387,11 @@ app.put("/api/settings", requireAdminAuth, async (req, res) => {
 });
 
 // Homepage Sections API
-app.get("/api/homepage-sections", (req, res) => {
-  res.json(db.getHomepageSections());
+app.get("/api/homepage-sections", async (req, res) => {
+  res.json(await db.getHomepageSections());
 });
 
-app.post("/api/homepage-sections", requireAdminAuth, (req, res) => {
+app.post("/api/homepage-sections", requireAdminAuth, async (req, res) => {
   const {
     type,
     title,
@@ -406,7 +406,7 @@ app.post("/api/homepage-sections", requireAdminAuth, (req, res) => {
   } = req.body;
   if (!title)
     return res.status(400).json({ error: "Section title is required" });
-  const newSection = db.addHomepageSection({
+  const newSection = await db.addHomepageSection({
     type: type || "categoryShowcase",
     title,
     subtitle,
@@ -421,37 +421,37 @@ app.post("/api/homepage-sections", requireAdminAuth, (req, res) => {
   res.status(201).json(newSection);
 });
 
-app.put("/api/homepage-sections/reorder", requireAdminAuth, (req, res) => {
+app.put("/api/homepage-sections/reorder", requireAdminAuth, async (req, res) => {
   const { orderedIds } = req.body;
   if (!Array.isArray(orderedIds))
     return res.status(400).json({ error: "orderedIds array required" });
-  const updated = db.reorderHomepageSections(orderedIds);
+  const updated = await db.reorderHomepageSections(orderedIds);
   res.json(updated);
 });
 
-app.put("/api/homepage-sections/:id", requireAdminAuth, (req, res) => {
-  const updated = db.updateHomepageSection(req.params.id, req.body);
+app.put("/api/homepage-sections/:id", requireAdminAuth, async (req, res) => {
+  const updated = await db.updateHomepageSection(req.params.id, req.body);
   if (!updated)
     return res.status(404).json({ error: "Homepage section not found" });
   res.json(updated);
 });
 
-app.delete("/api/homepage-sections/:id", requireAdminAuth, (req, res) => {
-  const deleted = db.deleteHomepageSection(req.params.id);
+app.delete("/api/homepage-sections/:id", requireAdminAuth, async (req, res) => {
+  const deleted = await db.deleteHomepageSection(req.params.id);
   if (!deleted)
     return res.status(404).json({ error: "Homepage section not found" });
   res.json({ success: true });
 });
 
 // Product Stock Adjustment & Analytics API
-app.post("/api/products/:id/stock-adjustment", requireAdminAuth, (req, res) => {
+app.post("/api/products/:id/stock-adjustment", requireAdminAuth, async (req, res) => {
   const { changeAmount, reason, updatedBy } = req.body;
   if (typeof changeAmount !== "number" || !reason) {
     return res.status(400).json({
       error: "changeAmount (number) and reason (string) are required.",
     });
   }
-  const updated = db.adjustProductStock(
+  const updated = await db.adjustProductStock(
     req.params.id,
     changeAmount,
     reason,
@@ -461,8 +461,8 @@ app.post("/api/products/:id/stock-adjustment", requireAdminAuth, (req, res) => {
   res.json(updated);
 });
 
-app.get("/api/products/:id/stock-history", requireAdminAuth, (req, res) => {
-  const logs = db.getStockLogs(req.params.id);
+app.get("/api/products/:id/stock-history", requireAdminAuth, async (req, res) => {
+  const logs = await db.getStockLogs(req.params.id);
   res.json(logs);
 });
 
@@ -477,9 +477,9 @@ app.get("/api/analytics/products", (req, res) => {
 });
 
 // Products Routes (Optimized with O(1) Redis Caching Layer)
-app.get("/api/products", redisCacheMiddleware(300), (req, res) => {
+app.get("/api/products", redisCacheMiddleware(300), async (req, res) => {
   const { theme, category, ageGroup, search } = req.query;
-  let products = db.getProducts();
+  let products = await db.getProducts();
 
   if (theme && typeof theme === "string") {
     products = products.filter(
@@ -508,8 +508,8 @@ app.get("/api/products", redisCacheMiddleware(300), (req, res) => {
   res.json(products);
 });
 
-app.get("/api/products/:id", (req, res) => {
-  const product = db.getProductById(req.params.id);
+app.get("/api/products/:id", async (req, res) => {
+  const product = await db.getProductById(req.params.id);
   if (!product) return res.status(404).json({ error: "Product not found" });
   db.recordProductView(req.params.id);
   res.json(product);
@@ -592,7 +592,7 @@ app.post("/api/products", requireAdminAuth, async (req, res) => {
     );
   }
 
-  const newProduct = db.addProduct({
+  const newProduct = await db.addProduct({
     name,
     price: Number(price),
     originalPrice: originalPrice ? Number(originalPrice) : undefined,
@@ -610,7 +610,7 @@ app.post("/api/products", requireAdminAuth, async (req, res) => {
 });
 
 app.put("/api/products/:id", requireAdminAuth, async (req, res) => {
-  const existingProduct = db.getProductById(req.params.id);
+  const existingProduct = await db.getProductById(req.params.id);
   if (!existingProduct)
     return res.status(404).json({ error: "Product not found" });
 
@@ -664,13 +664,13 @@ app.put("/api/products/:id", requireAdminAuth, async (req, res) => {
     }
   }
 
-  const updated = db.updateProduct(req.params.id, updates);
+  const updated = await db.updateProduct(req.params.id, updates);
   if (!updated) return res.status(404).json({ error: "Product not found" });
   res.json(updated);
 });
 
 app.delete("/api/products/:id", requireAdminAuth, async (req, res) => {
-  const product = db.getProductById(req.params.id);
+  const product = await db.getProductById(req.params.id);
   if (!product) return res.status(404).json({ error: "Product not found" });
 
   // Delete all Cloudinary images and the dedicated product folder
@@ -683,7 +683,7 @@ app.delete("/api/products/:id", requireAdminAuth, async (req, res) => {
 
   await deleteProductFolderFromCloudinary(product.name, imagesToDelete);
 
-  const success = db.deleteProduct(req.params.id);
+  const success = await db.deleteProduct(req.params.id);
   if (!success) return res.status(404).json({ error: "Product not found" });
   res.json({
     success: true,
@@ -692,14 +692,14 @@ app.delete("/api/products/:id", requireAdminAuth, async (req, res) => {
 });
 
 // Categories Routes
-app.get("/api/categories", (req, res) => {
-  res.json(db.getCategories());
+app.get("/api/categories", async (req, res) => {
+  res.json(await db.getCategories());
 });
 
-app.post("/api/categories", requireAdminAuth, (req, res) => {
+app.post("/api/categories", requireAdminAuth, async (req, res) => {
   const { name, slug, description, productLineId } = req.body;
   if (!name) return res.status(400).json({ error: "Name is required" });
-  const category = db.addCategory({
+  const category = await db.addCategory({
     name,
     slug: slug || name.toLowerCase().replace(/\s+/g, "-"),
     description,
@@ -708,26 +708,26 @@ app.post("/api/categories", requireAdminAuth, (req, res) => {
   res.status(201).json(category);
 });
 
-app.put("/api/categories/:id", requireAdminAuth, (req, res) => {
-  const updated = db.updateCategory(req.params.id, req.body);
+app.put("/api/categories/:id", requireAdminAuth, async (req, res) => {
+  const updated = await db.updateCategory(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: "Category not found" });
   res.json(updated);
 });
 
-app.delete("/api/categories/:id", requireAdminAuth, (req, res) => {
-  db.deleteCategory(req.params.id);
+app.delete("/api/categories/:id", requireAdminAuth, async (req, res) => {
+  await db.deleteCategory(req.params.id);
   res.json({ success: true });
 });
 
 // Themes Routes
-app.get("/api/themes", (req, res) => {
-  res.json(db.getThemes());
+app.get("/api/themes", async (req, res) => {
+  res.json(await db.getThemes());
 });
 
-app.post("/api/themes", requireAdminAuth, (req, res) => {
+app.post("/api/themes", requireAdminAuth, async (req, res) => {
   const { name, slug, description, icon } = req.body;
   if (!name) return res.status(400).json({ error: "Name is required" });
-  const theme = db.addTheme({
+  const theme = await db.addTheme({
     name,
     slug: slug || name.toLowerCase().replace(/\s+/g, "-"),
     description,
@@ -736,34 +736,34 @@ app.post("/api/themes", requireAdminAuth, (req, res) => {
   res.status(201).json(theme);
 });
 
-app.put("/api/themes/:id", requireAdminAuth, (req, res) => {
-  const updated = db.updateTheme(req.params.id, req.body);
+app.put("/api/themes/:id", requireAdminAuth, async (req, res) => {
+  const updated = await db.updateTheme(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: "Theme not found" });
   res.json(updated);
 });
 
-app.delete("/api/themes/:id", requireAdminAuth, (req, res) => {
-  db.deleteTheme(req.params.id);
+app.delete("/api/themes/:id", requireAdminAuth, async (req, res) => {
+  await db.deleteTheme(req.params.id);
   res.json({ success: true });
 });
 
 // Age Groups Routes
-app.get("/api/age-groups", (req, res) => {
-  res.json(db.getAgeGroups());
+app.get("/api/age-groups", async (req, res) => {
+  res.json(await db.getAgeGroups());
 });
 
-app.post("/api/age-groups", requireAdminAuth, (req, res) => {
+app.post("/api/age-groups", requireAdminAuth, async (req, res) => {
   const { name, slug } = req.body;
   if (!name) return res.status(400).json({ error: "Name is required" });
-  const group = db.addAgeGroup({
+  const group = await db.addAgeGroup({
     name,
     slug: slug || name.toLowerCase().replace(/\s+/g, "-"),
   });
   res.status(201).json(group);
 });
 
-app.delete("/api/age-groups/:id", requireAdminAuth, (req, res) => {
-  db.deleteAgeGroup(req.params.id);
+app.delete("/api/age-groups/:id", requireAdminAuth, async (req, res) => {
+  await db.deleteAgeGroup(req.params.id);
   res.json({ success: true });
 });
 
@@ -771,30 +771,30 @@ app.delete("/api/age-groups/:id", requireAdminAuth, (req, res) => {
 app.get(
   "/api/orders/my-orders",
   requireCustomerAuth,
-  (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res) => {
     const userIdentifier = req.user?.identifier;
     if (!userIdentifier)
       return res.status(401).json({ error: "User session not found" });
-    const userOrders = db.getOrdersByUser(userIdentifier);
+    const userOrders = await db.getOrdersByUser(userIdentifier);
     res.json(userOrders);
   },
 );
 
-app.get("/api/orders", requireAdminAuth, (req, res) => {
+app.get("/api/orders", requireAdminAuth, async (req, res) => {
   const { userIdentifier } = req.query;
   if (userIdentifier && typeof userIdentifier === "string") {
-    return res.json(db.getOrdersByUser(userIdentifier));
+    return res.json(await db.getOrdersByUser(userIdentifier));
   }
-  res.json(db.getOrders());
+  res.json(await db.getOrders());
 });
 
-app.get("/api/orders/:id", (req, res) => {
-  const order = db.getOrderById(req.params.id);
+app.get("/api/orders/:id", async (req, res) => {
+  const order = await db.getOrderById(req.params.id);
   if (!order) return res.status(404).json({ error: "Order not found" });
   res.json(order);
 });
 
-app.post("/api/orders", (req: AuthenticatedRequest, res) => {
+app.post("/api/orders", async (req: AuthenticatedRequest, res) => {
   const {
     customerName,
     shippingAddress,
@@ -823,8 +823,8 @@ app.post("/api/orders", (req: AuthenticatedRequest, res) => {
 
   // 1. Auto-create user in database if not registered yet
   if (userIdentifier && userIdentifier !== "guest@littlecreators.com") {
-    db.findOrCreateUser(userIdentifier, customerName);
-    db.updateUserProfile(userIdentifier, {
+    await db.findOrCreateUser(userIdentifier, customerName);
+    await db.updateUserProfile(userIdentifier, {
       name: customerName,
       phone: phone || "",
       address: shippingAddress,
@@ -835,7 +835,7 @@ app.post("/api/orders", (req: AuthenticatedRequest, res) => {
   }
 
   // 2. Create Order in PostgreSQL
-  const newOrder = db.createOrder({
+  const newOrder = await db.createOrder({
     userIdentifier,
     customerName,
     shippingAddress,
@@ -849,13 +849,13 @@ app.post("/api/orders", (req: AuthenticatedRequest, res) => {
 
   // 3. Auto-save shipping address to user's saved addresses profile
   if (userIdentifier && userIdentifier !== "guest@littlecreators.com") {
-    const existingAddresses = db.getUserAddresses(userIdentifier);
+    const existingAddresses = await db.getUserAddresses(userIdentifier);
     const matchesExisting = existingAddresses.some(
       (a) => a.addressLine.toLowerCase() === shippingAddress.toLowerCase(),
     );
 
     if (!matchesExisting) {
-      db.addUserAddress(userIdentifier, {
+      await db.addUserAddress(userIdentifier, {
         label:
           existingAddresses.length === 0
             ? "Home"
@@ -887,18 +887,18 @@ app.post("/api/orders", (req: AuthenticatedRequest, res) => {
   res.status(201).json(newOrder);
 });
 
-app.patch("/api/orders/:id/status", requireAdminAuth, (req: any, res: any) => {
+app.patch("/api/orders/:id/status", requireAdminAuth, async (req: any, res: any) => {
   const { status } = req.body;
   if (!status) return res.status(400).json({ error: "Status is required" });
-  const updated = db.updateOrderStatus(req.params.id, status);
+  const updated = await db.updateOrderStatus(req.params.id, status);
   if (!updated) return res.status(404).json({ error: "Order not found" });
   res.json(updated);
 });
 
 // Admin Stats
-app.get("/api/admin/stats", requireAdminAuth, (req: any, res: any) => {
-  const orders = db.getOrders();
-  const products = db.getProducts();
+app.get("/api/admin/stats", requireAdminAuth, async (req: any, res: any) => {
+  const orders = await db.getOrders();
+  const products = await db.getProducts();
   const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
   const pendingOrders = orders.filter((o) => o.status === "Pending").length;
 
