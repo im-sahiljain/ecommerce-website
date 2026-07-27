@@ -113,8 +113,8 @@ function ShopPageContent() {
     const packProducts: Product[] = packs.map((pack) => ({
       id: pack.id,
       name: pack.name,
-      price: pack.price,
-      originalPrice: pack.originalPrice,
+      price: Number(pack.price),
+      originalPrice: pack.originalPrice ? Number(pack.originalPrice) : undefined,
       theme: "General",
       category: pack.category || "Pack Set",
       ageGroup: "All Ages",
@@ -134,10 +134,10 @@ function ShopPageContent() {
     let list = [...products, ...packProducts];
 
     if (selectedPackId) {
-      return list.filter((p) => p.id === selectedPackId);
+      list = list.filter((p) => p.id === selectedPackId);
     }
     if (selectedProductLineId) {
-      list = list.filter((p) => p.productLineId === selectedProductLineId);
+      list = list.filter((p) => p.productLineId === selectedProductLineId || !p.productLineId);
     }
     if (selectedTheme) {
       list = list.filter(
@@ -178,10 +178,12 @@ function ShopPageContent() {
     return list;
   }, [
     products,
+    packs,
     selectedProductLineId,
     selectedTheme,
     selectedCategory,
     selectedAge,
+    selectedPackId,
     selectedScent,
     inStockOnly,
     maxPrice,
