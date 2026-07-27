@@ -12,9 +12,9 @@ import { adminFetch } from "../../config/auth";
 
 interface SiteSettings {
   isGlobalOrderingEnabled: boolean;
+  isWhatsappOrderingEnabled: boolean;
+  isWhatsappChatButtonEnabled: boolean;
   whatsappNumber: string;
-  whatsappMessageTemplate: string;
-  isWhatsappEnabled: boolean;
   siteTitle: string;
   defaultMetaDescription: string;
 }
@@ -22,10 +22,9 @@ interface SiteSettings {
 export default function SettingsPage() {
   const [settings, setSettings] = useState<SiteSettings>({
     isGlobalOrderingEnabled: true,
+    isWhatsappOrderingEnabled: true,
+    isWhatsappChatButtonEnabled: true,
     whatsappNumber: "+919876543210",
-    whatsappMessageTemplate:
-      "Hi! I am interested in {productName} ({productUrl}). Can you help me with details?",
-    isWhatsappEnabled: true,
     siteTitle: "Little Creators Craft & Candle Hub",
     defaultMetaDescription:
       "Ready-to-paint craft figurines, scented aesthetic wax candles, and creative art kits.",
@@ -38,7 +37,16 @@ export default function SettingsPage() {
     adminFetch("/api/settings")
       .then((res) => res.json())
       .then((data) => {
-        if (data) setSettings(data);
+        if (data) {
+          setSettings({
+            isGlobalOrderingEnabled: data.isGlobalOrderingEnabled !== false,
+            isWhatsappOrderingEnabled: data.isWhatsappOrderingEnabled !== false && data.isWhatsappEnabled !== false,
+            isWhatsappChatButtonEnabled: data.isWhatsappChatButtonEnabled !== false && data.isWhatsappEnabled !== false,
+            whatsappNumber: data.whatsappNumber || "+919876543210",
+            siteTitle: data.siteTitle || "Little Creators",
+            defaultMetaDescription: data.defaultMetaDescription || "",
+          });
+        }
       })
       .catch(() => {});
   }, []);
@@ -73,8 +81,7 @@ export default function SettingsPage() {
           Global Storefront Settings
         </h1>
         <p className="text-slate-500 text-xs mt-1">
-          Configure global ordering switches, WhatsApp Click-to-Chat
-          integration, and SEO defaults.
+          Configure independent ordering controls, WhatsApp integration switches, and SEO defaults.
         </p>
       </div>
 
@@ -86,23 +93,22 @@ export default function SettingsPage() {
       )}
 
       <form onSubmit={handleSave} className="space-y-6 max-w-3xl">
-        {/* Section 1: Global Ordering Switch */}
+        {/* Switch 1: Website Ordering Switch */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
             <ShoppingBag className="w-5 h-5 text-pink-500" />
             <h2 className="text-base font-extrabold text-slate-800">
-              Master Ordering Switch
+              1. Master Website Online Ordering Switch
             </h2>
           </div>
 
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
             <div>
               <p className="font-extrabold text-sm text-slate-800">
-                Enable Site-Wide Online Ordering
+                Enable Website Online Cart & Checkout
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                When turned OFF, all Add to Cart / Checkout buttons across the
-                store are replaced with WhatsApp inquiry links.
+                When turned OFF, standard website cart checkout is disabled across the store.
               </p>
             </div>
 
@@ -118,39 +124,38 @@ export default function SettingsPage() {
                 }
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
             </label>
           </div>
         </div>
 
-        {/* Section 2: WhatsApp Click-to-Chat Integration */}
+        {/* Switch 2: WhatsApp Ordering Switch */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
-            <MessageCircle className="w-5 h-5 text-emerald-500" />
+            <MessageCircle className="w-5 h-5 text-emerald-600" />
             <h2 className="text-base font-extrabold text-slate-800">
-              WhatsApp Integration
+              2. Master WhatsApp Ordering Switch
             </h2>
           </div>
 
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
             <div>
               <p className="font-extrabold text-sm text-slate-800">
-                Show Floating WhatsApp Button
+                Enable "Order via WhatsApp" in Cart Drawer
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                Displays a floating chat widget in the bottom-right corner of
-                storefront pages.
+                When turned ON, customers can click "Order via WhatsApp" in their cart, fill out their delivery address, and send the order receipt to your WhatsApp.
               </p>
             </div>
 
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                checked={settings.isWhatsappEnabled}
+                checked={settings.isWhatsappOrderingEnabled}
                 onChange={(e) =>
                   setSettings({
                     ...settings,
-                    isWhatsappEnabled: e.target.checked,
+                    isWhatsappOrderingEnabled: e.target.checked,
                   })
                 }
                 className="sr-only peer"
@@ -171,38 +176,47 @@ export default function SettingsPage() {
               }
               placeholder="+919876543210"
               required
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-400"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Pre-filled Message Template
-            </label>
-            <textarea
-              rows={3}
-              value={settings.whatsappMessageTemplate}
-              onChange={(e) =>
-                setSettings({
-                  ...settings,
-                  whatsappMessageTemplate: e.target.value,
-                })
-              }
-              placeholder="Hi! I am interested in {productName} ({productUrl})."
-              required
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-400"
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500"
             />
             <p className="text-[10px] text-slate-400 mt-1">
-              Use{" "}
-              <code className="bg-slate-100 px-1 rounded text-slate-700">
-                {"{productName}"}
-              </code>{" "}
-              and{" "}
-              <code className="bg-slate-100 px-1 rounded text-slate-700">
-                {"{productUrl}"}
-              </code>{" "}
-              as dynamic placeholders.
+              All WhatsApp order receipts will be routed directly to this phone number.
             </p>
+          </div>
+        </div>
+
+        {/* Switch 3: Floating WhatsApp Chat Button Switch */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
+          <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
+            <MessageCircle className="w-5 h-5 text-emerald-500" />
+            <h2 className="text-base font-extrabold text-slate-800">
+              3. Floating WhatsApp Chat Widget Switch
+            </h2>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <div>
+              <p className="font-extrabold text-sm text-slate-800">
+                Show Floating WhatsApp Chat Button
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Displays a floating chat widget in the bottom-right corner of storefront pages for general inquiries.
+              </p>
+            </div>
+
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={settings.isWhatsappChatButtonEnabled}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    isWhatsappChatButtonEnabled: e.target.checked,
+                  })
+                }
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+            </label>
           </div>
         </div>
 

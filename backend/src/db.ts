@@ -123,6 +123,8 @@ export class Database {
 
     const emptySettings: SiteSettings = {
       isGlobalOrderingEnabled: true,
+      isWhatsappOrderingEnabled: true,
+      isWhatsappChatButtonEnabled: true,
       whatsappNumber: "",
       whatsappMessageTemplate: "",
       isWhatsappEnabled: false,
@@ -315,6 +317,8 @@ export class Database {
         const s = settingsRes.rows[0];
         this.data.settings = {
           isGlobalOrderingEnabled: s.is_global_ordering_enabled !== false,
+          isWhatsappOrderingEnabled: s.is_whatsapp_ordering_enabled !== false,
+          isWhatsappChatButtonEnabled: s.is_whatsapp_chat_button_enabled !== false,
           whatsappNumber: s.whatsapp_number || "",
           whatsappMessageTemplate: s.whatsapp_message_template || "",
           isWhatsappEnabled: s.is_whatsapp_enabled !== false,
@@ -1443,6 +1447,8 @@ export class Database {
     return (
       this.data.settings || {
         isGlobalOrderingEnabled: true,
+        isWhatsappOrderingEnabled: true,
+        isWhatsappChatButtonEnabled: true,
         whatsappNumber: "+919876543210",
         whatsappMessageTemplate:
           "Hi! I am interested in {productName} ({productUrl}). Can you help me with details?",
@@ -1466,6 +1472,8 @@ export class Database {
         CREATE TABLE IF NOT EXISTS public.site_settings (
           id INT PRIMARY KEY DEFAULT 1,
           is_global_ordering_enabled BOOLEAN DEFAULT TRUE,
+          is_whatsapp_ordering_enabled BOOLEAN DEFAULT TRUE,
+          is_whatsapp_chat_button_enabled BOOLEAN DEFAULT TRUE,
           whatsapp_number VARCHAR(100),
           whatsapp_message_template TEXT,
           is_whatsapp_enabled BOOLEAN DEFAULT TRUE,
@@ -1477,10 +1485,12 @@ export class Database {
         .then(() =>
           this.pgPool?.query(
             `
-          INSERT INTO public.site_settings (id, is_global_ordering_enabled, whatsapp_number, whatsapp_message_template, is_whatsapp_enabled, site_title, default_meta_description)
-          VALUES (1, $1, $2, $3, $4, $5, $6)
+          INSERT INTO public.site_settings (id, is_global_ordering_enabled, is_whatsapp_ordering_enabled, is_whatsapp_chat_button_enabled, whatsapp_number, whatsapp_message_template, is_whatsapp_enabled, site_title, default_meta_description)
+          VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8)
           ON CONFLICT (id) DO UPDATE SET
             is_global_ordering_enabled = EXCLUDED.is_global_ordering_enabled,
+            is_whatsapp_ordering_enabled = EXCLUDED.is_whatsapp_ordering_enabled,
+            is_whatsapp_chat_button_enabled = EXCLUDED.is_whatsapp_chat_button_enabled,
             whatsapp_number = EXCLUDED.whatsapp_number,
             whatsapp_message_template = EXCLUDED.whatsapp_message_template,
             is_whatsapp_enabled = EXCLUDED.is_whatsapp_enabled,
@@ -1489,6 +1499,8 @@ export class Database {
         `,
             [
               updated.isGlobalOrderingEnabled !== false,
+              updated.isWhatsappOrderingEnabled !== false,
+              updated.isWhatsappChatButtonEnabled !== false,
               updated.whatsappNumber || "",
               updated.whatsappMessageTemplate || "",
               updated.isWhatsappEnabled !== false,

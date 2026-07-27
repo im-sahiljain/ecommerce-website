@@ -6,9 +6,9 @@ import { MessageCircle } from "lucide-react";
 import { API_BASE_URL } from "../config/api";
 
 interface SiteSettings {
-  isWhatsappEnabled: boolean;
+  isWhatsappChatButtonEnabled?: boolean;
+  isWhatsappEnabled?: boolean;
   whatsappNumber: string;
-  whatsappMessageTemplate: string;
 }
 
 export default function WhatsappFloatingButton() {
@@ -23,7 +23,11 @@ export default function WhatsappFloatingButton() {
       .catch(() => {});
   }, []);
 
-  if (!settings || !settings.isWhatsappEnabled) return null;
+  const isEnabled = settings
+    ? settings.isWhatsappChatButtonEnabled !== false && settings.isWhatsappEnabled !== false
+    : true;
+
+  if (!settings || !isEnabled) return null;
 
   const phoneClean = settings.whatsappNumber.replace(/[^0-9]/g, "");
   const messageText = encodeURIComponent(

@@ -9,7 +9,9 @@ import WhatsappOrderModal from "./WhatsappOrderModal";
 
 interface SiteSettings {
   isGlobalOrderingEnabled: boolean;
-  isWhatsappEnabled: boolean;
+  isWhatsappOrderingEnabled?: boolean;
+  isWhatsappChatButtonEnabled?: boolean;
+  isWhatsappEnabled?: boolean;
   whatsappNumber: string;
 }
 
@@ -25,6 +27,8 @@ export default function CartDrawer() {
 
   const [settings, setSettings] = useState<SiteSettings>({
     isGlobalOrderingEnabled: true,
+    isWhatsappOrderingEnabled: true,
+    isWhatsappChatButtonEnabled: true,
     isWhatsappEnabled: true,
     whatsappNumber: "+919876543210",
   });
@@ -153,7 +157,7 @@ export default function CartDrawer() {
               )}
 
               {/* WhatsApp Checkout (if enabled) */}
-              {settings.isWhatsappEnabled && (
+              {(settings.isWhatsappOrderingEnabled !== false && settings.isWhatsappEnabled !== false) && (
                 <button
                   onClick={() => setIsWaModalOpen(true)}
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl flex items-center justify-center space-x-2 shadow-lg transition active:scale-98 text-xs"

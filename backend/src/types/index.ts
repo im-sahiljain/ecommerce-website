@@ -179,9 +179,11 @@ export interface ProductAnalytics {
 
 export interface SiteSettings {
   isGlobalOrderingEnabled: boolean;
+  isWhatsappOrderingEnabled: boolean;
+  isWhatsappChatButtonEnabled: boolean;
   whatsappNumber: string;
-  whatsappMessageTemplate: string;
-  isWhatsappEnabled: boolean;
+  whatsappMessageTemplate?: string;
+  isWhatsappEnabled?: boolean;
   siteTitle: string;
   defaultMetaDescription: string;
 }
