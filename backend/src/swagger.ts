@@ -15,6 +15,10 @@ const options: swaggerJSDoc.Options = {
     },
     servers: [
       {
+        url: process.env.RENDER_EXTERNAL_URL || "https://ecommerce-backend-svoq.onrender.com",
+        description: "Production Render Server",
+      },
+      {
         url: "http://localhost:5000",
         description: "Local Development Server",
       },
