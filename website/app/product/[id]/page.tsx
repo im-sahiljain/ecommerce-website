@@ -166,7 +166,8 @@ export default function ProductDetailPage() {
     );
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ecommerce-website-pink-eight.vercel.app';
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://craftandkit.vercel.app/";
   const isOrderingAllowed =
     (settings?.isGlobalOrderingEnabled ?? true) &&
     (product.isOrderingEnabled ?? true);

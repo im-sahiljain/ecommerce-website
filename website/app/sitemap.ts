@@ -1,8 +1,9 @@
-import { MetadataRoute } from 'next';
-import { API_BASE_URL } from '../config/api';
+import { MetadataRoute } from "next";
+import { API_BASE_URL } from "../config/api";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ecommerce-website-pink-eight.vercel.app';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://craftandkit.vercel.app/";
 
   let productUrls: MetadataRoute.Sitemap = [];
   let categoryUrls: MetadataRoute.Sitemap = [];
@@ -14,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       productUrls = products.map((product: any) => ({
         url: `${baseUrl}/product/${product.id}`,
         lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
+        changeFrequency: "weekly" as const,
         priority: 0.8,
       }));
     }
@@ -25,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       categoryUrls = categories.map((cat: any) => ({
         url: `${baseUrl}/shop?category=${encodeURIComponent(cat.slug || cat.name)}`,
         lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
+        changeFrequency: "weekly" as const,
         priority: 0.7,
       }));
     }
@@ -35,19 +36,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: "daily",
       priority: 1.0,
     },
     {
       url: `${baseUrl}/shop`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: "daily",
       priority: 0.9,
     },
     {
       url: `${baseUrl}/bundles`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
+      changeFrequency: "weekly",
       priority: 0.8,
     },
     ...productUrls,

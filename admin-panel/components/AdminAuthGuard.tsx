@@ -194,7 +194,7 @@ export default function AdminAuthGuard({
         </div>
 
         <a
-          href="https://ecommerce-website-pink-eight.vercel.app"
+          href={process.env.NEXT_PUBLIC_STORE_URL || "https://craftandkit.vercel.app/"}
           target="_blank"
           rel="noreferrer"
           className="p-2 bg-slate-800 hover:bg-slate-700 text-pink-400 rounded-xl transition flex items-center space-x-1 text-xs font-bold"
@@ -310,7 +310,7 @@ export default function AdminAuthGuard({
               </div>
 
               <a
-                href="https://ecommerce-website-pink-eight.vercel.app"
+                href={process.env.NEXT_PUBLIC_STORE_URL || "https://craftandkit.vercel.app/"}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center justify-between px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold transition"
