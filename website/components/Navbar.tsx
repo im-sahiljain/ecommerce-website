@@ -59,12 +59,8 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm font-quicksand">
-      {/* Announcement Banner */}
       <div className="bg-gradient-to-r from-yellow-100 via-pink-100 to-sky-100 py-2 text-center text-xs font-bold text-[#3C2A21]">
-        {/* 🎉 Free Express Shipping across India on orders over ₹499! Code:{" "}
-        <span className="font-extrabold text-pink-600">CREATIVEKIDS</span> */}
-        🎉 Launching{" "}
-        <span className="font-extrabold text-pink-600">Kits and Craft </span>
+        ✨ Unleash Creative Magic with <span className="font-extrabold text-pink-600">Kits & Craft</span>! Free Shipping on plaster shape painting sets & soy candles over ₹499! 🎨🚚
       </div>
 
       {/* Main Header Container */}
@@ -84,7 +80,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <span className="hidden sm:block font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-[#3C2A21] bg-clip-text text-transparent group-hover:opacity-90 transition">
+            <span className="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-[#3C2A21] bg-clip-text text-transparent group-hover:opacity-90 transition">
               Kits & Craft
             </span>
           </Link>

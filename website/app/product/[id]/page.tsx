@@ -253,12 +253,12 @@ export default function ProductDetailPage() {
                 <span className="px-3.5 py-1.5 bg-sky-100/90 text-sky-800 rounded-full text-xs font-bold shadow-xs backdrop-blur-md">
                   {product.ageGroup}
                 </span>
-                {product.isNonToxic && (
+                {/* {product.isNonToxic && (
                   <span className="px-3.5 py-1.5 bg-emerald-100/90 text-emerald-800 rounded-full text-xs font-bold shadow-xs flex items-center space-x-1 backdrop-blur-md">
                     <ShieldCheck className="w-4 h-4 inline" />
                     <span>100% Non-Toxic</span>
                   </span>
-                )}
+                )} */}
               </div>
 
               {/* Top-Right Action Buttons: Wishlist & Expand */}

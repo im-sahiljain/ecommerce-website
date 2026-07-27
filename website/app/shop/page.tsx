@@ -393,12 +393,12 @@ function ShopPageContent() {
                           <span className="px-2.5 py-1 bg-sky-100 text-sky-800 rounded-full text-[10px] font-bold shadow-xs">
                             {product.ageGroup}
                           </span>
-                          {product.isNonToxic && (
+                          {/* {product.isNonToxic && (
                             <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[10px] font-bold shadow-xs flex items-center space-x-1">
                               <ShieldCheck className="w-3 h-3 inline" />
                               <span>Non-Toxic</span>
                             </span>
-                          )}
+                          )} */}
                         </div>
                       </div>
 

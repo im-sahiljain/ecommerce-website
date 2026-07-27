@@ -766,7 +766,15 @@ export default function HomePage() {
               What do we sell?
             </h2>
             <p className="text-slate-600 font-medium text-sm sm:text-base leading-relaxed">
-              We sell the best **POP painting kits**, ready-to-paint plaster figurines, and premium home decor art activities in India. Ignite your child’s imagination with child-safe, 100% non-toxic creative craft activity boxes, or spruce up your living space with our hand-poured, aesthetic botanical scented soy candles.
+              We sell the best{" "}
+              <span className="font-bold text-[#3C2A21]">
+                POP painting kits
+              </span>
+              , ready-to-paint plaster figurines, and premium home decor art
+              activities in India. Ignite your child’s imagination with
+              child-safe, creative craft activity boxes, or spruce up your
+              living space with our hand-poured, aesthetic botanical scented soy
+              candles.
             </p>
           </div>
 
@@ -777,13 +785,19 @@ export default function HomePage() {
                 <div className="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center text-2xl group-hover:scale-105 transition transform">
                   🎨
                 </div>
-                <h3 className="text-lg font-bold text-[#3C2A21]">Ready-To-Paint Plaster Figurines</h3>
+                <h3 className="text-lg font-bold text-[#3C2A21]">
+                  Ready-To-Paint Plaster Figurines
+                </h3>
                 <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
-                  Detailed, screen-free plaster of paris (POP) painting kits for kids. Perfect for school activities, birthday party return gifts, and creative weekend fun!
+                  Detailed, screen-free plaster of paris (POP) painting kits for
+                  kids. Perfect for school activities, birthday party return
+                  gifts, and creative weekend fun!
                 </p>
               </div>
               <div className="pt-6 border-t border-slate-50 mt-6 flex justify-between items-center">
-                <span className="text-xs font-bold text-pink-600">Explore Collection</span>
+                <span className="text-xs font-bold text-pink-600">
+                  Explore Collection
+                </span>
                 <ChevronRight className="w-4 h-4 text-pink-500 group-hover:translate-x-1 transition transform" />
               </div>
             </div>
@@ -794,13 +808,19 @@ export default function HomePage() {
                 <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-2xl group-hover:scale-105 transition transform">
                   🕯️
                 </div>
-                <h3 className="text-lg font-bold text-[#3C2A21]">Aesthetic Scented Soy Candles</h3>
+                <h3 className="text-lg font-bold text-[#3C2A21]">
+                  Aesthetic Scented Soy Candles
+                </h3>
                 <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
-                  Hand-poured, natural botanical wax candles crafted with eco-friendly ingredients. Enhance your home decor with clean-burning, luxurious scented aromatherapy.
+                  Hand-poured, natural botanical wax candles crafted with
+                  eco-friendly ingredients. Enhance your home decor with
+                  clean-burning, luxurious scented aromatherapy.
                 </p>
               </div>
               <div className="pt-6 border-t border-slate-50 mt-6 flex justify-between items-center">
-                <span className="text-xs font-bold text-amber-600">Explore Collection</span>
+                <span className="text-xs font-bold text-amber-600">
+                  Explore Collection
+                </span>
                 <ChevronRight className="w-4 h-4 text-amber-500 group-hover:translate-x-1 transition transform" />
               </div>
             </div>
@@ -811,13 +831,19 @@ export default function HomePage() {
                 <div className="w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center text-2xl group-hover:scale-105 transition transform">
                   🎁
                 </div>
-                <h3 className="text-lg font-bold text-[#3C2A21]">Creative Return Gift Kits</h3>
+                <h3 className="text-lg font-bold text-[#3C2A21]">
+                  Creative Return Gift Kits
+                </h3>
                 <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
-                  Simplify your party planning with customizable kids activity boxes. Premium non-toxic painting sets that make thoughtful and educational return gifts.
+                  Simplify your party planning with customizable kids activity
+                  boxes. Premium non-toxic painting sets that make thoughtful
+                  and educational return gifts.
                 </p>
               </div>
               <div className="pt-6 border-t border-slate-50 mt-6 flex justify-between items-center">
-                <span className="text-xs font-bold text-sky-600">Explore Collection</span>
+                <span className="text-xs font-bold text-sky-600">
+                  Explore Collection
+                </span>
                 <ChevronRight className="w-4 h-4 text-sky-500 group-hover:translate-x-1 transition transform" />
               </div>
             </div>
@@ -1164,11 +1190,11 @@ function ThemeProductCard({
           <span className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200/60 shadow-2xs">
             {product.ageGroup || "Ages 4+"}
           </span>
-          {product.isNonToxic && (
+          {/* {product.isNonToxic && (
             <span className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200/60 shadow-2xs">
               Non-Toxic
             </span>
-          )}
+          )} */}
         </div>
 
         {/* Product Image Container */}
