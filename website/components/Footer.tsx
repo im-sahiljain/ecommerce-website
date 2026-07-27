@@ -131,7 +131,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div className="flex flex-col justify-between">
+          {/* <div className="flex flex-col justify-between">
             <div>
               <h4 className="font-bold mb-4 text-[#3C2A21]">Admin Panel</h4>
               <a
@@ -164,7 +164,7 @@ export default function Footer() {
                 p
               </a>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="container mx-auto px-6 pt-8 border-t border-gray-50 text-center md:text-left">

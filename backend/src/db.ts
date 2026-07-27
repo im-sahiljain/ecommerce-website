@@ -757,21 +757,77 @@ export class Database {
     const newCat: Category = { ...category, id: `cat-${Date.now()}` };
     this.data.categories.push(newCat);
     this.save();
+
+    if (this.pgPool) {
+      this.pgPool
+        .query(
+          `
+        INSERT INTO public.categories (id, name, slug, product_line_id, description)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (id) DO UPDATE SET
+          name = EXCLUDED.name,
+          slug = EXCLUDED.slug,
+          product_line_id = EXCLUDED.product_line_id,
+          description = EXCLUDED.description;
+      `,
+          [
+            newCat.id,
+            newCat.name,
+            newCat.slug,
+            newCat.productLineId || null,
+            newCat.description || "",
+          ],
+        )
+        .catch((err) =>
+          console.warn("⚠️ PG categories insert/update notice:", err.message),
+        );
+    }
     return newCat;
   }
 
   updateCategory(id: string, updates: Partial<Category>): Category | null {
     const idx = this.data.categories.findIndex((c) => c.id === id);
     if (idx === -1) return null;
-    this.data.categories[idx] = { ...this.data.categories[idx], ...updates };
+    const updated = { ...this.data.categories[idx], ...updates };
+    this.data.categories[idx] = updated;
     this.save();
-    return this.data.categories[idx];
+
+    if (this.pgPool) {
+      this.pgPool
+        .query(
+          `
+        UPDATE public.categories
+        SET name = $1, slug = $2, product_line_id = $3, description = $4
+        WHERE id = $5;
+      `,
+          [
+            updated.name,
+            updated.slug,
+            updated.productLineId || null,
+            updated.description || "",
+            id,
+          ],
+        )
+        .catch((err) =>
+          console.warn("⚠️ PG category update notice:", err.message),
+        );
+    }
+    return updated;
   }
 
   deleteCategory(id: string): boolean {
+    const initialLen = this.data.categories.length;
     this.data.categories = this.data.categories.filter((c) => c.id !== id);
     this.save();
-    return true;
+
+    if (this.pgPool) {
+      this.pgPool
+        .query(`DELETE FROM public.categories WHERE id = $1;`, [id])
+        .catch((err) =>
+          console.warn("⚠️ PG category delete notice:", err.message),
+        );
+    }
+    return this.data.categories.length < initialLen;
   }
 
   // Themes

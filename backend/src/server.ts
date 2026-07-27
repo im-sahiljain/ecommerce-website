@@ -702,12 +702,13 @@ app.get("/api/categories", (req, res) => {
 });
 
 app.post("/api/categories", requireAdminAuth, (req, res) => {
-  const { name, slug, description } = req.body;
+  const { name, slug, description, productLineId } = req.body;
   if (!name) return res.status(400).json({ error: "Name is required" });
   const category = db.addCategory({
     name,
     slug: slug || name.toLowerCase().replace(/\s+/g, "-"),
     description,
+    productLineId,
   });
   res.status(201).json(category);
 });

@@ -916,7 +916,7 @@ export default function HomePage() {
       })()}
 
       {/* ─── AESTHETIC WAX CANDLES COLLECTION SHOWCASE ─── */}
-      {candleProducts.length > 0 && (
+      {/* {candleProducts.length > 0 && (
         <section className="bg-gradient-to-b from-amber-950 via-slate-900 to-amber-950 text-amber-100 py-16 px-6 relative overflow-hidden">
           <div className="max-w-7xl mx-auto space-y-10 relative z-10">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-amber-900/60 pb-6">
@@ -950,7 +950,7 @@ export default function HomePage() {
                   <div>
                     <Link href={`/product/${candle.id}`} className="block">
                       <div className="relative rounded-2xl overflow-hidden mb-4 aspect-square bg-amber-950/40">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {/* eslint-disable-next-line @next/next/no-img-element 
                         <img
                           src={candle.image}
                           alt={candle.name}
@@ -999,7 +999,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-      )}
+      )} */}
 
       {/* ─── BUNDLE PACKAGE PROMO BANNER ─── */}
       <section className="max-w-7xl mx-auto px-6 py-12">
