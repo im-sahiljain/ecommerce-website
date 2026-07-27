@@ -798,90 +798,105 @@ app.get("/api/orders/:id", (req, res) => {
   res.json(order);
 });
 
-app.post(
-  "/api/orders",
-  requireCustomerAuth,
-  (req: AuthenticatedRequest, res) => {
-    const {
-      customerName,
-      shippingAddress,
-      phone,
-      items,
-      subtotal,
-      shipping,
-      total,
-    } = req.body;
-    const userIdentifier = req.user?.identifier;
+app.post("/api/orders", (req: AuthenticatedRequest, res) => {
+  const {
+    customerName,
+    shippingAddress,
+    phone,
+    items,
+    subtotal,
+    shipping,
+    total,
+    userIdentifier: customIdentifier,
+    status: customStatus,
+    city,
+    state,
+    zipCode,
+  } = req.body;
 
-    if (!items || !items.length || !customerName || !shippingAddress) {
-      return res
-        .status(400)
-        .json({ error: "Please fill in all order details." });
-    }
+  // Extract optional auth user or use customIdentifier / phone
+  let userIdentifier =
+    req.user?.identifier ||
+    customIdentifier ||
+    phone ||
+    "guest@littlecreators.com";
 
-    const newOrder = db.createOrder({
-      userIdentifier: userIdentifier || "guest@littlecreators.com",
-      customerName,
-      shippingAddress,
+  if (!items || !items.length || !customerName || !shippingAddress) {
+    return res
+      .status(400)
+      .json({ error: "Please fill in all order details." });
+  }
+
+  // 1. Auto-create user in database if not registered yet
+  if (userIdentifier && userIdentifier !== "guest@littlecreators.com") {
+    db.findOrCreateUser(userIdentifier, customerName);
+    db.updateUserProfile(userIdentifier, {
+      name: customerName,
       phone: phone || "",
-      items,
-      subtotal: Number(subtotal),
-      shipping: Number(shipping || 0),
-      total: Number(total),
+      address: shippingAddress,
+      city: city || "",
+      state: state || "",
+      zipCode: zipCode || "",
+    });
+  }
+
+  // 2. Create Order in PostgreSQL
+  const newOrder = db.createOrder({
+    userIdentifier,
+    customerName,
+    shippingAddress,
+    phone: phone || "",
+    items,
+    subtotal: Number(subtotal),
+    shipping: Number(shipping || 0),
+    total: Number(total),
+    status: customStatus || "Pending",
+  });
+
+  // 3. Auto-save shipping address to user's saved addresses profile
+  if (userIdentifier && userIdentifier !== "guest@littlecreators.com") {
+    const existingAddresses = db.getUserAddresses(userIdentifier);
+    const matchesExisting = existingAddresses.some(
+      (a) => a.addressLine.toLowerCase() === shippingAddress.toLowerCase(),
+    );
+
+    if (!matchesExisting) {
+      db.addUserAddress(userIdentifier, {
+        label:
+          existingAddresses.length === 0
+            ? "Home"
+            : `Address #${existingAddresses.length + 1}`,
+        fullName: customerName,
+        phone: phone || "",
+        addressLine: shippingAddress,
+        city: city || "",
+        state: state || "",
+        zipCode: zipCode || "",
+        isDefault: existingAddresses.length === 0,
+      });
+    }
+  }
+
+  // Offload post-purchase processing (email/PDF/ERP) asynchronously to BullMQ queue worker
+  orderQueue
+    .add("process-post-purchase", {
+      orderId: newOrder.id,
+      customerName: newOrder.customerName,
+      customerEmail: newOrder.userIdentifier,
+      items: newOrder.items,
+      totalAmount: newOrder.total,
+    })
+    .catch((err: any) => {
+      console.warn(
+        "⚠️ BullMQ queue push failed (Queue offline):",
+        err.message,
+      );
     });
 
-    // Auto-save shipping address to user's saved addresses profile if user is logged in
-    if (userIdentifier) {
-      const existingAddresses = db.getUserAddresses(userIdentifier);
-      const matchesExisting = existingAddresses.some(
-        (a) => a.addressLine.toLowerCase() === shippingAddress.toLowerCase(),
-      );
+  res.status(201).json(newOrder);
+});
 
-      if (!matchesExisting) {
-        db.addUserAddress(userIdentifier, {
-          label:
-            existingAddresses.length === 0
-              ? "Home"
-              : `Address #${existingAddresses.length + 1}`,
-          fullName: customerName,
-          phone: phone || "",
-          addressLine: shippingAddress,
-          city: req.body.city || "",
-          state: req.body.state || "",
-          zipCode: req.body.zipCode || "",
-          isDefault: existingAddresses.length === 0,
-        });
-      }
-
-      // Also update user profile default fields
-      db.updateUserProfile(userIdentifier, {
-        name: customerName,
-        phone: phone || undefined,
-        address: shippingAddress,
-      });
-    }
-
-    // Offload post-purchase processing (email/PDF/ERP) asynchronously to BullMQ queue worker
-    orderQueue
-      .add("process-post-purchase", {
-        orderId: newOrder.id,
-        customerName: newOrder.customerName,
-        customerEmail: newOrder.userIdentifier,
-        items: newOrder.items,
-        totalAmount: newOrder.total,
-      })
-      .catch((err) => {
-        console.warn(
-          "⚠️ BullMQ queue push failed (Queue offline):",
-          err.message,
-        );
-      });
-
-    res.status(201).json(newOrder);
-  },
-);
-
-app.patch("/api/orders/:id/status", requireAdminAuth, (req, res) => {
+app.patch("/api/orders/:id/status", requireAdminAuth, (req: any, res: any) => {
   const { status } = req.body;
   if (!status) return res.status(400).json({ error: "Status is required" });
   const updated = db.updateOrderStatus(req.params.id, status);
@@ -890,7 +905,7 @@ app.patch("/api/orders/:id/status", requireAdminAuth, (req, res) => {
 });
 
 // Admin Stats
-app.get("/api/admin/stats", requireAdminAuth, (req, res) => {
+app.get("/api/admin/stats", requireAdminAuth, (req: any, res: any) => {
   const orders = db.getOrders();
   const products = db.getProducts();
   const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);

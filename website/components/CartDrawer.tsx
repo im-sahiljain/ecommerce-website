@@ -156,8 +156,8 @@ export default function CartDrawer() {
                 </Link>
               )}
 
-              {/* WhatsApp Checkout (if enabled) */}
-              {(settings.isWhatsappOrderingEnabled !== false && settings.isWhatsappEnabled !== false) && (
+              {/* WhatsApp Checkout (Always Available by Default) */}
+              {settings.isWhatsappOrderingEnabled !== false && (
                 <button
                   onClick={() => setIsWaModalOpen(true)}
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl flex items-center justify-center space-x-2 shadow-lg transition active:scale-98 text-xs"

@@ -1169,14 +1169,16 @@ export class Database {
   }
 
   createOrder(
-    order: Omit<Order, "id" | "orderNumber" | "createdAt" | "status">,
+    order: Omit<Order, "id" | "orderNumber" | "createdAt" | "status"> & {
+      status?: Order["status"];
+    },
   ): Order {
     const newOrder: Order = {
       ...order,
       id: `ord-${Date.now()}`,
       orderNumber: `LC-${Math.floor(1000 + Math.random() * 9000)}`,
       createdAt: new Date().toISOString(),
-      status: "Pending",
+      status: order.status || "Pending",
       trackingNumber: `TRK-${Math.floor(10000000 + Math.random() * 90000000)}`,
     };
     if (!this.data.orders) this.data.orders = [];
