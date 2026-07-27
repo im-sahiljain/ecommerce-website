@@ -186,7 +186,7 @@ export class Database {
         );
       `).catch((err) => console.warn("⚠️ Create packs table notice:", err.message));
 
-      // Ensure site_settings table exists
+      // Ensure site_settings table and columns exist
       this.pgPool.query(`
         CREATE TABLE IF NOT EXISTS public.site_settings (
           id VARCHAR(255) PRIMARY KEY,
@@ -199,6 +199,15 @@ export class Database {
           site_title VARCHAR(255),
           default_meta_description TEXT
         );
+
+        ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS is_global_ordering_enabled BOOLEAN DEFAULT true;
+        ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS is_whatsapp_ordering_enabled BOOLEAN DEFAULT true;
+        ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS is_whatsapp_chat_button_enabled BOOLEAN DEFAULT true;
+        ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS whatsapp_number VARCHAR(100);
+        ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS whatsapp_message_template TEXT;
+        ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS is_whatsapp_enabled BOOLEAN DEFAULT true;
+        ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS site_title VARCHAR(255);
+        ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS default_meta_description TEXT;
       `).catch((err) => console.warn("⚠️ Create site_settings table notice:", err.message));
 
       console.log("⚡ Database initialized — all operations will query PostgreSQL directly");
