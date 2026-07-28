@@ -60,7 +60,9 @@ export default function ProductsManagerPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [productLines, setProductLines] = useState<ProductLine[]>([]);
   const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
-  const [themesList, setThemesList] = useState<{ id: string; name: string }[]>([]);
+  const [themesList, setThemesList] = useState<{ id: string; name: string }[]>(
+    [],
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -90,7 +92,9 @@ export default function ProductsManagerPage() {
       filteredCatList.length > 0
         ? filteredCatList.map((c) => c.name)
         : products
-            .filter((p) => !p.productLineId || p.productLineId === productLineId)
+            .filter(
+              (p) => !p.productLineId || p.productLineId === productLineId,
+            )
             .map((p) => p.category)
             .filter(Boolean),
     ),
@@ -238,8 +242,16 @@ export default function ProductsManagerPage() {
     setIsOrderingEnabled(
       p.isOrderingEnabled !== undefined ? p.isOrderingEnabled : true,
     );
-    setIsNewLaunch(p.isNewLaunch !== undefined ? Boolean(p.isNewLaunch) : Boolean(p.badge?.includes("New")));
-    setIsSellingFast(p.isSellingFast !== undefined ? Boolean(p.isSellingFast) : Boolean(p.badge?.includes("Selling")));
+    setIsNewLaunch(
+      p.isNewLaunch !== undefined
+        ? Boolean(p.isNewLaunch)
+        : Boolean(p.badge?.includes("New")),
+    );
+    setIsSellingFast(
+      p.isSellingFast !== undefined
+        ? Boolean(p.isSellingFast)
+        : Boolean(p.badge?.includes("Selling")),
+    );
     setSize(p.size || "");
     setMaterial(p.material || "");
     setIsVisible(p.isVisible !== false);
@@ -269,8 +281,16 @@ export default function ProductsManagerPage() {
     setIsOrderingEnabled(
       p.isOrderingEnabled !== undefined ? p.isOrderingEnabled : true,
     );
-    setIsNewLaunch(p.isNewLaunch !== undefined ? Boolean(p.isNewLaunch) : Boolean(p.badge?.includes("New")));
-    setIsSellingFast(p.isSellingFast !== undefined ? Boolean(p.isSellingFast) : Boolean(p.badge?.includes("Selling")));
+    setIsNewLaunch(
+      p.isNewLaunch !== undefined
+        ? Boolean(p.isNewLaunch)
+        : Boolean(p.badge?.includes("New")),
+    );
+    setIsSellingFast(
+      p.isSellingFast !== undefined
+        ? Boolean(p.isSellingFast)
+        : Boolean(p.badge?.includes("Selling")),
+    );
     setSize(p.size || "");
     setMaterial(p.material || "");
     setIsVisible(p.isVisible !== false);
@@ -988,7 +1008,7 @@ export default function ProductsManagerPage() {
 
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Dimensions / Size (Optional)
+                    Dimensions / Size (L x W x H) (Optional)
                   </label>
                   <input
                     type="text"

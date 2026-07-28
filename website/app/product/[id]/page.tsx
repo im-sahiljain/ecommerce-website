@@ -101,12 +101,16 @@ export default function ProductDetailPage() {
               id: packData.id,
               name: packData.name,
               price: Number(packData.price),
-              originalPrice: packData.originalPrice ? Number(packData.originalPrice) : undefined,
+              originalPrice: packData.originalPrice
+                ? Number(packData.originalPrice)
+                : undefined,
               theme: "Curated Pack Set",
               category: `Pack of ${packData.productIds?.length || 1}`,
               ageGroup: "All Ages",
               isNonToxic: true,
-              image: comboImages[0] || "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500",
+              image:
+                comboImages[0] ||
+                "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500",
               images: Array.from(new Set(comboImages)),
               description: packData.description || "",
               inStock: packData.inStock !== false,
@@ -131,7 +135,9 @@ export default function ProductDetailPage() {
               const prodsRes = await fetch(`${API_BASE_URL}/api/products`);
               const allProds = await prodsRes.json();
               const included = Array.isArray(allProds)
-                ? allProds.filter((p: any) => packData.productIds?.includes(p.id))
+                ? allProds.filter((p: any) =>
+                    packData.productIds?.includes(p.id),
+                  )
                 : [];
 
               const comboImages = [
@@ -143,7 +149,9 @@ export default function ProductDetailPage() {
                 id: packData.id,
                 name: packData.name,
                 price: Number(packData.price),
-                originalPrice: packData.originalPrice ? Number(packData.originalPrice) : undefined,
+                originalPrice: packData.originalPrice
+                  ? Number(packData.originalPrice)
+                  : undefined,
                 theme: "Curated Pack Set",
                 category: `Pack of ${packData.productIds?.length || 1}`,
                 ageGroup: "All Ages",
@@ -484,12 +492,16 @@ export default function ProductDetailPage() {
                     {product.theme} • {product.category}
                   </span>
                 </div>
-                {(product.isNewLaunch || Boolean(product.badge?.toLowerCase().includes("new"))) && (
+                {(product.isNewLaunch ||
+                  Boolean(product.badge?.toLowerCase().includes("new"))) && (
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black text-slate-900 bg-amber-400 uppercase tracking-wider shadow-xs">
                     ✨ New Launch
                   </span>
                 )}
-                {(product.isSellingFast || Boolean(product.badge?.toLowerCase().includes("selling"))) && (
+                {(product.isSellingFast ||
+                  Boolean(
+                    product.badge?.toLowerCase().includes("selling"),
+                  )) && (
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black text-white bg-gradient-to-r from-red-500 to-rose-600 uppercase tracking-wider shadow-xs">
                     🔥 Selling Fast
                   </span>
@@ -521,7 +533,7 @@ export default function ProductDetailPage() {
                   {product.size && (
                     <div>
                       <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Dimensions / Size
+                        Dimensions / Size (L x W x H)
                       </span>
                       <span className="text-xs font-extrabold text-slate-800">
                         {product.size}
@@ -550,7 +562,8 @@ export default function ProductDetailPage() {
                       <h4 className="font-extrabold text-xs text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
                         <Boxes className="w-4 h-4 text-amber-600" />
                         <span>
-                          Included Products in this Pack ({product.includedProducts.length})
+                          Included Products in this Pack (
+                          {product.includedProducts.length})
                         </span>
                       </h4>
                       <span className="text-[10px] font-extrabold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
@@ -612,7 +625,7 @@ export default function ProductDetailPage() {
               {/* Add to Cart CTA */}
               <button
                 onClick={() => addToCart(product, quantity)}
-                className="w-full py-4 bg-pink-300 hover:bg-pink-400 text-slate-800 font-extrabold text-base rounded-full flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transition transform active:scale-98"
+                className="w-full py-4 bg-pink-300 hover:bg-pink-400 text-slate-800 hover:text-white font-extrabold text-base rounded-full flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transition transform active:scale-98"
               >
                 <ShoppingBag className="w-5 h-5" />
                 <span>

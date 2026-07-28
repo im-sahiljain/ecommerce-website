@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { API_BASE_URL } from "../config/api";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductLine {
   id: string;
@@ -341,64 +342,74 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Accordion Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-100 bg-white px-6 py-4 space-y-4 animate-in slide-in-from-top duration-200">
-          <div className="space-y-3">
-            <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
-              Product Categories
-            </p>
-            {productLines.map((line) => {
-              const subCats = categories.filter(
-                (c) => c.productLineId === line.id,
-              );
-              return (
-                <div
-                  key={line.id}
-                  className="space-y-1 pl-2 border-l-2 border-pink-200"
-                >
-                  <Link
-                    href={`/shop?productLineId=${line.id}`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="font-bold text-sm text-slate-800 flex items-center space-x-2"
-                  >
-                    <span>{line.icon}</span>
-                    <span>{line.name}</span>
-                  </Link>
-                  {subCats.map((cat) => (
-                    <Link
-                      key={cat.id}
-                      href={`/shop?category=${encodeURIComponent(cat.name)}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block text-xs font-semibold text-slate-500 pl-6 py-1"
+      {/* Mobile Accordion Menu with Smooth Animated Slide Dropdown */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="md:hidden border-t border-slate-100 bg-white overflow-hidden"
+          >
+            <div className="px-6 py-4 space-y-4">
+              <div className="space-y-3">
+                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+                  Product Categories
+                </p>
+                {productLines.map((line) => {
+                  const subCats = categories.filter(
+                    (c) => c.productLineId === line.id,
+                  );
+                  return (
+                    <div
+                      key={line.id}
+                      className="space-y-1 pl-2 border-l-2 border-pink-200"
                     >
-                      {cat.name}
-                    </Link>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
+                      <Link
+                        href={`/shop?productLineId=${line.id}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="font-bold text-sm text-slate-800 flex items-center space-x-2"
+                      >
+                        <span>{line.icon || "📦"}</span>
+                        <span>{line.name}</span>
+                      </Link>
+                      {subCats.map((cat) => (
+                        <Link
+                          key={cat.id}
+                          href={`/shop?category=${encodeURIComponent(cat.name)}`}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="block text-xs font-semibold text-slate-500 pl-6 py-1 hover:text-pink-600 transition"
+                        >
+                          {cat.name}
+                        </Link>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
 
-          <div className="pt-2 border-t border-slate-100 flex flex-col space-y-2 font-bold text-xs">
-            <Link
-              href="/shop"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="py-2 text-slate-700"
-            >
-              Shop All Products
-            </Link>
-            <Link
-              href="/bundles"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="py-2 text-pink-600 flex items-center space-x-1"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Build Package (10% Off)</span>
-            </Link>
-          </div>
-        </div>
-      )}
+              <div className="pt-2 border-t border-slate-100 flex flex-col space-y-2 font-bold text-xs">
+                <Link
+                  href="/shop"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="py-2 text-slate-700 hover:text-pink-600 transition"
+                >
+                  Shop All Products
+                </Link>
+                <Link
+                  href="/bundles"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="py-2 text-pink-600 flex items-center space-x-1 hover:text-pink-700 transition"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Build Package (10% Off)</span>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

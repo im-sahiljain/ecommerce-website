@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "../../context/CartContext";
-import { ShieldCheck, Filter, ArrowUpDown } from "lucide-react";
+import { ShieldCheck, Filter, ArrowUpDown, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL } from "../../config/api";
 import OptimisticAddToCart from "../../components/OptimisticAddToCart";
 
@@ -72,10 +73,11 @@ function ShopPageContent() {
   const [inStockOnly, setInStockOnly] = useState(false);
   const [filterNewLaunch, setFilterNewLaunch] = useState(false);
   const [filterSellingFast, setFilterSellingFast] = useState(false);
-  const [maxPrice, setMaxPrice] = useState<number>(2000);
+  const [maxPrice, setMaxPrice] = useState<number>(500);
   const [sortOrder, setSortOrder] = useState<
     "default" | "low-to-high" | "high-to-low" | "newest"
   >("default");
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/products`)
@@ -222,10 +224,183 @@ function ShopPageContent() {
     (l) => l.id === selectedProductLineId,
   );
 
+  const activeFilterCount =
+    (selectedProductLineId ? 1 : 0) +
+    (selectedCategory ? 1 : 0) +
+    (selectedTheme ? 1 : 0) +
+    (selectedAge ? 1 : 0) +
+    (selectedPackId ? 1 : 0) +
+    (selectedScent ? 1 : 0) +
+    (inStockOnly ? 1 : 0) +
+    (filterNewLaunch ? 1 : 0) +
+    (filterSellingFast ? 1 : 0) +
+    (maxPrice < 500 ? 1 : 0);
+
+  const resetAllFilters = () => {
+    setSelectedProductLineId("");
+    setSelectedTheme("");
+    setSelectedCategory("");
+    setSelectedAge("");
+    setSelectedPackId("");
+    setSelectedScent("");
+    setInStockOnly(false);
+    setFilterNewLaunch(false);
+    setFilterSellingFast(false);
+    setMaxPrice(500);
+  };
+
+  const renderFilterControls = () => (
+    <>
+      {/* Product Line Filter */}
+      {productLines.length > 0 && (
+        <div>
+          <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
+            Product Line
+          </h4>
+          <div className="space-y-1">
+            {[
+              { id: "", name: "All Product Lines" },
+              ...productLines.filter((pl) => pl.isVisible !== false),
+            ].map((pl) => (
+              <button
+                key={pl.id || "all-lines"}
+                onClick={() => setSelectedProductLineId(pl.id)}
+                className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                  selectedProductLineId === pl.id
+                    ? "bg-purple-100 text-purple-900 font-bold"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                {pl.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Badges / Highlights Filter */}
+      <div>
+        <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
+          Badges & Highlights
+        </h4>
+        <div className="space-y-2 pt-1 text-xs font-bold text-slate-700">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={filterNewLaunch}
+              onChange={(e) => setFilterNewLaunch(e.target.checked)}
+              className="rounded text-pink-500 focus:ring-pink-400"
+            />
+            <span>✨ New Launch</span>
+          </label>
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={filterSellingFast}
+              onChange={(e) => setFilterSellingFast(e.target.checked)}
+              className="rounded text-pink-500 focus:ring-pink-400"
+            />
+            <span>🔥 Selling Fast</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Price Filter Slider */}
+      <div>
+        <div className="flex justify-between items-center text-xs font-bold text-slate-700 mb-2">
+          <span>Max Price:</span>
+          <span className="text-pink-600">₹{maxPrice}</span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="500"
+          step="10"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(Number(e.target.value))}
+          className="w-full accent-pink-500 cursor-pointer"
+        />
+      </div>
+
+      {/* Stock Availability */}
+      <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={inStockOnly}
+          onChange={(e) => setInStockOnly(e.target.checked)}
+          className="rounded text-pink-500 focus:ring-pink-400"
+        />
+        <span>In Stock Only</span>
+      </label>
+
+      {/* Themes Filter */}
+      <div>
+        <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
+          Themes
+        </h4>
+        <div className="space-y-1">
+          {[
+            "",
+            ...Array.from(
+              new Set(products.map((p) => p.theme).filter(Boolean)),
+            ),
+          ].map((t) => (
+            <button
+              key={t || "all-themes"}
+              onClick={() => setSelectedTheme(t)}
+              className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                selectedTheme === t
+                  ? "bg-pink-100 text-slate-800 font-bold"
+                  : "text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {t || "All Themes"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Scent Filter */}
+      {(() => {
+        const availableScents = Array.from(
+          new Set(
+            products
+              .map((p) => p.attributes?.Scent || "")
+              .filter(Boolean),
+          ),
+        );
+        if (availableScents.length === 0) return null;
+
+        return (
+          <div>
+            <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
+              Scent Type
+            </h4>
+            <div className="space-y-1">
+              {["", ...availableScents].map((s) => (
+                <button
+                  key={s || "all-scents"}
+                  onClick={() => setSelectedScent(s)}
+                  className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                    selectedScent === s
+                      ? "bg-yellow-100 text-slate-800 font-bold"
+                      : "text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {s || "All Scents"}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+    </>
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Page Header */}
-      <div className="bg-gradient-to-r from-pink-50 via-yellow-50 to-sky-50 p-8 rounded-3xl border border-slate-100 soft-shadow mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-pink-50 via-yellow-50 to-sky-50 p-8 rounded-3xl border border-slate-100 soft-shadow mb-8">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-pink-500">
             {activeProductLine ? activeProductLine.name : "Store Catalog"}
@@ -233,45 +408,18 @@ function ShopPageContent() {
           <h1 className="text-3xl font-extrabold text-slate-800 mt-1">
             {activeProductLine
               ? activeProductLine.name
-              : "Explore All Craft Kits & Candles"}
+              : "Explore All POP Painting Kits"}
           </h1>
           <p className="text-xs text-slate-500 mt-1 max-w-xl">
-            Browse non-toxic ready-to-paint plaster figurines, scented soy wax
-            candles, and creative art sets.
+            Browse non-toxic ready-to-paint plaster figurines, activity boxes,
+            and creative craft art sets.
           </p>
-        </div>
-
-        {/* Product Line Quick Tabs */}
-        <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-xs p-1.5 rounded-full border border-slate-200 text-xs font-bold">
-          <button
-            onClick={() => setSelectedProductLineId("")}
-            className={`px-4 py-2 rounded-full transition ${
-              selectedProductLineId === ""
-                ? "bg-pink-300 text-slate-800"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            All Lines
-          </button>
-          {productLines.map((line) => (
-            <button
-              key={line.id}
-              onClick={() => setSelectedProductLineId(line.id)}
-              className={`px-4 py-2 rounded-full transition ${
-                selectedProductLineId === line.id
-                  ? "bg-pink-300 text-slate-800"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              {line.name}
-            </button>
-          ))}
         </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Filter Sidebar */}
-        <aside className="w-full md:w-64 shrink-0 md:sticky md:top-28 self-start">
+        {/* Desktop Filter Sidebar */}
+        <aside className="hidden md:block w-64 shrink-0 md:sticky md:top-28 self-start">
           <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-100 soft-shadow flex flex-col max-h-[calc(100vh-9.5rem)] overflow-hidden">
             {/* Card Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-2 px-1 shrink-0">
@@ -280,18 +428,7 @@ function ShopPageContent() {
                 <span>Filters</span>
               </h3>
               <button
-                onClick={() => {
-                  setSelectedProductLineId("");
-                  setSelectedTheme("");
-                  setSelectedCategory("");
-                  setSelectedAge("");
-                  setSelectedPackId("");
-                  setSelectedScent("");
-                  setInStockOnly(false);
-                  setFilterNewLaunch(false);
-                  setFilterSellingFast(false);
-                  setMaxPrice(2000);
-                }}
+                onClick={resetAllFilters}
                 className="text-[11px] font-bold text-pink-600 hover:text-pink-700 cursor-pointer"
               >
                 Reset
@@ -300,150 +437,7 @@ function ShopPageContent() {
 
             {/* Inner Scrollable Filter Track */}
             <div className="overflow-y-auto sleek-scrollbar space-y-6 flex-1 pr-3 pl-1 py-1">
-
-            {/* Product Line Filter */}
-            {productLines.length > 0 && (
-              <div>
-                <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
-                  Product Line
-                </h4>
-                <div className="space-y-1">
-                  {[
-                    { id: "", name: "All Product Lines" },
-                    ...productLines.filter((pl) => pl.isVisible !== false),
-                  ].map((pl) => (
-                    <button
-                      key={pl.id || "all-lines"}
-                      onClick={() => setSelectedProductLineId(pl.id)}
-                      className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                        selectedProductLineId === pl.id
-                          ? "bg-purple-100 text-purple-900 font-bold"
-                          : "text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {pl.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Badges / Highlights Filter */}
-            <div>
-              <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
-                Badges & Highlights
-              </h4>
-              <div className="space-y-2 pt-1 text-xs font-bold text-slate-700">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filterNewLaunch}
-                    onChange={(e) => setFilterNewLaunch(e.target.checked)}
-                    className="rounded text-pink-500 focus:ring-pink-400"
-                  />
-                  <span>✨ New Launch</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filterSellingFast}
-                    onChange={(e) => setFilterSellingFast(e.target.checked)}
-                    className="rounded text-pink-500 focus:ring-pink-400"
-                  />
-                  <span>🔥 Selling Fast</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Price Filter Slider */}
-            <div>
-              <div className="flex justify-between items-center text-xs font-bold text-slate-700 mb-2">
-                <span>Max Price:</span>
-                <span className="text-pink-600">₹{maxPrice}</span>
-              </div>
-              <input
-                type="range"
-                min="100"
-                max="2000"
-                step="50"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full accent-pink-500 cursor-pointer"
-              />
-            </div>
-
-            {/* Stock Availability */}
-            <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={inStockOnly}
-                onChange={(e) => setInStockOnly(e.target.checked)}
-                className="rounded text-pink-500 focus:ring-pink-400"
-              />
-              <span>In Stock Only</span>
-            </label>
-
-            {/* Themes Filter */}
-            <div>
-              <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
-                Themes
-              </h4>
-              <div className="space-y-1">
-                {[
-                  "",
-                  ...Array.from(
-                    new Set(products.map((p) => p.theme).filter(Boolean)),
-                  ),
-                ].map((t) => (
-                  <button
-                    key={t || "all-themes"}
-                    onClick={() => setSelectedTheme(t)}
-                    className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                      selectedTheme === t
-                        ? "bg-pink-100 text-slate-800 font-bold"
-                        : "text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    {t || "All Themes"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Scent Filter */}
-            {(() => {
-              const availableScents = Array.from(
-                new Set(
-                  products
-                    .map((p) => p.attributes?.Scent || "")
-                    .filter(Boolean),
-                ),
-              );
-              if (availableScents.length === 0) return null;
-
-              return (
-                <div>
-                  <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
-                    Scent Type
-                  </h4>
-                  <div className="space-y-1">
-                    {["", ...availableScents].map((s) => (
-                      <button
-                        key={s || "all-scents"}
-                        onClick={() => setSelectedScent(s)}
-                        className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                          selectedScent === s
-                            ? "bg-yellow-100 text-slate-800 font-bold"
-                            : "text-slate-600 hover:bg-slate-50"
-                        }`}
-                      >
-                        {s || "All Scents"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
+              {renderFilterControls()}
             </div>
           </div>
         </aside>
@@ -451,20 +445,61 @@ function ShopPageContent() {
         {/* Product Grid */}
         <main className="flex-1 space-y-6">
           {/* Toolbar */}
-          <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-100 text-xs">
-            <span className="text-slate-500 font-medium">
-              Showing{" "}
-              <strong className="text-slate-800">
-                {filteredProducts.length}
-              </strong>{" "}
-              items
-            </span>
-            <div className="flex items-center space-x-2">
+          <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-100 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center justify-between w-full sm:w-auto space-x-3">
+              {/* Mobile Filter Trigger Button */}
+              <button
+                onClick={() => setIsMobileFilterOpen(true)}
+                className="md:hidden flex items-center space-x-1.5 px-3.5 py-1.5 bg-pink-50 hover:bg-pink-100 border border-pink-200 text-pink-700 font-extrabold text-xs rounded-full transition active:scale-95 cursor-pointer shadow-2xs"
+              >
+                <Filter className="w-3.5 h-3.5" />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="w-4 h-4 bg-pink-600 text-white rounded-full text-[10px] font-black flex items-center justify-center">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              <span className="text-slate-500 font-medium hidden sm:inline-block">
+                Showing{" "}
+                <strong className="text-slate-800">
+                  {filteredProducts.length}
+                </strong>{" "}
+                items
+              </span>
+
+              {/* Mobile Sort Dropdown */}
+              <div className="flex items-center space-x-1.5 sm:hidden">
+                <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value as any)}
+                  className="bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"
+                >
+                  <option value="default">Sort by Featured</option>
+                  <option value="low-to-high">Price: Low to High</option>
+                  <option value="high-to-low">Price: High to Low</option>
+                  <option value="newest">Newest Arrivals</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Mobile items count line */}
+            <div className="sm:hidden text-slate-500 font-medium text-[11px] border-t border-slate-100 pt-2 flex items-center justify-between">
+              <span>Catalog Results</span>
+              <span>
+                Showing <strong className="text-slate-800">{filteredProducts.length}</strong> items
+              </span>
+            </div>
+
+            {/* Desktop Sort Dropdown */}
+            <div className="hidden sm:flex items-center space-x-2">
               <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as any)}
-                className="bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 text-xs font-semibold focus:outline-none"
+                className="bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"
               >
                 <option value="default">Sort by Featured</option>
                 <option value="low-to-high">Price: Low to High</option>
@@ -495,16 +530,7 @@ function ShopPageContent() {
                 No items found matching your active filters.
               </p>
               <button
-                onClick={() => {
-                  setSelectedProductLineId("");
-                  setSelectedTheme("");
-                  setSelectedCategory("");
-                  setSelectedAge("");
-                  setSelectedPackId("");
-                  setSelectedScent("");
-                  setInStockOnly(false);
-                  setMaxPrice(2000);
-                }}
+                onClick={resetAllFilters}
                 className="px-6 py-2.5 bg-pink-100 text-slate-800 font-bold text-xs rounded-full"
               >
                 Reset Filters
@@ -515,18 +541,18 @@ function ShopPageContent() {
               {filteredProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-white rounded-3xl border border-slate-100 p-4 soft-shadow soft-shadow-hover transition flex flex-col justify-between"
+                  className="bg-white rounded-3xl border border-slate-100 p-4 soft-shadow hover:soft-shadow-hover transition duration-300 flex flex-col justify-between group"
                 >
                   <div>
                     <Link
                       href={`/product/${product.id}`}
                       className="block group"
                     >
-                      <div className="relative rounded-2xl overflow-hidden mb-3 aspect-square bg-slate-50 cursor-pointer">
+                      <div className="relative rounded-2xl overflow-hidden mb-3 aspect-square bg-slate-50 border border-slate-100">
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                         />
                         <div className="absolute top-2 left-2 flex flex-col space-y-1 z-10">
                           {product.isPack ? (
@@ -579,6 +605,69 @@ function ShopPageContent() {
           )}
         </main>
       </div>
+
+      {/* Mobile Filters Slide Sheet Drawer */}
+      <AnimatePresence>
+        {isMobileFilterOpen && (
+          <div className="fixed inset-0 z-[100] md:hidden flex justify-end">
+            {/* Backdrop Fade */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsMobileFilterOpen(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-xs cursor-pointer"
+            />
+
+            {/* Slide Sheet Drawer Panel */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative z-10 bg-white w-full max-w-xs sm:max-w-sm h-full shadow-2xl flex flex-col justify-between"
+            >
+              {/* Drawer Header */}
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-pink-50/60 shrink-0">
+                <div className="flex items-center space-x-2">
+                  <Filter className="w-4 h-4 text-pink-500" />
+                  <h3 className="font-extrabold text-sm text-slate-800">
+                    Filter Products
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Drawer Scrollable Body */}
+              <div className="p-5 overflow-y-auto sleek-scrollbar flex-1 space-y-6">
+                {renderFilterControls()}
+              </div>
+
+              {/* Drawer Footer CTA */}
+              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center gap-3 shrink-0">
+                <button
+                  onClick={resetAllFilters}
+                  className="w-1/3 py-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 font-bold text-xs rounded-2xl transition cursor-pointer"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  className="w-2/3 py-3 bg-pink-500 hover:bg-pink-600 text-white font-extrabold text-xs rounded-2xl shadow-md transition active:scale-98 cursor-pointer"
+                >
+                  Show ({filteredProducts.length}) Results
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1106,8 +1106,8 @@ export default function HomePage() {
             Build Your Custom Craft Package
           </h3>
           <p className="text-xs sm:text-sm text-slate-700 max-w-xl mx-auto">
-            Select any 3 or 5 plaster figurines and POP painting kits to receive
-            an automatic 10% to 15% discount at checkout.
+            Build your custom bundle set of plaster figurines and POP painting
+            kits to receive exclusive package discounts at checkout.
           </p>
           <Link
             href="/bundles"
@@ -1234,7 +1234,7 @@ function WhySection() {
           {/* Scrollable Track */}
           <div
             ref={scrollRef}
-            className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory sleek-scrollbar pb-4 md:pb-0 px-1"
+            className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory no-scrollbar pb-4 md:pb-0 px-1"
           >
             {cards.map((card, idx) => (
               <div
@@ -1265,7 +1265,7 @@ function ThemeProductCard({
   onAdd: () => void;
 }) {
   return (
-    <div className="bg-white/95 backdrop-blur-md rounded-3xl p-4 sm:p-5 w-full flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl border border-white/60 text-[#3C2A21] shadow-lg group relative">
+    <div className="bg-white/95 backdrop-blur-md rounded-3xl p-4 sm:p-5 w-full flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl border border-white/60 text-[#3C2A21] shadow-md group relative">
       <div>
         {/* Badges Header */}
         <div className="flex flex-wrap items-center justify-between gap-1.5 mb-3">
@@ -1449,7 +1449,7 @@ function ThemeProductCarousel({
   if (realLen <= cardsPerView) {
     return (
       <div className="relative w-full max-w-5xl mx-auto px-1 sm:px-2">
-        <div className="flex w-full gap-3 sm:gap-4 py-4 px-1">
+        <div className="flex w-full gap-3 sm:gap-4 py-8 -my-4 px-2">
           {themeProducts.map((p) => (
             <div
               key={p.id}
@@ -1469,7 +1469,7 @@ function ThemeProductCarousel({
       <button
         onClick={handlePrev}
         aria-label="Previous product"
-        className="absolute -left-3 sm:-left-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white text-[#3C2A21] shadow-xl border border-slate-200/80 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer hover:bg-slate-50"
+        className="absolute left-2 sm:left-3 md:left-4 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white/95 text-[#3C2A21] shadow-xl border border-slate-200/80 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer hover:bg-white"
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
@@ -1478,13 +1478,13 @@ function ThemeProductCarousel({
       <button
         onClick={handleNext}
         aria-label="Next product"
-        className="absolute -right-3 sm:-right-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white text-[#3C2A21] shadow-xl border border-slate-200/80 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer hover:bg-slate-50"
+        className="absolute right-2 sm:right-3 md:right-4 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white/95 text-[#3C2A21] shadow-xl border border-slate-200/80 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer hover:bg-white"
       >
         <ChevronRight className="w-5 h-5" />
       </button>
 
       {/* Product Cards Track Container */}
-      <div className="overflow-hidden w-full py-4 px-1">
+      <div className="overflow-hidden w-full py-8 -my-4 px-2">
         <div
           ref={trackRef}
           className={`flex w-full ${isTransitioning ? "transition-transform duration-500 ease-out" : ""} gap-3 sm:gap-4`}
