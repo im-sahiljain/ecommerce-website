@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
   CartItem,
@@ -9,6 +9,7 @@ import {
   updateQuantity as reduxUpdateQuantity,
   clearCart as reduxClearCart,
   setIsCartOpen as reduxSetIsCartOpen,
+  setCartItems,
 } from '../store/slices/cartSlice';
 
 interface CartContextType {
@@ -29,6 +30,34 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
   const cart = useAppSelector((state) => state.cart.items);
   const isCartOpen = useAppSelector((state) => state.cart.isCartOpen);
+  const isLoadedRef = useRef(false);
+
+  // 1. Load cart from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem('kitsandcraft_cart');
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          dispatch(setCartItems(parsed));
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load cart from localStorage', e);
+    } finally {
+      isLoadedRef.current = true;
+    }
+  }, [dispatch]);
+
+  // 2. Persist cart to localStorage whenever cart state updates
+  useEffect(() => {
+    if (!isLoadedRef.current) return;
+    try {
+      localStorage.setItem('kitsandcraft_cart', JSON.stringify(cart));
+    } catch (e) {
+      console.warn('Failed to save cart to localStorage', e);
+    }
+  }, [cart]);
 
   const addToCart = (product: { id: string; name: string; price: number; image: string; theme?: string }, qty = 1, openCart = false) => {
     for (let i = 0; i < qty; i++) {
