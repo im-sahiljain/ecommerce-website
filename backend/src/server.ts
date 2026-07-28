@@ -607,6 +607,10 @@ app.post("/api/products", requireAdminAuth, async (req, res) => {
     description,
     inStock,
     featured,
+    badge,
+    size,
+    material,
+    isVisible,
   } = req.body;
   if (!name || !price || !theme || !category || !ageGroup) {
     return res.status(400).json({ error: "Missing required product fields" });
@@ -652,6 +656,10 @@ app.post("/api/products", requireAdminAuth, async (req, res) => {
     description: description || "",
     inStock: inStock !== undefined ? Boolean(inStock) : true,
     featured: Boolean(featured),
+    badge: badge || undefined,
+    size: size || undefined,
+    material: material || undefined,
+    isVisible: isVisible !== undefined ? Boolean(isVisible) : true,
   });
   res.status(201).json(newProduct);
 });

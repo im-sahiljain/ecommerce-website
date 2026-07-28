@@ -37,6 +37,9 @@ interface Product {
   description: string;
   inStock: boolean;
   isOrderingEnabled?: boolean;
+  badge?: string;
+  size?: string;
+  material?: string;
   attributes?: Record<string, string>;
   isPack?: boolean;
   includedProducts?: any[];
@@ -69,6 +72,7 @@ export default function ProductDetailPage() {
   const [isFullscreenModalOpen, setIsFullscreenModalOpen] = useState(false);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     async function loadProductOrPack() {
       setLoading(true);
       try {
@@ -237,8 +241,28 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-16 text-center text-slate-500 font-bold">
-        Loading product details...
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-pulse">
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="space-y-4">
+            <div className="aspect-square w-full bg-slate-200 rounded-3xl" />
+            <div className="flex space-x-3">
+              <div className="w-16 h-16 bg-slate-200 rounded-2xl" />
+              <div className="w-16 h-16 bg-slate-200 rounded-2xl" />
+              <div className="w-16 h-16 bg-slate-200 rounded-2xl" />
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div className="h-4 w-32 bg-slate-200 rounded-full" />
+            <div className="h-8 w-3/4 bg-slate-200 rounded-xl" />
+            <div className="h-10 w-40 bg-slate-200 rounded-xl" />
+            <div className="space-y-2 pt-4">
+              <div className="h-4 w-full bg-slate-200 rounded-lg" />
+              <div className="h-4 w-5/6 bg-slate-200 rounded-lg" />
+              <div className="h-4 w-4/6 bg-slate-200 rounded-lg" />
+            </div>
+            <div className="h-12 w-full bg-slate-200 rounded-2xl mt-6" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -473,9 +497,35 @@ export default function ProductDetailPage() {
                 )}
               </div>
 
-              <p className="text-slate-600 text-sm leading-relaxed mt-4 font-medium">
+              <p className="text-slate-600 text-sm leading-relaxed mt-4 font-medium whitespace-pre-line">
                 {product.description}
               </p>
+
+              {/* Conditional Specifications (Size & Material) */}
+              {(product.size || product.material) && (
+                <div className="grid grid-cols-2 gap-4 mt-6 p-4 bg-slate-50/80 border border-slate-100 rounded-2xl">
+                  {product.size && (
+                    <div>
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Dimensions / Size
+                      </span>
+                      <span className="text-xs font-extrabold text-slate-800">
+                        {product.size}
+                      </span>
+                    </div>
+                  )}
+                  {product.material && (
+                    <div>
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Material Finish
+                      </span>
+                      <span className="text-xs font-extrabold text-slate-800">
+                        {product.material}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Included Items Showcase for Packs */}
               {product.isPack &&

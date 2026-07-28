@@ -6,6 +6,7 @@ import { useCart } from "../context/CartContext";
 import { useAppSelector } from "../store/hooks";
 import type { RootState } from "../store/store";
 import { API_BASE_URL } from "../config/api";
+import OptimisticAddToCart from "../components/OptimisticAddToCart";
 
 import {
   Flame,
@@ -28,6 +29,11 @@ interface Product {
   image: string;
   images?: string[];
   description: string;
+  badge?: string;
+  size?: string;
+  material?: string;
+  isVisible?: boolean;
+  inStock?: boolean;
   attributes?: Record<string, string>;
   createdAt?: string;
   updatedAt?: string;
@@ -45,6 +51,7 @@ interface DecorationItem {
 interface ThemeSectionConfig {
   id: string;
   title: React.ReactNode;
+  subtitle?: string;
   themeKeyword: string;
   titleLayout: "left" | "center" | "right";
   bgColor: string;
@@ -320,23 +327,26 @@ export default function HomePage() {
       .catch(() => {});
   }, []);
 
-  const getThemeProducts = (themeKeyword: string, limit: number = 4) => {
+  const getThemeProducts = (themeKeyword: string) => {
     return products
-      .filter((p) => p.theme.toLowerCase().includes(themeKeyword.toLowerCase()))
+      .filter(
+        (p) =>
+          p.isVisible !== false &&
+          p.theme.toLowerCase().includes(themeKeyword.toLowerCase())
+      )
       .sort((a, b) => {
         const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return timeB - timeA;
-      })
-      .slice(0, limit);
+      });
   };
 
-  const candleProducts = products.filter(
-    (p) =>
-      p.category.toLowerCase().includes("candle") ||
-      (p.productLineId && p.productLineId.toLowerCase().includes("candle")) ||
-      p.productLineId === "line-2",
-  );
+  // const candleProducts = products.filter(
+  //   (p) =>
+  //     p.category.toLowerCase().includes("candle") ||
+  //     (p.productLineId && p.productLineId.toLowerCase().includes("candle")) ||
+  //     p.productLineId === "line-2",
+  // );
 
   // HERO CAROUSEL SLIDES DEFINITION
   const heroSlides = [
@@ -888,10 +898,7 @@ export default function HomePage() {
         const activeThemeSections = themeSections
           .map((sectionConfig) => ({
             sectionConfig,
-            themeProducts: getThemeProducts(
-              sectionConfig.themeKeyword,
-              sectionConfig.limit || 4,
-            ),
+            themeProducts: getThemeProducts(sectionConfig.themeKeyword || ""),
           }))
           .filter((item) => item.themeProducts.length > 0);
 
@@ -959,13 +966,27 @@ export default function HomePage() {
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                   {sectionConfig.titleLayout === "center" ? (
                     /* Center Layout */
-                    <div className="text-center">
+                    <div className="text-center space-y-3">
                       <h2
-                        className="font-bold mb-10 text-3xl sm:text-4xl"
+                        className="font-bold text-3xl sm:text-4xl"
                         style={{ color: sectionConfig.textColor }}
                       >
                         {sectionConfig.title}
                       </h2>
+                      {sectionConfig.subtitle && (
+                        <p className="text-xs sm:text-sm font-medium opacity-90 max-w-lg mx-auto">
+                          {sectionConfig.subtitle}
+                        </p>
+                      )}
+                      <div className="pt-1 pb-6">
+                        <Link
+                          href={`/shop?theme=${encodeURIComponent(sectionConfig.themeKeyword || "")}`}
+                          className="inline-flex items-center space-x-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold bg-[#3C2A21] text-white shadow-md hover:bg-[#251A14] transition active:scale-95 cursor-pointer"
+                        >
+                          <span>Shop More</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </Link>
+                      </div>
                       <ThemeProductCarousel
                         themeProducts={themeProducts}
                         onAddToCart={(p) => addToCart(p)}
@@ -974,13 +995,27 @@ export default function HomePage() {
                   ) : sectionConfig.titleLayout === "left" ? (
                     /* Left Title Layout */
                     <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                      <div className="w-full md:w-1/3 text-center md:text-left shrink-0">
+                      <div className="w-full md:w-1/3 text-center md:text-left shrink-0 space-y-3">
                         <h2
                           className="font-extrabold leading-tight text-3xl sm:text-4xl md:text-5xl"
                           style={{ color: sectionConfig.textColor }}
                         >
                           {sectionConfig.title}
                         </h2>
+                        {sectionConfig.subtitle && (
+                          <p className="text-xs sm:text-sm font-medium opacity-90 leading-relaxed">
+                            {sectionConfig.subtitle}
+                          </p>
+                        )}
+                        <div className="pt-2">
+                          <Link
+                            href={`/shop?theme=${encodeURIComponent(sectionConfig.themeKeyword || "")}`}
+                            className="inline-flex items-center space-x-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold bg-[#3C2A21] text-white shadow-md hover:bg-[#251A14] transition active:scale-95 cursor-pointer"
+                          >
+                            <span>Shop More</span>
+                            <ChevronRight className="w-4 h-4" />
+                          </Link>
+                        </div>
                       </div>
                       <div className="w-full md:w-2/3">
                         <ThemeProductCarousel
@@ -991,14 +1026,28 @@ export default function HomePage() {
                     </div>
                   ) : (
                     /* Right Title Layout */
-                    <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-8 md:gap-12 text-center">
-                      <div className="w-full md:w-1/3 text-center md:text-left shrink-0">
+                    <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-8 md:gap-12 text-center md:text-left">
+                      <div className="w-full md:w-1/3 text-center md:text-left shrink-0 space-y-3">
                         <h2
                           className="font-extrabold leading-tight text-3xl sm:text-4xl md:text-5xl"
                           style={{ color: sectionConfig.textColor }}
                         >
                           {sectionConfig.title}
                         </h2>
+                        {sectionConfig.subtitle && (
+                          <p className="text-xs sm:text-sm font-medium opacity-90 leading-relaxed">
+                            {sectionConfig.subtitle}
+                          </p>
+                        )}
+                        <div className="pt-2">
+                          <Link
+                            href={`/shop?theme=${encodeURIComponent(sectionConfig.themeKeyword || "")}`}
+                            className="inline-flex items-center space-x-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold bg-[#3C2A21] text-white shadow-md hover:bg-[#251A14] transition active:scale-95 cursor-pointer"
+                          >
+                            <span>Shop More</span>
+                            <ChevronRight className="w-4 h-4" />
+                          </Link>
+                        </div>
                       </div>
                       <div className="w-full md:w-2/3">
                         <ThemeProductCarousel
@@ -1183,18 +1232,25 @@ function ThemeProductCard({
   onAdd: () => void;
 }) {
   return (
-    <div className="bg-white/95 backdrop-blur-md rounded-3xl p-4 sm:p-5 w-full flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl border border-white/60 text-[#3C2A21] shadow-lg group">
+    <div className="bg-white/95 backdrop-blur-md rounded-3xl p-4 sm:p-5 w-full flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl border border-white/60 text-[#3C2A21] shadow-lg group relative">
       <div>
         {/* Badges Header */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 mb-3">
           <span className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200/60 shadow-2xs">
             {product.ageGroup || "Ages 4+"}
           </span>
-          {/* {product.isNonToxic && (
-            <span className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200/60 shadow-2xs">
-              Non-Toxic
+          {product.badge && product.badge !== "None" && (
+            <span
+              className={`text-[10px] sm:text-xs font-extrabold px-2.5 py-0.5 rounded-full shadow-2xs text-white ${
+                product.badge.toLowerCase().includes("new")
+                  ? "bg-emerald-500 border border-emerald-400"
+                  : "bg-gradient-to-r from-amber-500 to-rose-500 border border-amber-400"
+              }`}
+            >
+              {product.badge.toLowerCase().includes("new") ? "✨ " : "🔥 "}
+              {product.badge}
             </span>
-          )} */}
+          )}
         </div>
 
         {/* Product Image Container */}
@@ -1227,14 +1283,8 @@ function ThemeProductCard({
         </div>
       </div>
 
-      {/* Add to Cart Button */}
-      <button
-        onClick={onAdd}
-        className="w-full text-white font-black py-2.5 sm:py-3 rounded-full text-xs sm:text-sm bg-[#3C2A21] hover:bg-[#251A14] active:scale-95 transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer"
-      >
-        <ShoppingBag className="w-4 h-4" />
-        <span>Add to Cart</span>
-      </button>
+      {/* Optimistic Add to Cart & Quantity Stepper */}
+      <OptimisticAddToCart product={product} />
     </div>
   );
 }

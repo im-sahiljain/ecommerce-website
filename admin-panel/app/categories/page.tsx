@@ -10,6 +10,7 @@ interface Category {
   slug: string;
   description?: string;
   productLineId?: string;
+  isVisible?: boolean;
 }
 
 interface ProductLine {
@@ -23,6 +24,7 @@ export default function CategoriesPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [productLineId, setProductLineId] = useState('line-1');
+  const [isVisible, setIsVisible] = useState(true);
 
   const fetchCategories = () => {
     adminFetch('/api/categories')
@@ -45,10 +47,20 @@ export default function CategoriesPage() {
     if (!name) return;
     await adminFetch('/api/categories', {
       method: 'POST',
-      body: JSON.stringify({ name, description, productLineId })
+      body: JSON.stringify({ name, description, productLineId, isVisible })
     });
     setName('');
     setDescription('');
+    setIsVisible(true);
+    fetchCategories();
+  };
+
+  const handleToggleVisibility = async (cat: Category) => {
+    const updated = !cat.isVisible;
+    await adminFetch(`/api/categories/${cat.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ isVisible: updated })
+    });
     fetchCategories();
   };
 
@@ -107,6 +119,16 @@ export default function CategoriesPage() {
               />
             </div>
 
+            <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isVisible}
+                onChange={e => setIsVisible(e.target.checked)}
+                className="rounded text-pink-500"
+              />
+              <span>Visible on Website</span>
+            </label>
+
             <button
               type="submit"
               className="w-full py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center space-x-1"
@@ -126,6 +148,7 @@ export default function CategoriesPage() {
             <div className="divide-y divide-slate-100">
               {categories.map(cat => {
                 const line = productLines.find(l => l.id === cat.productLineId);
+                const active = cat.isVisible !== false;
                 return (
                   <div key={cat.id} className="p-4 flex items-center justify-between hover:bg-slate-50/80 transition">
                     <div>
@@ -136,16 +159,27 @@ export default function CategoriesPage() {
                             {line.name}
                           </span>
                         )}
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}`}>
+                          {active ? 'Visible' : 'Hidden'}
+                        </span>
                       </div>
                       <p className="text-xs text-slate-500 mt-0.5">{cat.description || 'No description'}</p>
                     </div>
 
-                    <button
-                      onClick={() => handleDelete(cat.id)}
-                      className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleToggleVisibility(cat)}
+                        className={`px-3 py-1 text-xs font-bold rounded-lg border transition ${active ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100' : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
+                      >
+                        {active ? 'Hide' : 'Show'}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(cat.id)}
+                        className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 );
               })}

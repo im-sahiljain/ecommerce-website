@@ -24,6 +24,7 @@ interface ProductLine {
   slug: string;
   icon?: string;
   description?: string;
+  isVisible?: boolean;
 }
 
 interface Category {
@@ -31,6 +32,7 @@ interface Category {
   name: string;
   slug: string;
   productLineId?: string;
+  isVisible?: boolean;
 }
 
 export default function Navbar() {
@@ -60,14 +62,14 @@ export default function Navbar() {
     fetch(`${API_BASE_URL}/api/product-lines`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setProductLines(data);
+        if (Array.isArray(data)) setProductLines(data.filter((l) => l.isVisible !== false));
       })
       .catch(() => {});
 
     fetch(`${API_BASE_URL}/api/categories`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setCategories(data);
+        if (Array.isArray(data)) setCategories(data.filter((c) => c.isVisible !== false));
       })
       .catch(() => {});
 

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCart } from "../../context/CartContext";
 import { ShieldCheck, Filter, ArrowUpDown } from "lucide-react";
 import { API_BASE_URL } from "../../config/api";
+import OptimisticAddToCart from "../../components/OptimisticAddToCart";
 
 interface Product {
   id: string;
@@ -21,6 +22,10 @@ interface Product {
   description: string;
   inStock: boolean;
   featured?: boolean;
+  badge?: string;
+  size?: string;
+  material?: string;
+  isVisible?: boolean;
   attributes?: Record<string, string>;
   isPack?: boolean;
   productIds?: string[];
@@ -131,7 +136,7 @@ function ShopPageContent() {
       productIds: pack.productIds || [],
     }));
 
-    let list = [...products, ...packProducts];
+    let list = [...products.filter((p) => p.isVisible !== false), ...packProducts];
 
     if (selectedPackId) {
       list = list.filter((p) => p.id === selectedPackId);
@@ -449,13 +454,19 @@ function ShopPageContent() {
                               {product.ageGroup}
                             </span>
                           )}
-                        </div>
-                        {/* {product.isNonToxic && (
-                            <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[10px] font-bold shadow-xs flex items-center space-x-1">
-                              <ShieldCheck className="w-3 h-3 inline" />
-                              <span>Non-Toxic</span>
+                          {product.badge && product.badge !== "None" && (
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold text-white shadow-xs ${
+                                product.badge.toLowerCase().includes("new")
+                                  ? "bg-emerald-500"
+                                  : "bg-gradient-to-r from-amber-500 to-rose-500"
+                              }`}
+                            >
+                              {product.badge.toLowerCase().includes("new") ? "✨ " : "🔥 "}
+                              {product.badge}
                             </span>
-                          )} */}
+                          )}
+                        </div>
                       </div>
 
                       <span className="text-[10px] font-bold uppercase tracking-wider text-pink-500">
@@ -470,12 +481,9 @@ function ShopPageContent() {
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => addToCart(product)}
-                    className="w-full mt-4 py-2.5 bg-pink-100 hover:bg-pink-200 text-slate-800 font-bold rounded-full text-xs transition active:scale-95"
-                  >
-                    Add to Basket
-                  </button>
+                  <div className="mt-4">
+                    <OptimisticAddToCart product={product} />
+                  </div>
                 </div>
               ))}
             </div>

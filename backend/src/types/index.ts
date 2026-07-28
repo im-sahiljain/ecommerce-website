@@ -25,6 +25,10 @@ export interface Product {
   isBackorderAllowed?: boolean;
   isOrderingEnabled?: boolean;
   status?: 'Draft' | 'Published' | 'Hidden' | 'Archived';
+  badge?: 'New Launch' | 'Selling Fast' | 'None' | string;
+  size?: string;
+  material?: string;
+  isVisible?: boolean;
   attributes?: Record<string, string>;
   seoTitle?: string;
   seoDescription?: string;
@@ -78,6 +82,7 @@ export interface Theme {
   slug: string;
   description?: string;
   icon?: string;
+  isVisible?: boolean;
 }
 
 export interface AgeGroup {

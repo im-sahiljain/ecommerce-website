@@ -34,6 +34,10 @@ interface Product {
   inStock: boolean;
   stockQuantity?: number;
   isOrderingEnabled?: boolean;
+  badge?: string;
+  size?: string;
+  material?: string;
+  isVisible?: boolean;
   status?: "Draft" | "Published" | "Hidden" | "Archived";
   createdAt?: string;
   updatedAt?: string;
@@ -131,6 +135,10 @@ export default function ProductsManagerPage() {
   const [ageGroup, setAgeGroup] = useState("Ages 4+");
   const [isNonToxic, setIsNonToxic] = useState(true);
   const [isOrderingEnabled, setIsOrderingEnabled] = useState(true);
+  const [badge, setBadge] = useState<string>("None");
+  const [size, setSize] = useState<string>("");
+  const [material, setMaterial] = useState<string>("");
+  const [isVisible, setIsVisible] = useState<boolean>(true);
   const [image, setImage] = useState("");
   const [imagesList, setImagesList] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -198,6 +206,10 @@ export default function ProductsManagerPage() {
     setAgeGroup("Ages 4+");
     setIsNonToxic(true);
     setIsOrderingEnabled(true);
+    setBadge("None");
+    setSize("");
+    setMaterial("");
+    setIsVisible(true);
     setImage("");
     setImagesList([]);
     setUploadError(null);
@@ -222,6 +234,10 @@ export default function ProductsManagerPage() {
     setIsOrderingEnabled(
       p.isOrderingEnabled !== undefined ? p.isOrderingEnabled : true,
     );
+    setBadge(p.badge || "None");
+    setSize(p.size || "");
+    setMaterial(p.material || "");
+    setIsVisible(p.isVisible !== false);
     setImage(p.image);
     setImagesList(
       p.images && p.images.length > 0 ? p.images : p.image ? [p.image] : [],
@@ -248,6 +264,10 @@ export default function ProductsManagerPage() {
     setIsOrderingEnabled(
       p.isOrderingEnabled !== undefined ? p.isOrderingEnabled : true,
     );
+    setBadge(p.badge || "None");
+    setSize(p.size || "");
+    setMaterial(p.material || "");
+    setIsVisible(p.isVisible !== false);
     setImage(p.image);
     setImagesList(
       p.images && p.images.length > 0 ? p.images : p.image ? [p.image] : [],
@@ -392,6 +412,10 @@ export default function ProductsManagerPage() {
       ageGroup,
       isNonToxic,
       isOrderingEnabled,
+      badge: badge === "None" ? undefined : badge,
+      size: size.trim() || undefined,
+      material: material.trim() || undefined,
+      isVisible,
       image: finalImages[0],
       images: finalImages,
       description,
@@ -910,6 +934,55 @@ export default function ProductsManagerPage() {
               )}
             </div>
 
+            {/* BADGE, SIZE & MATERIAL ATTRIBUTES */}
+            <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3">
+              <h4 className="font-extrabold text-xs text-slate-800 border-b pb-1">
+                Badges & Specifications
+              </h4>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Card Corner Badge
+                  </label>
+                  <select
+                    value={badge}
+                    onChange={(e) => setBadge(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border rounded-xl text-xs font-bold text-slate-800"
+                  >
+                    <option value="None">None</option>
+                    <option value="New Launch">✨ New Launch</option>
+                    <option value="Selling Fast">🔥 Selling Fast</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Dimensions / Size (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={size}
+                    onChange={(e) => setSize(e.target.value)}
+                    placeholder="e.g. 8.5 cm x 6 cm"
+                    className="w-full px-3 py-2 bg-white border rounded-xl text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Material (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={material}
+                    onChange={(e) => setMaterial(e.target.value)}
+                    placeholder="e.g. Gypsum Plaster"
+                    className="w-full px-3 py-2 bg-white border rounded-xl text-xs"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 Description
@@ -925,15 +998,27 @@ export default function ProductsManagerPage() {
             </div>
 
             <div className="flex items-center justify-between pt-2">
-              <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isOrderingEnabled}
-                  onChange={(e) => setIsOrderingEnabled(e.target.checked)}
-                  className="rounded text-pink-500"
-                />
-                <span>Online Purchasing Enabled for this item</span>
-              </label>
+              <div className="flex flex-col space-y-2">
+                <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isVisible}
+                    onChange={(e) => setIsVisible(e.target.checked)}
+                    className="rounded text-pink-500"
+                  />
+                  <span>Product Active & Visible on Entire Website</span>
+                </label>
+
+                <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isOrderingEnabled}
+                    onChange={(e) => setIsOrderingEnabled(e.target.checked)}
+                    className="rounded text-pink-500"
+                  />
+                  <span>Online Purchasing Enabled for this item</span>
+                </label>
+              </div>
 
               <div className="flex space-x-2">
                 <button

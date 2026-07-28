@@ -13,7 +13,7 @@ import {
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: { id: string; name: string; price: number; image: string; theme?: string }, quantity?: number) => void;
+  addToCart: (product: { id: string; name: string; price: number; image: string; theme?: string }, quantity?: number, openCart?: boolean) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, delta: number) => void;
   clearCart: () => void;
@@ -30,11 +30,13 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const cart = useAppSelector((state) => state.cart.items);
   const isCartOpen = useAppSelector((state) => state.cart.isCartOpen);
 
-  const addToCart = (product: { id: string; name: string; price: number; image: string; theme?: string }, qty = 1) => {
+  const addToCart = (product: { id: string; name: string; price: number; image: string; theme?: string }, qty = 1, openCart = false) => {
     for (let i = 0; i < qty; i++) {
       dispatch(reduxAddToCart(product));
     }
-    dispatch(reduxSetIsCartOpen(true));
+    if (openCart) {
+      dispatch(reduxSetIsCartOpen(true));
+    }
   };
 
   const removeFromCart = (id: string) => {

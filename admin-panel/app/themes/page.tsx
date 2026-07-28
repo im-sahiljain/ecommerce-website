@@ -11,6 +11,7 @@ interface Theme {
   description?: string;
   icon?: string;
   productLineId?: string;
+  isVisible?: boolean;
 }
 
 export default function ThemesPage() {
@@ -19,6 +20,7 @@ export default function ThemesPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [icon, setIcon] = useState("🎨");
+  const [isVisible, setIsVisible] = useState(true);
   const [editingTheme, setEditingTheme] = useState<Theme | null>(null);
 
   const fetchThemes = () => {
@@ -40,11 +42,21 @@ export default function ThemesPage() {
     if (!name) return;
     await adminFetch("/api/themes", {
       method: "POST",
-      body: JSON.stringify({ name, description, icon }),
+      body: JSON.stringify({ name, description, icon, isVisible }),
     });
     setName("");
     setDescription("");
     setIcon("🎨");
+    setIsVisible(true);
+    fetchThemes();
+  };
+
+  const handleToggleVisibility = async (theme: Theme) => {
+    const updated = theme.isVisible === false ? true : false;
+    await adminFetch(`/api/themes/${theme.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ isVisible: updated }),
+    });
     fetchThemes();
   };
 
@@ -152,6 +164,16 @@ export default function ThemesPage() {
               />
             </div>
 
+            <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isVisible}
+                onChange={(e) => setIsVisible(e.target.checked)}
+                className="rounded text-purple-600"
+              />
+              <span>Theme Visible on Website</span>
+            </label>
+
             <button
               type="submit"
               className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-extrabold rounded-xl text-xs shadow-md transition"
@@ -170,6 +192,7 @@ export default function ThemesPage() {
           <div className="divide-y divide-slate-100 border border-slate-100 rounded-2xl overflow-hidden">
             {themes.map((t) => {
               const isEditing = editingTheme?.id === t.id;
+              const active = t.isVisible !== false;
 
               if (isEditing && editingTheme) {
                 return (
@@ -224,6 +247,21 @@ export default function ThemesPage() {
                       </div>
                     </div>
 
+                    <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer pt-1">
+                      <input
+                        type="checkbox"
+                        checked={editingTheme.isVisible !== false}
+                        onChange={(e) =>
+                          setEditingTheme({
+                            ...editingTheme,
+                            isVisible: e.target.checked,
+                          })
+                        }
+                        className="rounded text-purple-600"
+                      />
+                      <span>Visible on Website</span>
+                    </label>
+
                     <div className="flex justify-end space-x-2 pt-1">
                       <button
                         onClick={() => setEditingTheme(null)}
@@ -254,9 +292,14 @@ export default function ThemesPage() {
                       {t.icon || "🎨"}
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-sm text-slate-800">
-                        {t.name}
-                      </h4>
+                      <div className="flex items-center space-x-2">
+                        <h4 className="font-extrabold text-sm text-slate-800">
+                          {t.name}
+                        </h4>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}`}>
+                          {active ? 'Visible' : 'Hidden'}
+                        </span>
+                      </div>
                       <p className="text-xs text-slate-500">
                         Slug: <span className="font-mono text-slate-700">{t.slug}</span>
                         {t.description && ` • ${t.description}`}
@@ -265,6 +308,12 @@ export default function ThemesPage() {
                   </div>
 
                   <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleToggleVisibility(t)}
+                      className={`px-3 py-1 text-xs font-bold rounded-lg border transition ${active ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100' : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
+                    >
+                      {active ? 'Hide' : 'Show'}
+                    </button>
                     <button
                       onClick={() => setEditingTheme({ ...t })}
                       className="p-2 bg-slate-100 hover:bg-purple-100 text-slate-600 hover:text-purple-700 rounded-xl transition"

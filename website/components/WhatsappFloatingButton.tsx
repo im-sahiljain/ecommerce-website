@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { MessageCircle } from "lucide-react";
-
 import { API_BASE_URL } from "../config/api";
 
 interface SiteSettings {
@@ -24,14 +23,15 @@ export default function WhatsappFloatingButton() {
   }, []);
 
   const isEnabled = settings
-    ? settings.isWhatsappChatButtonEnabled !== false && settings.isWhatsappEnabled !== false
+    ? settings.isWhatsappChatButtonEnabled !== false &&
+      settings.isWhatsappEnabled !== false
     : true;
 
   if (!settings || !isEnabled) return null;
 
-  const phoneClean = settings.whatsappNumber.replace(/[^0-9]/g, "");
+  const phoneClean = (settings.whatsappNumber || "").replace(/[^0-9]/g, "");
   const messageText = encodeURIComponent(
-    "Hi! I have a question about products on your website.",
+    "Hi! I have a question about products on your website."
   );
   const whatsappUrl = `https://wa.me/${phoneClean}?text=${messageText}`;
 
@@ -41,11 +41,13 @@ export default function WhatsappFloatingButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fixed bottom-6 right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-3.5 rounded-full shadow-2xl transition transform hover:scale-110 flex items-center justify-center space-x-2 group"
+      className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20ba5a] text-white h-14 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center px-4 space-x-2 group cursor-pointer border-2 border-white/20"
     >
-      <MessageCircle className="w-6 h-6 fill-current" />
-      <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 ease-in-out whitespace-nowrap text-xs font-extrabold pr-1">
-        Need help? Chat with us
+      <div className="flex-shrink-0 flex items-center justify-center w-7 h-7">
+        <MessageCircle className="w-7 h-7 text-white stroke-[2.2]" />
+      </div>
+      <span className="max-w-0 group-hover:max-w-xs overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap text-xs font-extrabold tracking-wide">
+        Chat with us
       </span>
     </a>
   );

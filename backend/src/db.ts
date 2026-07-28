@@ -112,6 +112,10 @@ function mapRowToProduct(r: any): Product {
     inStock: r.in_stock !== false,
     stockQuantity: r.stock_quantity ? Number(r.stock_quantity) : 10,
     isOrderingEnabled: r.is_ordering_enabled !== false,
+    badge: r.badge || undefined,
+    size: r.size || undefined,
+    material: r.material || undefined,
+    isVisible: r.is_visible !== false,
     createdAt: r.created_at ? new Date(r.created_at).toISOString() : undefined,
     updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : undefined,
   };
@@ -135,6 +139,12 @@ export class Database {
         ALTER TABLE public.products ADD COLUMN IF NOT EXISTS images TEXT;
         ALTER TABLE public.products ADD COLUMN IF NOT EXISTS stock_quantity INTEGER DEFAULT 10;
         ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_ordering_enabled BOOLEAN DEFAULT true;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS badge TEXT;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS size TEXT;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS material TEXT;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_visible BOOLEAN DEFAULT true;
+        ALTER TABLE public.categories ADD COLUMN IF NOT EXISTS is_visible BOOLEAN DEFAULT true;
+        ALTER TABLE public.themes ADD COLUMN IF NOT EXISTS is_visible BOOLEAN DEFAULT true;
         ALTER TABLE public.products ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
         ALTER TABLE public.products ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
@@ -268,8 +278,8 @@ export class Database {
     if (this.pgPool) {
       try {
         await this.pgPool.query(`
-          INSERT INTO public.products (id, sku, name, slug, price, original_price, cost_price, theme, category, age_group, product_line_id, is_non_toxic, image, images, description, in_stock, stock_quantity, is_ordering_enabled, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+          INSERT INTO public.products (id, sku, name, slug, price, original_price, cost_price, theme, category, age_group, product_line_id, is_non_toxic, image, images, description, in_stock, stock_quantity, is_ordering_enabled, badge, size, material, is_visible, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
           ON CONFLICT (id) DO NOTHING;
         `, [
           newProduct.id, newProduct.sku || newProduct.id, newProduct.name, newProduct.slug || newProduct.id,
@@ -279,6 +289,8 @@ export class Database {
           newProduct.image || "", JSON.stringify(newProduct.images || []),
           newProduct.description || "", newProduct.inStock !== false,
           newProduct.stockQuantity || 10, newProduct.isOrderingEnabled !== false,
+          newProduct.badge || null, newProduct.size || null, newProduct.material || null,
+          newProduct.isVisible !== false,
           newProduct.createdAt, newProduct.updatedAt,
         ]);
       } catch (err: any) {
@@ -303,8 +315,8 @@ export class Database {
           theme = $5, category = $6, age_group = $7, product_line_id = $8,
           is_non_toxic = $9, image = $10, images = $11, description = $12,
           in_stock = $13, stock_quantity = $14, is_ordering_enabled = $15, updated_at = $16,
-          slug = $17, sku = $18
-        WHERE id = $19
+          slug = $17, sku = $18, badge = $19, size = $20, material = $21, is_visible = $22
+        WHERE id = $23
       `, [
         merged.name, merged.price, merged.originalPrice || null, merged.costPrice || null,
         merged.theme || "", merged.category || "", merged.ageGroup || "",
@@ -312,7 +324,9 @@ export class Database {
         merged.image || imagesList[0] || "", JSON.stringify(imagesList),
         merged.description || "", merged.inStock !== false,
         merged.stockQuantity || 10, merged.isOrderingEnabled !== false,
-        merged.updatedAt, merged.slug || merged.id, merged.sku || merged.id, id,
+        merged.updatedAt, merged.slug || merged.id, merged.sku || merged.id,
+        merged.badge || null, merged.size || null, merged.material || null,
+        merged.isVisible !== false, id,
       ]);
       return merged;
     } catch (err: any) {
@@ -343,6 +357,7 @@ export class Database {
       return res.rows.map((r) => ({
         id: r.id, name: r.name, slug: r.slug,
         productLineId: r.product_line_id, description: r.description,
+        isVisible: r.is_visible !== false,
       }));
     } catch (err: any) {
       console.warn("⚠️ PG getCategories error:", err.message);
@@ -355,12 +370,12 @@ export class Database {
     if (this.pgPool) {
       try {
         await this.pgPool.query(`
-          INSERT INTO public.categories (id, name, slug, product_line_id, description)
-          VALUES ($1, $2, $3, $4, $5)
+          INSERT INTO public.categories (id, name, slug, product_line_id, description, is_visible)
+          VALUES ($1, $2, $3, $4, $5, $6)
           ON CONFLICT (id) DO UPDATE SET
             name = EXCLUDED.name, slug = EXCLUDED.slug,
-            product_line_id = EXCLUDED.product_line_id, description = EXCLUDED.description;
-        `, [newCat.id, newCat.name, newCat.slug || newCat.id, newCat.productLineId || "line-1", newCat.description || ""]);
+            product_line_id = EXCLUDED.product_line_id, description = EXCLUDED.description, is_visible = EXCLUDED.is_visible;
+        `, [newCat.id, newCat.name, newCat.slug || newCat.id, newCat.productLineId || "line-1", newCat.description || "", newCat.isVisible !== false]);
       } catch (err: any) {
         console.warn("⚠️ PG addCategory error:", err.message);
       }
@@ -378,10 +393,11 @@ export class Database {
         id, name: updates.name || current.name, slug: updates.slug || current.slug,
         productLineId: updates.productLineId || current.product_line_id,
         description: updates.description !== undefined ? updates.description : current.description,
+        isVisible: updates.isVisible !== undefined ? updates.isVisible : (current.is_visible !== false),
       };
       await this.pgPool.query(`
-        UPDATE public.categories SET name = $1, slug = $2, product_line_id = $3, description = $4 WHERE id = $5
-      `, [merged.name, merged.slug, merged.productLineId || "line-1", merged.description || "", id]);
+        UPDATE public.categories SET name = $1, slug = $2, product_line_id = $3, description = $4, is_visible = $5 WHERE id = $6
+      `, [merged.name, merged.slug, merged.productLineId || "line-1", merged.description || "", merged.isVisible !== false, id]);
       return merged;
     } catch (err: any) {
       console.warn("⚠️ PG updateCategory error:", err.message);
@@ -411,6 +427,7 @@ export class Database {
       return res.rows.map((r) => ({
         id: r.id, name: r.name, slug: r.slug,
         description: r.description || undefined, icon: r.icon || "🎨",
+        isVisible: r.is_visible !== false,
       }));
     } catch (err: any) {
       console.warn("⚠️ PG getThemes error:", err.message);
@@ -426,9 +443,9 @@ export class Database {
     if (this.pgPool) {
       try {
         await this.pgPool.query(`
-          INSERT INTO public.themes (id, name, slug, description, icon) VALUES ($1, $2, $3, $4, $5)
-          ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, slug = EXCLUDED.slug, description = EXCLUDED.description, icon = EXCLUDED.icon;
-        `, [newTheme.id, newTheme.name, newTheme.slug, newTheme.description || "", newTheme.icon || "🎨"]);
+          INSERT INTO public.themes (id, name, slug, description, icon, is_visible) VALUES ($1, $2, $3, $4, $5, $6)
+          ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, slug = EXCLUDED.slug, description = EXCLUDED.description, icon = EXCLUDED.icon, is_visible = EXCLUDED.is_visible;
+        `, [newTheme.id, newTheme.name, newTheme.slug, newTheme.description || "", newTheme.icon || "🎨", newTheme.isVisible !== false]);
       } catch (err: any) {
         console.warn("⚠️ PG addTheme error:", err.message);
       }
@@ -447,9 +464,10 @@ export class Database {
         slug: updates.slug || r.slug || r.name.toLowerCase().replace(/\s+/g, "-"),
         description: updates.description !== undefined ? updates.description : r.description,
         icon: updates.icon || r.icon || "🎨",
+        isVisible: updates.isVisible !== undefined ? updates.isVisible : (r.is_visible !== false),
       };
-      await this.pgPool.query(`UPDATE public.themes SET name = $1, slug = $2, description = $3, icon = $4 WHERE id = $5`,
-        [merged.name, merged.slug, merged.description || "", merged.icon, id]);
+      await this.pgPool.query(`UPDATE public.themes SET name = $1, slug = $2, description = $3, icon = $4, is_visible = $5 WHERE id = $6`,
+        [merged.name, merged.slug, merged.description || "", merged.icon, merged.isVisible !== false, id]);
       return merged;
     } catch (err: any) {
       console.warn("⚠️ PG updateTheme error:", err.message);
