@@ -16,11 +16,13 @@ interface ProductItem {
 interface OptimisticAddToCartProps {
   product: ProductItem;
   className?: string;
+  variant?: "pink" | "dark";
 }
 
 export default function OptimisticAddToCart({
   product,
   className,
+  variant = "pink",
 }: OptimisticAddToCartProps) {
   const { cart, addToCart, updateQuantity } = useCart();
   const [isPending, startTransition] = useTransition();
@@ -72,6 +74,8 @@ export default function OptimisticAddToCart({
     );
   }
 
+  const isPink = variant === "pink";
+
   if (quantity > 0) {
     return (
       <div
@@ -79,12 +83,20 @@ export default function OptimisticAddToCart({
           e.stopPropagation();
           e.preventDefault();
         }}
-        className="w-full py-2 px-3 bg-[#3C2A21] text-white font-bold text-xs rounded-full flex items-center justify-between shadow-xs"
+        className={
+          isPink
+            ? "w-full py-2 px-3 bg-pink-100 text-slate-800 border border-pink-200 font-extrabold text-xs rounded-full flex items-center justify-between shadow-xs"
+            : "w-full py-2 px-3 bg-[#3C2A21] text-white font-bold text-xs rounded-full flex items-center justify-between shadow-xs"
+        }
       >
         <button
           type="button"
           onClick={handleDecrement}
-          className="p-1 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center"
+          className={
+            isPink
+              ? "p-1 hover:bg-pink-200 rounded-full transition cursor-pointer flex items-center justify-center text-slate-800"
+              : "p-1 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center text-white"
+          }
           aria-label="Decrease quantity"
         >
           <Minus className="w-3.5 h-3.5" />
@@ -93,7 +105,11 @@ export default function OptimisticAddToCart({
         <button
           type="button"
           onClick={handleIncrement}
-          className="p-1 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center"
+          className={
+            isPink
+              ? "p-1 hover:bg-pink-200 rounded-full transition cursor-pointer flex items-center justify-center text-slate-800"
+              : "p-1 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center text-white"
+          }
           aria-label="Increase quantity"
         >
           <Plus className="w-3.5 h-3.5" />
@@ -109,7 +125,9 @@ export default function OptimisticAddToCart({
       disabled={isPending}
       className={
         className ||
-        "w-full py-2.5 px-4 bg-[#3C2A21] hover:bg-[#2A1D17] text-white font-extrabold text-xs rounded-full shadow transition flex items-center justify-center gap-1.5 cursor-pointer"
+        (isPink
+          ? "w-full py-2.5 px-4 bg-pink-100 hover:bg-pink-200 text-slate-800 font-bold rounded-full text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+          : "w-full py-2.5 px-4 bg-[#3C2A21] hover:bg-[#251A14] text-white font-extrabold text-xs rounded-full shadow transition flex items-center justify-center gap-1.5 cursor-pointer")
       }
     >
       <span>Add to Cart</span>

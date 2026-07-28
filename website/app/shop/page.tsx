@@ -23,6 +23,8 @@ interface Product {
   inStock: boolean;
   featured?: boolean;
   badge?: string;
+  isNewLaunch?: boolean;
+  isSellingFast?: boolean;
   size?: string;
   material?: string;
   isVisible?: boolean;
@@ -35,13 +37,13 @@ interface ProductLine {
   id: string;
   name: string;
   slug: string;
+  isVisible?: boolean;
 }
 
 interface CategoryFacet {
   id: string;
   name: string;
-  facetGroup: string;
-  productLineId?: string;
+  slug: string;
 }
 
 function ShopPageContent() {
@@ -68,6 +70,8 @@ function ShopPageContent() {
   const [selectedPackId, setSelectedPackId] = useState(initialPackId);
   const [selectedScent, setSelectedScent] = useState("");
   const [inStockOnly, setInStockOnly] = useState(false);
+  const [filterNewLaunch, setFilterNewLaunch] = useState(false);
+  const [filterSellingFast, setFilterSellingFast] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number>(2000);
   const [sortOrder, setSortOrder] = useState<
     "default" | "low-to-high" | "high-to-low" | "newest"
@@ -169,6 +173,12 @@ function ShopPageContent() {
     if (inStockOnly) {
       list = list.filter((p) => p.inStock);
     }
+    if (filterNewLaunch) {
+      list = list.filter((p) => p.isNewLaunch || Boolean(p.badge?.includes("New")));
+    }
+    if (filterSellingFast) {
+      list = list.filter((p) => p.isSellingFast || Boolean(p.badge?.includes("Selling")));
+    }
 
     list = list.filter((p) => p.price <= maxPrice);
 
@@ -191,6 +201,8 @@ function ShopPageContent() {
     selectedPackId,
     selectedScent,
     inStockOnly,
+    filterNewLaunch,
+    filterSellingFast,
     maxPrice,
     sortOrder,
   ]);
@@ -248,7 +260,7 @@ function ShopPageContent() {
 
       <div className="flex flex-col md:flex-row gap-8">
         {/* Filter Sidebar */}
-        <aside className="w-full md:w-64 shrink-0 space-y-6">
+        <aside className="w-full md:w-64 shrink-0 space-y-6 md:sticky md:top-24 md:max-h-[calc(100vh-7rem)] overflow-y-auto pr-1">
           <div className="bg-white p-6 rounded-3xl border border-slate-100 soft-shadow space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-extrabold text-sm text-slate-800 flex items-center space-x-2">
@@ -264,12 +276,65 @@ function ShopPageContent() {
                   setSelectedPackId("");
                   setSelectedScent("");
                   setInStockOnly(false);
+                  setFilterNewLaunch(false);
+                  setFilterSellingFast(false);
                   setMaxPrice(2000);
                 }}
                 className="text-[11px] font-bold text-pink-600 hover:text-pink-700"
               >
                 Reset
               </button>
+            </div>
+
+            {/* Product Line Filter */}
+            {productLines.length > 0 && (
+              <div>
+                <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
+                  Product Line
+                </h4>
+                <div className="space-y-1">
+                  {[{ id: "", name: "All Product Lines" }, ...productLines.filter((pl) => pl.isVisible !== false)].map((pl) => (
+                    <button
+                      key={pl.id || "all-lines"}
+                      onClick={() => setSelectedProductLineId(pl.id)}
+                      className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                        selectedProductLineId === pl.id
+                          ? "bg-purple-100 text-purple-900 font-bold"
+                          : "text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {pl.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Badges / Highlights Filter */}
+            <div>
+              <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-2">
+                Badges & Highlights
+              </h4>
+              <div className="space-y-2 pt-1 text-xs font-bold text-slate-700">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={filterNewLaunch}
+                    onChange={(e) => setFilterNewLaunch(e.target.checked)}
+                    className="rounded text-pink-500 focus:ring-pink-400"
+                  />
+                  <span>✨ New Launch</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={filterSellingFast}
+                    onChange={(e) => setFilterSellingFast(e.target.checked)}
+                    className="rounded text-pink-500 focus:ring-pink-400"
+                  />
+                  <span>🔥 Selling Fast</span>
+                </label>
+              </div>
             </div>
 
             {/* Price Filter Slider */}
@@ -449,21 +514,19 @@ function ShopPageContent() {
                             <span className="px-2.5 py-1 bg-amber-500 text-white rounded-full text-[10px] font-black shadow-xs tracking-wider uppercase">
                               🎁 Pack of {product.productIds?.length || 1}
                             </span>
-                          ) : (
+                          ) : product.ageGroup && product.ageGroup.trim() !== "" ? (
                             <span className="px-2.5 py-1 bg-sky-100 text-sky-800 rounded-full text-[10px] font-bold shadow-xs">
                               {product.ageGroup}
                             </span>
+                          ) : null}
+                          {(product.isNewLaunch || Boolean(product.badge?.toLowerCase().includes("new"))) && (
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black text-slate-900 bg-amber-400 shadow-xs uppercase tracking-wider">
+                              ✨ New Launch
+                            </span>
                           )}
-                          {product.badge && product.badge !== "None" && (
-                            <span
-                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold text-white shadow-xs ${
-                                product.badge.toLowerCase().includes("new")
-                                  ? "bg-emerald-500"
-                                  : "bg-gradient-to-r from-amber-500 to-rose-500"
-                              }`}
-                            >
-                              {product.badge.toLowerCase().includes("new") ? "✨ " : "🔥 "}
-                              {product.badge}
+                          {(product.isSellingFast || Boolean(product.badge?.toLowerCase().includes("selling"))) && (
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black text-white bg-gradient-to-r from-red-500 to-rose-600 shadow-xs uppercase tracking-wider">
+                              🔥 Selling Fast
                             </span>
                           )}
                         </div>

@@ -11,6 +11,7 @@ import {
   Ticket,
   X,
   Info,
+  ArrowRight,
 } from "lucide-react";
 import { API_BASE_URL } from "../../config/api";
 
@@ -53,24 +54,23 @@ export default function BundlesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/products`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setProducts(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-
-    fetch(`${API_BASE_URL}/api/bundles`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          const active = data.filter((r: any) => r.isActive !== false);
+    setLoading(true);
+    Promise.all([
+      fetch(`${API_BASE_URL}/api/products`).then((res) => res.json()),
+      fetch(`${API_BASE_URL}/api/bundles`).then((res) => res.json()),
+    ])
+      .then(([prodsData, bundlesData]) => {
+        if (Array.isArray(bundlesData)) {
+          const active = bundlesData.filter((r: any) => r.isActive !== false);
           setBundleRules(active);
           if (active.length > 0) setSelectedBundleId(active[0].id);
         }
+        if (Array.isArray(prodsData)) {
+          setProducts(prodsData.filter((p: any) => p.isVisible !== false));
+        }
       })
-      .catch(() => {});
+      .catch((err) => console.error("Error loading bundle data:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   const activeBundle =
@@ -521,9 +521,14 @@ export default function BundlesPage() {
                           : "bg-slate-900 hover:bg-slate-800 text-white shadow-xs"
                       }`}
                     >
-                      {isCurrent
-                        ? "Bundle Selected"
-                        : "Select This Bundle Offer →"}
+                      {isCurrent ? (
+                        "Bundle Selected"
+                      ) : (
+                        <span className="inline-flex items-center space-x-1.5">
+                          <span>Select This Bundle Offer</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </span>
+                      )}
                     </button>
                   </div>
                 );

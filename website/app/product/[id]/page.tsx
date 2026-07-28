@@ -38,6 +38,8 @@ interface Product {
   inStock: boolean;
   isOrderingEnabled?: boolean;
   badge?: string;
+  isNewLaunch?: boolean;
+  isSellingFast?: boolean;
   size?: string;
   material?: string;
   attributes?: Record<string, string>;
@@ -475,11 +477,23 @@ export default function ProductDetailPage() {
           {/* Product Info Section */}
           <div className="space-y-6 flex flex-col justify-between">
             <div>
-              <div className="flex items-center space-x-2 text-xs font-bold text-pink-500 uppercase tracking-wider mb-2">
-                <Sparkles className="w-4 h-4" />
-                <span>
-                  {product.theme} • {product.category}
-                </span>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <div className="flex items-center space-x-2 text-xs font-bold text-pink-500 uppercase tracking-wider">
+                  <Sparkles className="w-4 h-4" />
+                  <span>
+                    {product.theme} • {product.category}
+                  </span>
+                </div>
+                {(product.isNewLaunch || Boolean(product.badge?.toLowerCase().includes("new"))) && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black text-slate-900 bg-amber-400 uppercase tracking-wider shadow-xs">
+                    ✨ New Launch
+                  </span>
+                )}
+                {(product.isSellingFast || Boolean(product.badge?.toLowerCase().includes("selling"))) && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black text-white bg-gradient-to-r from-red-500 to-rose-600 uppercase tracking-wider shadow-xs">
+                    🔥 Selling Fast
+                  </span>
+                )}
               </div>
 
               <h1 className="text-3xl font-extrabold text-slate-800 leading-tight">

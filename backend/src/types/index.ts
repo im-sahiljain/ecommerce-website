@@ -26,6 +26,8 @@ export interface Product {
   isOrderingEnabled?: boolean;
   status?: 'Draft' | 'Published' | 'Hidden' | 'Archived';
   badge?: 'New Launch' | 'Selling Fast' | 'None' | string;
+  isNewLaunch?: boolean;
+  isSellingFast?: boolean;
   size?: string;
   material?: string;
   isVisible?: boolean;

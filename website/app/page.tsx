@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   ChevronLeft,
   ChevronRight,
+  ArrowRight,
 } from "lucide-react";
 
 interface Product {
@@ -30,6 +31,8 @@ interface Product {
   images?: string[];
   description: string;
   badge?: string;
+  isNewLaunch?: boolean;
+  isSellingFast?: boolean;
   size?: string;
   material?: string;
   isVisible?: boolean;
@@ -72,6 +75,7 @@ const DEFAULT_HOMEPAGE_SECTIONS: ThemeSectionConfig[] = [
         Adventures
       </>
     ),
+    subtitle: "Explore galaxy, astronaut, & planet figurines ready to paint.",
     themeKeyword: "Space",
     titleLayout: "left",
     bgColor: "#2D366D",
@@ -150,6 +154,7 @@ const DEFAULT_HOMEPAGE_SECTIONS: ThemeSectionConfig[] = [
   {
     id: "sec-garden",
     title: "Secret Garden (Floral)",
+    subtitle: "Beautiful botanical shapes, floral plaster crafts, and nature art.",
     themeKeyword: "Garden",
     titleLayout: "center",
     bgColor: "#D1E7D2",
@@ -202,6 +207,7 @@ const DEFAULT_HOMEPAGE_SECTIONS: ThemeSectionConfig[] = [
         Magic
       </>
     ),
+    subtitle: "Enchanted castles, magical unicorns, and fantasy plaster painting sets.",
     themeKeyword: "Fairytale",
     titleLayout: "left",
     bgColor: "#F1E4F7",
@@ -247,6 +253,7 @@ const DEFAULT_HOMEPAGE_SECTIONS: ThemeSectionConfig[] = [
         Kingdom
       </>
     ),
+    subtitle: "Lions, squirrels, owls, foxes & safari animal plaster figurines for kids.",
     themeKeyword: "Wild",
     titleLayout: "right",
     bgColor: "#F9E6C3",
@@ -327,7 +334,7 @@ export default function HomePage() {
       .catch(() => {});
   }, []);
 
-  const getThemeProducts = (themeKeyword: string) => {
+  const getThemeProducts = (themeKeyword: string): Product[] => {
     return products
       .filter(
         (p) =>
@@ -340,6 +347,18 @@ export default function HomePage() {
         return timeB - timeA;
       });
   };
+
+  const themeSections: ThemeSectionConfig[] =
+    dbThemeSections.length > 0 ? dbThemeSections : DEFAULT_HOMEPAGE_SECTIONS;
+
+  const activeThemeSections = useMemo(() => {
+    return themeSections
+      .map((sectionConfig) => ({
+        sectionConfig,
+        themeProducts: getThemeProducts(sectionConfig.themeKeyword || ""),
+      }))
+      .filter((item) => item.themeProducts.length > 0);
+  }, [themeSections, products]);
 
   // const candleProducts = products.filter(
   //   (p) =>
@@ -669,9 +688,7 @@ export default function HomePage() {
     setTouchStartX(null);
   };
 
-  // DYNAMIC THEME SECTIONS PULLED FROM DATABASE (RESILIENT FALLBACK TO DEFAULTS)
-  const themeSections: ThemeSectionConfig[] =
-    dbThemeSections.length > 0 ? dbThemeSections : DEFAULT_HOMEPAGE_SECTIONS;
+
 
   return (
     <div style={{ fontFamily: "'Quicksand', sans-serif", color: "#333" }}>
@@ -780,11 +797,10 @@ export default function HomePage() {
               <span className="font-bold text-[#3C2A21]">
                 POP painting kits
               </span>
-              , ready-to-paint plaster figurines, and premium home decor art
-              activities in India. Ignite your child’s imagination with
-              child-safe, creative craft activity boxes, or spruce up your
-              living space with our hand-poured, aesthetic botanical scented soy
-              candles.
+              , ready-to-paint plaster figurines, and creative craft activity kits
+              in India. Ignite your child’s imagination with child-safe, creative
+              craft activity boxes, screen-free painting sets, and fun plaster
+              figurines!
             </p>
           </div>
 
@@ -812,19 +828,19 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Card 2: Soy Candles */}
+            {/* Card 2: DIY Painting Sets */}
             <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-2xl group-hover:scale-105 transition transform">
-                  🕯️
+                  🖌️
                 </div>
                 <h3 className="text-lg font-bold text-[#3C2A21]">
-                  Aesthetic Scented Soy Candles
+                  DIY Plaster Painting Sets
                 </h3>
                 <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
-                  Hand-poured, natural botanical wax candles crafted with
-                  eco-friendly ingredients. Enhance your home decor with
-                  clean-burning, luxurious scented aromatherapy.
+                  Complete craft painting sets featuring smooth plaster shapes,
+                  vibrant non-toxic paints, and detail brushes for hours of
+                  screen-free fun!
                 </p>
               </div>
               <div className="pt-6 border-t border-slate-50 mt-6 flex justify-between items-center">
@@ -894,299 +910,198 @@ export default function HomePage() {
       </section>
 
       {/* ─── DYNAMIC THEME SECTIONS FROM DATABASE ─── */}
-      {(() => {
-        const activeThemeSections = themeSections
-          .map((sectionConfig) => ({
-            sectionConfig,
-            themeProducts: getThemeProducts(sectionConfig.themeKeyword || ""),
-          }))
-          .filter((item) => item.themeProducts.length > 0);
+      {activeThemeSections.map(({ sectionConfig, themeProducts }, index) => {
+        // Dynamic wave fill color matching the section rendered directly above it
+        const previousBgColor =
+          index === 0
+            ? "white"
+            : activeThemeSections[index - 1].sectionConfig.bgColor;
 
-        return activeThemeSections.map(
-          ({ sectionConfig, themeProducts }, index) => {
-            // Dynamic wave fill color matching the section rendered directly above it
-            const previousBgColor =
-              index === 0
-                ? "white"
-                : activeThemeSections[index - 1].sectionConfig.bgColor;
-
-            return (
-              <section
-                key={sectionConfig.id}
-                className="relative overflow-hidden"
-                style={{
-                  backgroundColor: sectionConfig.bgColor,
-                  color: sectionConfig.textColor,
-                  paddingTop: "80px",
-                  paddingBottom: "100px",
-                }}
+        return (
+          <section
+            key={sectionConfig.id}
+            className="relative overflow-hidden"
+            style={{
+              backgroundColor: sectionConfig.bgColor,
+              color: sectionConfig.textColor,
+              paddingTop: "80px",
+              paddingBottom: "100px",
+            }}
+          >
+            {/* Top Wavy Divider */}
+            <div
+              className="absolute top-0 left-0 w-full overflow-hidden"
+              style={{ lineHeight: 0 }}
+            >
+              <svg
+                className="relative block"
+                style={{ width: "calc(100% + 1.3px)", height: "60px" }}
+                fill={previousBgColor}
+                preserveAspectRatio="none"
+                viewBox="0 0 1200 120"
               >
-                {/* Top Wavy Divider */}
-                <div
-                  className="absolute top-0 left-0 w-full overflow-hidden"
-                  style={{ lineHeight: 0 }}
-                >
-                  <svg
-                    className="relative block"
-                    style={{ width: "calc(100% + 1.3px)", height: "60px" }}
-                    fill={previousBgColor}
-                    preserveAspectRatio="none"
-                    viewBox="0 0 1200 120"
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5,73.84-4.36,147.54,16.88,218.2,35.26,69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113,2,1200,0Z" />
+              </svg>
+            </div>
+
+            {/* Decorative Elements */}
+            {sectionConfig.decorations?.map((decor) => (
+              <React.Fragment key={decor.id}>
+                {decor.type === "emoji" ? (
+                  <span
+                    className={`absolute pointer-events-none select-none ${decor.className || ""}`}
+                    style={decor.style}
                   >
-                    <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5,73.84-4.36,147.54,16.88,218.2,35.26,69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113,2,1200,0Z" />
-                  </svg>
-                </div>
+                    {decor.content}
+                  </span>
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={decor.content}
+                    alt=""
+                    className={`absolute pointer-events-none ${decor.className || ""}`}
+                    style={decor.style}
+                    onError={(e: any) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                )}
+              </React.Fragment>
+            ))}
 
-                {/* Decorative Elements */}
-                {sectionConfig.decorations?.map((decor) => (
-                  <React.Fragment key={decor.id}>
-                    {decor.type === "emoji" ? (
-                      <span
-                        className={`absolute pointer-events-none select-none ${decor.className || ""}`}
-                        style={decor.style}
-                      >
-                        {decor.content}
-                      </span>
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={decor.content}
-                        alt=""
-                        className={`absolute pointer-events-none ${decor.className || ""}`}
-                        style={decor.style}
-                        onError={(e: any) => {
-                          e.target.style.display = "none";
-                        }}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-
-                {/* Section Layout */}
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
-                  {sectionConfig.titleLayout === "center" ? (
-                    /* Center Layout */
-                    <div className="text-center space-y-3">
-                      <h2
-                        className="font-bold text-3xl sm:text-4xl"
-                        style={{ color: sectionConfig.textColor }}
-                      >
-                        {sectionConfig.title}
-                      </h2>
-                      {sectionConfig.subtitle && (
-                        <p className="text-xs sm:text-sm font-medium opacity-90 max-w-lg mx-auto">
-                          {sectionConfig.subtitle}
-                        </p>
-                      )}
-                      <div className="pt-1 pb-6">
-                        <Link
-                          href={`/shop?theme=${encodeURIComponent(sectionConfig.themeKeyword || "")}`}
-                          className="inline-flex items-center space-x-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold bg-[#3C2A21] text-white shadow-md hover:bg-[#251A14] transition active:scale-95 cursor-pointer"
-                        >
-                          <span>Shop More</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </Link>
-                      </div>
-                      <ThemeProductCarousel
-                        themeProducts={themeProducts}
-                        onAddToCart={(p) => addToCart(p)}
-                      />
-                    </div>
-                  ) : sectionConfig.titleLayout === "left" ? (
-                    /* Left Title Layout */
-                    <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                      <div className="w-full md:w-1/3 text-center md:text-left shrink-0 space-y-3">
-                        <h2
-                          className="font-extrabold leading-tight text-3xl sm:text-4xl md:text-5xl"
-                          style={{ color: sectionConfig.textColor }}
-                        >
-                          {sectionConfig.title}
-                        </h2>
-                        {sectionConfig.subtitle && (
-                          <p className="text-xs sm:text-sm font-medium opacity-90 leading-relaxed">
-                            {sectionConfig.subtitle}
-                          </p>
-                        )}
-                        <div className="pt-2">
-                          <Link
-                            href={`/shop?theme=${encodeURIComponent(sectionConfig.themeKeyword || "")}`}
-                            className="inline-flex items-center space-x-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold bg-[#3C2A21] text-white shadow-md hover:bg-[#251A14] transition active:scale-95 cursor-pointer"
-                          >
-                            <span>Shop More</span>
-                            <ChevronRight className="w-4 h-4" />
-                          </Link>
-                        </div>
-                      </div>
-                      <div className="w-full md:w-2/3">
-                        <ThemeProductCarousel
-                          themeProducts={themeProducts}
-                          onAddToCart={(p) => addToCart(p)}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    /* Right Title Layout */
-                    <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-8 md:gap-12 text-center md:text-left">
-                      <div className="w-full md:w-1/3 text-center md:text-left shrink-0 space-y-3">
-                        <h2
-                          className="font-extrabold leading-tight text-3xl sm:text-4xl md:text-5xl"
-                          style={{ color: sectionConfig.textColor }}
-                        >
-                          {sectionConfig.title}
-                        </h2>
-                        {sectionConfig.subtitle && (
-                          <p className="text-xs sm:text-sm font-medium opacity-90 leading-relaxed">
-                            {sectionConfig.subtitle}
-                          </p>
-                        )}
-                        <div className="pt-2">
-                          <Link
-                            href={`/shop?theme=${encodeURIComponent(sectionConfig.themeKeyword || "")}`}
-                            className="inline-flex items-center space-x-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold bg-[#3C2A21] text-white shadow-md hover:bg-[#251A14] transition active:scale-95 cursor-pointer"
-                          >
-                            <span>Shop More</span>
-                            <ChevronRight className="w-4 h-4" />
-                          </Link>
-                        </div>
-                      </div>
-                      <div className="w-full md:w-2/3">
-                        <ThemeProductCarousel
-                          themeProducts={themeProducts}
-                          onAddToCart={(p) => addToCart(p)}
-                        />
-                      </div>
-                    </div>
+            {/* Section Layout */}
+            <div className="max-w-7xl mx-auto px-6 relative z-10">
+              {sectionConfig.titleLayout === "center" ? (
+                /* Center Layout */
+                <div className="text-center space-y-3">
+                  <h2
+                    className="font-bold text-3xl sm:text-4xl"
+                    style={{ color: sectionConfig.textColor }}
+                  >
+                    {sectionConfig.title}
+                  </h2>
+                  {sectionConfig.subtitle && (
+                    <p className="text-xs sm:text-sm font-medium opacity-90 max-w-lg mx-auto">
+                      {sectionConfig.subtitle}
+                    </p>
                   )}
-                </div>
-              </section>
-            );
-          },
-        );
-      })()}
-
-      {/* ─── AESTHETIC WAX CANDLES COLLECTION SHOWCASE ─── */}
-      {/* {candleProducts.length > 0 && (
-        <section className="bg-gradient-to-b from-amber-950 via-slate-900 to-amber-950 text-amber-100 py-16 px-6 relative overflow-hidden">
-          <div className="max-w-7xl mx-auto space-y-10 relative z-10">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-amber-900/60 pb-6">
-              <div>
-                <span className="inline-flex items-center space-x-1 text-xs font-bold text-amber-400 uppercase tracking-widest">
-                  <Flame className="w-4 h-4 text-amber-400" />
-                  <span>Product Line #2 • Ambient Lifestyle Collection</span>
-                </span>
-                <h2 className="text-3xl font-extrabold text-amber-50 mt-1">
-                  Aesthetic Scented Wax Candles
-                </h2>
-                <p className="text-xs text-amber-200/80 mt-1 max-w-lg">
-                  Hand-poured pure soy and beeswax candles infused with
-                  botanical essential oils for mood & ambient home decor.
-                </p>
-              </div>
-              <Link
-                href="/shop?productLineId=line-2"
-                className="px-6 py-2.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-extrabold text-xs rounded-full shadow transition"
-              >
-                Shop All Candles
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {candleProducts.map((candle) => (
-                <div
-                  key={candle.id}
-                  className="bg-slate-900/90 rounded-3xl border border-amber-900/50 p-5 soft-shadow hover:border-amber-400/50 transition flex flex-col justify-between group"
-                >
-                  <div>
-                    <Link href={`/product/${candle.id}`} className="block">
-                      <div className="relative rounded-2xl overflow-hidden mb-4 aspect-square bg-amber-950/40">
-                        {/* eslint-disable-next-line @next/next/no-img-element 
-                        <img
-                          src={candle.image}
-                          alt={candle.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                        />
-                        <div className="absolute top-3 left-3 flex flex-col space-y-1">
-                          <span className="px-3 py-1 bg-amber-500/90 backdrop-blur-xs text-amber-950 rounded-full text-[10px] font-extrabold shadow-sm">
-                            {candle.attributes?.Scent || candle.theme}
-                          </span>
-                          {candle.attributes?.["Burn Time"] && (
-                            <span className="px-3 py-1 bg-slate-950/80 backdrop-blur-xs text-amber-300 rounded-full text-[10px] font-bold border border-amber-800/40">
-                              ⏱️ {candle.attributes["Burn Time"]}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400">
-                        {candle.category}
-                      </span>
-                      <h3 className="font-extrabold text-base text-amber-100 group-hover:text-amber-300 transition line-clamp-1 mt-0.5">
-                        {candle.name}
-                      </h3>
+                  <div className="pt-1 pb-6">
+                    <Link
+                      href="/shop"
+                      className="inline-flex items-center space-x-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold bg-[#3C2A21] text-white shadow-md hover:bg-[#251A14] transition active:scale-95 cursor-pointer"
+                    >
+                      <span>Shop More</span>
+                      <ChevronRight className="w-4 h-4" />
                     </Link>
-
-                    <p className="text-xs text-amber-200/70 mt-2 line-clamp-2 leading-relaxed font-medium">
-                      {candle.description}
-                    </p>
-
-                    <p className="text-lg font-extrabold text-amber-400 mt-3">
-                      ₹{candle.price.toFixed(2)}
-                    </p>
                   </div>
-
-                  <button
-                    onClick={() => addToCart(candle)}
-                    className="w-full mt-5 py-3 bg-amber-500 hover:bg-amber-400 text-amber-950 font-extrabold rounded-2xl text-xs transition active:scale-95 shadow-md flex items-center justify-center space-x-2"
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>
-                      Add Candle to Basket — ₹{candle.price.toFixed(2)}
-                    </span>
-                  </button>
+                  <ThemeProductCarousel
+                    themeProducts={themeProducts}
+                    onAddToCart={(p) => addToCart(p)}
+                  />
                 </div>
-              ))}
+              ) : sectionConfig.titleLayout === "left" ? (
+                /* Left Title Layout */
+                <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                  <div className="w-full md:w-1/3 text-center md:text-left shrink-0 space-y-3">
+                    <h2
+                      className="font-extrabold leading-tight text-3xl sm:text-4xl md:text-5xl"
+                      style={{ color: sectionConfig.textColor }}
+                    >
+                      {sectionConfig.title}
+                    </h2>
+                    {sectionConfig.subtitle && (
+                      <p className="text-xs sm:text-sm font-medium opacity-90 leading-relaxed">
+                        {sectionConfig.subtitle}
+                      </p>
+                    )}
+                    <div className="pt-2">
+                      <Link
+                        href="/shop"
+                        className="inline-flex items-center space-x-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold bg-[#3C2A21] text-white shadow-md hover:bg-[#251A14] transition active:scale-95 cursor-pointer"
+                      >
+                        <span>Shop More</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="w-full md:w-2/3">
+                    <ThemeProductCarousel
+                      themeProducts={themeProducts}
+                      onAddToCart={(p) => addToCart(p)}
+                    />
+                  </div>
+                </div>
+              ) : (
+                /* Right Title Layout */
+                <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-8 md:gap-12 text-center md:text-left">
+                  <div className="w-full md:w-1/3 text-center md:text-left shrink-0 space-y-3">
+                    <h2
+                      className="font-extrabold leading-tight text-3xl sm:text-4xl md:text-5xl"
+                      style={{ color: sectionConfig.textColor }}
+                    >
+                      {sectionConfig.title}
+                    </h2>
+                    {sectionConfig.subtitle && (
+                      <p className="text-xs sm:text-sm font-medium opacity-90 leading-relaxed">
+                        {sectionConfig.subtitle}
+                      </p>
+                    )}
+                    <div className="pt-2">
+                      <Link
+                        href="/shop"
+                        className="inline-flex items-center space-x-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold bg-[#3C2A21] text-white shadow-md hover:bg-[#251A14] transition active:scale-95 cursor-pointer"
+                      >
+                        <span>Shop More</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="w-full md:w-2/3">
+                    <ThemeProductCarousel
+                      themeProducts={themeProducts}
+                      onAddToCart={(p) => addToCart(p)}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        </section>
-      )} */}
+          </section>
+        );
+      })}
+
+      {/* ─── EXPLORE ALL THEMES BUTTON ─── */}
+      <div className="flex justify-center py-10 relative z-20">
+        <Link
+          href="/shop"
+          className="text-white rounded-full font-extrabold shadow-xl uppercase tracking-wider inline-flex items-center space-x-2 px-8 py-3.5 text-xs sm:text-sm bg-gradient-to-r from-indigo-500 via-pink-500 to-amber-500 hover:opacity-95 transition transform hover:scale-105 active:scale-95 cursor-pointer border border-white/20"
+        >
+          <span>Explore All Themes</span>
+          <ArrowRight className="w-4 h-4 ml-1" />
+        </Link>
+      </div>
+
+
 
       {/* ─── BUNDLE PACKAGE PROMO BANNER ─── */}
       <section className="max-w-7xl mx-auto px-6 py-12">
         <div className="bg-gradient-to-r from-pink-200 via-yellow-200 to-sky-200 p-8 sm:p-10 rounded-3xl text-center space-y-4 shadow-sm border border-slate-100">
           <Sparkles className="w-10 h-10 text-pink-600 mx-auto" />
           <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-800">
-            Build Your Custom Craft & Candle Package
+            Build Your Custom Craft Package
           </h3>
           <p className="text-xs sm:text-sm text-slate-700 max-w-xl mx-auto">
-            Select any 3 or 5 items across figurines and candles to receive an
+            Select any 3 or 5 plaster figurines and POP painting kits to receive an
             automatic 10% to 15% discount at checkout.
           </p>
           <Link
             href="/bundles"
-            className="inline-block px-8 py-3.5 bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-xs rounded-full shadow transition"
+            className="inline-flex items-center space-x-2 px-8 py-3.5 bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-xs rounded-full shadow transition cursor-pointer"
           >
-            Start Building Package →
+            <span>Start Building Package</span>
+            <ArrowRight className="w-4 h-4 text-pink-400" />
           </Link>
         </div>
       </section>
-
-      {/* ─── EXPLORE ALL THEMES BUTTON ─── */}
-      <div
-        className="flex justify-center relative z-20 pb-16"
-        style={{ marginTop: "-32px" }}
-      >
-        <Link
-          href="/shop"
-          className="text-white rounded-full font-bold shadow-2xl uppercase tracking-wide inline-block text-center transition hover:scale-105"
-          style={{
-            background: "linear-gradient(90deg, #818CF8, #F472B6, #FB923C)",
-            padding: "20px 48px",
-            fontSize: "20px",
-          }}
-        >
-          Explore All Themes
-        </Link>
-      </div>
     </div>
   );
 }
@@ -1236,21 +1151,23 @@ function ThemeProductCard({
       <div>
         {/* Badges Header */}
         <div className="flex flex-wrap items-center justify-between gap-1.5 mb-3">
-          <span className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200/60 shadow-2xs">
-            {product.ageGroup || "Ages 4+"}
-          </span>
-          {product.badge && product.badge !== "None" && (
-            <span
-              className={`text-[10px] sm:text-xs font-extrabold px-2.5 py-0.5 rounded-full shadow-2xs text-white ${
-                product.badge.toLowerCase().includes("new")
-                  ? "bg-emerald-500 border border-emerald-400"
-                  : "bg-gradient-to-r from-amber-500 to-rose-500 border border-amber-400"
-              }`}
-            >
-              {product.badge.toLowerCase().includes("new") ? "✨ " : "🔥 "}
-              {product.badge}
+          {product.ageGroup && product.ageGroup.trim() !== "" && (
+            <span className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200/60 shadow-2xs">
+              {product.ageGroup}
             </span>
           )}
+          <div className="flex flex-wrap items-center gap-1">
+            {(product.isNewLaunch || Boolean(product.badge?.toLowerCase().includes("new"))) && (
+              <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 shadow-2xs uppercase tracking-wider">
+                ✨ New Launch
+              </span>
+            )}
+            {(product.isSellingFast || Boolean(product.badge?.toLowerCase().includes("selling"))) && (
+              <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-2xs uppercase tracking-wider">
+                🔥 Selling Fast
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Product Image Container */}
@@ -1284,7 +1201,7 @@ function ThemeProductCard({
       </div>
 
       {/* Optimistic Add to Cart & Quantity Stepper */}
-      <OptimisticAddToCart product={product} />
+      <OptimisticAddToCart product={product} variant="dark" />
     </div>
   );
 }

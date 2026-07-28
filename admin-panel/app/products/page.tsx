@@ -35,6 +35,8 @@ interface Product {
   stockQuantity?: number;
   isOrderingEnabled?: boolean;
   badge?: string;
+  isNewLaunch?: boolean;
+  isSellingFast?: boolean;
   size?: string;
   material?: string;
   isVisible?: boolean;
@@ -135,7 +137,8 @@ export default function ProductsManagerPage() {
   const [ageGroup, setAgeGroup] = useState("Ages 4+");
   const [isNonToxic, setIsNonToxic] = useState(true);
   const [isOrderingEnabled, setIsOrderingEnabled] = useState(true);
-  const [badge, setBadge] = useState<string>("None");
+  const [isNewLaunch, setIsNewLaunch] = useState<boolean>(false);
+  const [isSellingFast, setIsSellingFast] = useState<boolean>(false);
   const [size, setSize] = useState<string>("");
   const [material, setMaterial] = useState<string>("");
   const [isVisible, setIsVisible] = useState<boolean>(true);
@@ -203,10 +206,11 @@ export default function ProductsManagerPage() {
     setProductLineId(initialLine);
     setCategory(initialCats[0] || "General");
     setTheme(initialThemes[0] || "General");
-    setAgeGroup("Ages 4+");
+    setAgeGroup("");
     setIsNonToxic(true);
     setIsOrderingEnabled(true);
-    setBadge("None");
+    setIsNewLaunch(false);
+    setIsSellingFast(false);
     setSize("");
     setMaterial("");
     setIsVisible(true);
@@ -234,7 +238,8 @@ export default function ProductsManagerPage() {
     setIsOrderingEnabled(
       p.isOrderingEnabled !== undefined ? p.isOrderingEnabled : true,
     );
-    setBadge(p.badge || "None");
+    setIsNewLaunch(p.isNewLaunch !== undefined ? Boolean(p.isNewLaunch) : Boolean(p.badge?.includes("New")));
+    setIsSellingFast(p.isSellingFast !== undefined ? Boolean(p.isSellingFast) : Boolean(p.badge?.includes("Selling")));
     setSize(p.size || "");
     setMaterial(p.material || "");
     setIsVisible(p.isVisible !== false);
@@ -264,7 +269,8 @@ export default function ProductsManagerPage() {
     setIsOrderingEnabled(
       p.isOrderingEnabled !== undefined ? p.isOrderingEnabled : true,
     );
-    setBadge(p.badge || "None");
+    setIsNewLaunch(p.isNewLaunch !== undefined ? Boolean(p.isNewLaunch) : Boolean(p.badge?.includes("New")));
+    setIsSellingFast(p.isSellingFast !== undefined ? Boolean(p.isSellingFast) : Boolean(p.badge?.includes("Selling")));
     setSize(p.size || "");
     setMaterial(p.material || "");
     setIsVisible(p.isVisible !== false);
@@ -412,7 +418,8 @@ export default function ProductsManagerPage() {
       ageGroup,
       isNonToxic,
       isOrderingEnabled,
-      badge: badge === "None" ? undefined : badge,
+      isNewLaunch,
+      isSellingFast,
       size: size.trim() || undefined,
       material: material.trim() || undefined,
       isVisible,
@@ -939,20 +946,44 @@ export default function ProductsManagerPage() {
               <h4 className="font-extrabold text-xs text-slate-800 border-b pb-1">
                 Badges & Specifications
               </h4>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Card Corner Badge
+                    Card Corner Badges
                   </label>
-                  <select
-                    value={badge}
-                    onChange={(e) => setBadge(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border rounded-xl text-xs font-bold text-slate-800"
-                  >
-                    <option value="None">None</option>
-                    <option value="New Launch">✨ New Launch</option>
-                    <option value="Selling Fast">🔥 Selling Fast</option>
-                  </select>
+                  <div className="space-y-1 pt-1">
+                    <label className="flex items-center space-x-2 text-xs font-bold text-slate-800 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isNewLaunch}
+                        onChange={(e) => setIsNewLaunch(e.target.checked)}
+                        className="rounded text-pink-500"
+                      />
+                      <span>✨ New Launch</span>
+                    </label>
+                    <label className="flex items-center space-x-2 text-xs font-bold text-slate-800 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isSellingFast}
+                        onChange={(e) => setIsSellingFast(e.target.checked)}
+                        className="rounded text-pink-500"
+                      />
+                      <span>🔥 Selling Fast</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Age Group / Tag (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={ageGroup}
+                    onChange={(e) => setAgeGroup(e.target.value)}
+                    placeholder="e.g. Ages 4+ or Ages 3+"
+                    className="w-full px-3 py-2 bg-white border rounded-xl text-xs font-medium"
+                  />
                 </div>
 
                 <div>

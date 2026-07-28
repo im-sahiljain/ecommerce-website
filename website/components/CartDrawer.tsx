@@ -12,6 +12,7 @@ import {
   ArrowRight,
   MessageCircle,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL } from "../config/api";
 import WhatsappOrderModal from "./WhatsappOrderModal";
 
@@ -51,16 +52,33 @@ export default function CartDrawer() {
       .catch(() => {});
   }, []);
 
-  if (!isCartOpen) return null;
-
   const subtotal = Math.round(totalPrice);
   const onlineShipping = 250;
   const onlineTotal = subtotal + onlineShipping;
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex justify-end bg-black/30 backdrop-blur-xs">
-        <div className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300">
+      <AnimatePresence>
+        {isCartOpen && (
+          <div className="fixed inset-0 z-[90] flex justify-end">
+            {/* Smooth Backdrop Fade */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              onClick={() => setIsCartOpen(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-xs cursor-pointer"
+            />
+
+            {/* Smooth Cart Panel Slide-In & Slide-Out */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 300 }}
+              className="relative z-10 bg-white w-full max-w-md h-full shadow-2xl flex flex-col justify-between"
+            >
           {/* Header */}
           <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-pink-50/50">
             <div className="flex items-center space-x-2">
@@ -207,8 +225,10 @@ export default function CartDrawer() {
               )}
             </div>
           )}
-        </div>
-      </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* WhatsApp Delivery Address Modal */}
       <WhatsappOrderModal

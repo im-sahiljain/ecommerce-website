@@ -14,6 +14,7 @@ import {
   Sparkles,
   Menu,
   X,
+  ArrowRight,
 } from "lucide-react";
 
 import { API_BASE_URL } from "../config/api";
@@ -181,9 +182,10 @@ export default function Navbar() {
                           <Link
                             href={`/shop?productLineId=${line.id}`}
                             onClick={() => setIsProductsOpen(false)}
-                            className="inline-flex items-center text-xs font-extrabold text-pink-600 hover:text-pink-700 py-1 transition"
+                            className="inline-flex items-center space-x-1 text-xs font-extrabold text-pink-600 hover:text-pink-700 py-1 transition"
                           >
-                            View All {line.name} →
+                            <span>View All {line.name}</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
                           </Link>
                           {subCats.map((cat) => (
                             <Link

@@ -113,6 +113,8 @@ function mapRowToProduct(r: any): Product {
     stockQuantity: r.stock_quantity ? Number(r.stock_quantity) : 10,
     isOrderingEnabled: r.is_ordering_enabled !== false,
     badge: r.badge || undefined,
+    isNewLaunch: r.is_new_launch !== undefined && r.is_new_launch !== null ? Boolean(r.is_new_launch) : (r.badge ? r.badge.includes("New") : false),
+    isSellingFast: r.is_selling_fast !== undefined && r.is_selling_fast !== null ? Boolean(r.is_selling_fast) : (r.badge ? r.badge.includes("Selling") : false),
     size: r.size || undefined,
     material: r.material || undefined,
     isVisible: r.is_visible !== false,
@@ -229,6 +231,8 @@ export class Database {
         ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS is_whatsapp_enabled BOOLEAN DEFAULT true;
         ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS site_title VARCHAR(255);
         ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS default_meta_description TEXT;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_new_launch BOOLEAN DEFAULT false;
+        ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_selling_fast BOOLEAN DEFAULT false;
       `).catch((err) => console.warn("⚠️ Create site_settings table notice:", err.message));
 
       console.log("⚡ Database initialized — all operations will query PostgreSQL directly");
@@ -278,8 +282,8 @@ export class Database {
     if (this.pgPool) {
       try {
         await this.pgPool.query(`
-          INSERT INTO public.products (id, sku, name, slug, price, original_price, cost_price, theme, category, age_group, product_line_id, is_non_toxic, image, images, description, in_stock, stock_quantity, is_ordering_enabled, badge, size, material, is_visible, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
+          INSERT INTO public.products (id, sku, name, slug, price, original_price, cost_price, theme, category, age_group, product_line_id, is_non_toxic, image, images, description, in_stock, stock_quantity, is_ordering_enabled, badge, size, material, is_visible, is_new_launch, is_selling_fast, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
           ON CONFLICT (id) DO NOTHING;
         `, [
           newProduct.id, newProduct.sku || newProduct.id, newProduct.name, newProduct.slug || newProduct.id,
@@ -290,7 +294,7 @@ export class Database {
           newProduct.description || "", newProduct.inStock !== false,
           newProduct.stockQuantity || 10, newProduct.isOrderingEnabled !== false,
           newProduct.badge || null, newProduct.size || null, newProduct.material || null,
-          newProduct.isVisible !== false,
+          newProduct.isVisible !== false, Boolean(newProduct.isNewLaunch), Boolean(newProduct.isSellingFast),
           newProduct.createdAt, newProduct.updatedAt,
         ]);
       } catch (err: any) {
@@ -315,8 +319,9 @@ export class Database {
           theme = $5, category = $6, age_group = $7, product_line_id = $8,
           is_non_toxic = $9, image = $10, images = $11, description = $12,
           in_stock = $13, stock_quantity = $14, is_ordering_enabled = $15, updated_at = $16,
-          slug = $17, sku = $18, badge = $19, size = $20, material = $21, is_visible = $22
-        WHERE id = $23
+          slug = $17, sku = $18, badge = $19, size = $20, material = $21, is_visible = $22,
+          is_new_launch = $23, is_selling_fast = $24
+        WHERE id = $25
       `, [
         merged.name, merged.price, merged.originalPrice || null, merged.costPrice || null,
         merged.theme || "", merged.category || "", merged.ageGroup || "",
@@ -326,7 +331,7 @@ export class Database {
         merged.stockQuantity || 10, merged.isOrderingEnabled !== false,
         merged.updatedAt, merged.slug || merged.id, merged.sku || merged.id,
         merged.badge || null, merged.size || null, merged.material || null,
-        merged.isVisible !== false, id,
+        merged.isVisible !== false, Boolean(merged.isNewLaunch), Boolean(merged.isSellingFast), id,
       ]);
       return merged;
     } catch (err: any) {
@@ -466,8 +471,23 @@ export class Database {
         icon: updates.icon || r.icon || "🎨",
         isVisible: updates.isVisible !== undefined ? updates.isVisible : (r.is_visible !== false),
       };
+      const oldName = r.name;
       await this.pgPool.query(`UPDATE public.themes SET name = $1, slug = $2, description = $3, icon = $4, is_visible = $5 WHERE id = $6`,
         [merged.name, merged.slug, merged.description || "", merged.icon, merged.isVisible !== false, id]);
+
+      // Cascade name updates to products & homepage_sections if theme name was changed
+      if (updates.name && updates.name !== oldName) {
+        await this.pgPool.query(
+          `UPDATE public.products SET theme = $1 WHERE theme = $2 OR theme ILIKE $3`,
+          [merged.name, oldName, `%${oldName}%`]
+        ).catch(() => null);
+
+        await this.pgPool.query(
+          `UPDATE public.homepage_sections SET title = $1, theme_keyword = $1 WHERE theme_keyword = $2 OR title = $2 OR theme_keyword ILIKE $3`,
+          [merged.name, oldName, `%${oldName}%`]
+        ).catch(() => null);
+      }
+
       return merged;
     } catch (err: any) {
       console.warn("⚠️ PG updateTheme error:", err.message);

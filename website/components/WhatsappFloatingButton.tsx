@@ -41,14 +41,9 @@ export default function WhatsappFloatingButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20ba5a] text-white h-14 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center px-4 space-x-2 group cursor-pointer border-2 border-white/20"
+      className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20ba5a] text-white w-14 h-14 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group cursor-pointer border-2 border-white/30"
     >
-      <div className="flex-shrink-0 flex items-center justify-center w-7 h-7">
-        <MessageCircle className="w-7 h-7 text-white stroke-[2.2]" />
-      </div>
-      <span className="max-w-0 group-hover:max-w-xs overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap text-xs font-extrabold tracking-wide">
-        Chat with us
-      </span>
+      <MessageCircle className="w-7 h-7 text-white stroke-[2.2] shrink-0" />
     </a>
   );
 }
