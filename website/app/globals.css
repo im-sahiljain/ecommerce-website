@@ -19,3 +19,28 @@ body {
   box-shadow: 0px 15px 35px rgba(30, 41, 59, 0.1);
   transform: translateY(-3px);
 }
+
+/* Global Sleek Scrollbar for Full Website */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(244, 114, 182, 0.5);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(236, 72, 153, 0.8);
+}
+
+/* Firefox Global Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(244, 114, 182, 0.5) transparent;
+}

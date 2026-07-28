@@ -82,13 +82,25 @@ export default function Navbar() {
       .catch(() => {});
   }, []);
 
+  const [isBannerVisible, setIsBannerVisible] = useState(true);
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm font-quicksand">
-      <div className="bg-gradient-to-r from-yellow-100 via-pink-100 to-sky-100 py-2 text-center text-xs font-bold text-[#3C2A21]">
-        {/* ✨ Unleash Creative Magic with <span className="font-extrabold text-pink-600">Kits & Craft</span>! Free Shipping on plaster shape painting sets & soy candles over ₹499! 🎨🚚 */}
-        🎉 Launching{" "}
-        <span className="font-extrabold text-pink-600">Kits & Craft </span>
-      </div>
+      {isBannerVisible && (
+        <div className="bg-gradient-to-r from-yellow-100 via-pink-100 to-sky-100 py-2 px-4 text-center text-xs font-bold text-[#3C2A21] relative flex items-center justify-center">
+          <span>
+            🎉 Launching{" "}
+            <span className="font-extrabold text-pink-600">Kits & Craft</span>
+          </span>
+          <button
+            onClick={() => setIsBannerVisible(false)}
+            aria-label="Close announcement banner"
+            className="absolute right-3 p-1 rounded-full text-slate-500 hover:text-slate-800 hover:bg-black/5 transition cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Main Header Container */}
       <div className="container mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">

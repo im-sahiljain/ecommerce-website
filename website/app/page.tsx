@@ -55,6 +55,8 @@ interface ThemeSectionConfig {
   id: string;
   title: React.ReactNode;
   subtitle?: string;
+  displayTitle?: React.ReactNode;
+  displayDescription?: string;
   themeKeyword: string;
   titleLayout: "left" | "center" | "right";
   bgColor: string;
@@ -154,7 +156,8 @@ const DEFAULT_HOMEPAGE_SECTIONS: ThemeSectionConfig[] = [
   {
     id: "sec-garden",
     title: "Secret Garden (Floral)",
-    subtitle: "Beautiful botanical shapes, floral plaster crafts, and nature art.",
+    subtitle:
+      "Beautiful botanical shapes, floral plaster crafts, and nature art.",
     themeKeyword: "Garden",
     titleLayout: "center",
     bgColor: "#D1E7D2",
@@ -207,7 +210,8 @@ const DEFAULT_HOMEPAGE_SECTIONS: ThemeSectionConfig[] = [
         Magic
       </>
     ),
-    subtitle: "Enchanted castles, magical unicorns, and fantasy plaster painting sets.",
+    subtitle:
+      "Enchanted castles, magical unicorns, and fantasy plaster painting sets.",
     themeKeyword: "Fairytale",
     titleLayout: "left",
     bgColor: "#F1E4F7",
@@ -253,7 +257,8 @@ const DEFAULT_HOMEPAGE_SECTIONS: ThemeSectionConfig[] = [
         Kingdom
       </>
     ),
-    subtitle: "Lions, squirrels, owls, foxes & safari animal plaster figurines for kids.",
+    subtitle:
+      "Lions, squirrels, owls, foxes & safari animal plaster figurines for kids.",
     themeKeyword: "Wild",
     titleLayout: "right",
     bgColor: "#F9E6C3",
@@ -315,6 +320,7 @@ export default function HomePage() {
   const [dbThemeSections, setDbThemeSections] = useState<ThemeSectionConfig[]>(
     [],
   );
+  const [fetchedThemes, setFetchedThemes] = useState<any[]>([]);
 
   const products = reduxProducts.length > 0 ? reduxProducts : fetchedProducts;
 
@@ -332,14 +338,25 @@ export default function HomePage() {
         if (Array.isArray(data) && data.length > 0) setDbThemeSections(data);
       })
       .catch(() => {});
+
+    fetch(`${API_BASE_URL}/api/themes`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setFetchedThemes(data);
+      })
+      .catch(() => {});
   }, []);
 
   const getThemeProducts = (themeKeyword: string): Product[] => {
+    if (!themeKeyword) return [];
+    const kw = themeKeyword.toLowerCase().trim();
     return products
       .filter(
         (p) =>
           p.isVisible !== false &&
-          p.theme.toLowerCase().includes(themeKeyword.toLowerCase())
+          p.theme &&
+          (p.theme.toLowerCase().includes(kw) ||
+            kw.includes(p.theme.toLowerCase())),
       )
       .sort((a, b) => {
         const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -353,12 +370,38 @@ export default function HomePage() {
 
   const activeThemeSections = useMemo(() => {
     return themeSections
-      .map((sectionConfig) => ({
-        sectionConfig,
-        themeProducts: getThemeProducts(sectionConfig.themeKeyword || ""),
-      }))
+      .map((sectionConfig) => {
+        const keyword = sectionConfig.themeKeyword || "";
+        const matchedTheme = fetchedThemes.find(
+          (t) =>
+            t.id === sectionConfig.id ||
+            t.name.toLowerCase() === keyword.toLowerCase() ||
+            t.name.toLowerCase().includes(keyword.toLowerCase()) ||
+            keyword.toLowerCase().includes(t.name.toLowerCase()),
+        );
+
+        const displayTitle = matchedTheme
+          ? matchedTheme.name
+          : sectionConfig.title;
+        const displayDescription =
+          matchedTheme && matchedTheme.description
+            ? matchedTheme.description
+            : sectionConfig.subtitle;
+
+        const queryKeyword = matchedTheme ? matchedTheme.name : keyword;
+        const themeProducts = getThemeProducts(queryKeyword);
+
+        return {
+          sectionConfig: {
+            ...sectionConfig,
+            displayTitle,
+            displayDescription,
+          },
+          themeProducts,
+        };
+      })
       .filter((item) => item.themeProducts.length > 0);
-  }, [themeSections, products]);
+  }, [themeSections, products, fetchedThemes]);
 
   // const candleProducts = products.filter(
   //   (p) =>
@@ -688,8 +731,6 @@ export default function HomePage() {
     setTouchStartX(null);
   };
 
-
-
   return (
     <div style={{ fontFamily: "'Quicksand', sans-serif", color: "#333" }}>
       {/* ─── HERO CAROUSEL SECTION ─── */}
@@ -797,15 +838,15 @@ export default function HomePage() {
               <span className="font-bold text-[#3C2A21]">
                 POP painting kits
               </span>
-              , ready-to-paint plaster figurines, and creative craft activity kits
-              in India. Ignite your child’s imagination with child-safe, creative
-              craft activity boxes, screen-free painting sets, and fun plaster
-              figurines!
+              , ready-to-paint plaster figurines, and creative craft activity
+              kits in India. Ignite your child’s imagination with child-safe,
+              creative craft activity boxes, screen-free painting sets, and fun
+              plaster figurines!
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
-            {/* Card 1: Plaster Kits */}
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
+            {/* Card 1: Plaster Kits 
             <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center text-2xl group-hover:scale-105 transition transform">
@@ -828,7 +869,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Card 2: DIY Painting Sets */}
+            {/* Card 2: DIY Painting Sets 
             <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-2xl group-hover:scale-105 transition transform">
@@ -851,7 +892,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Card 3: Birthday Return Gifts / Custom Bundles */}
+            {/* Card 3: Birthday Return Gifts / Custom Bundles 
             <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center text-2xl group-hover:scale-105 transition transform">
@@ -873,41 +914,12 @@ export default function HomePage() {
                 <ChevronRight className="w-4 h-4 text-sky-500 group-hover:translate-x-1 transition transform" />
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 
       {/* ─── WHY Kits and Craft ─── */}
-      <section style={{ backgroundColor: "white", padding: "64px 0" }}>
-        <div className="max-w-7xl mx-auto px-6">
-          <h2
-            className="text-center font-bold mb-12"
-            style={{ fontSize: "30px", color: "#3C2A21" }}
-          >
-            Why Kits and Craft?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <WhyCard
-              bg="#EFF6FF"
-              iconSrc="https://lh3.googleusercontent.com/aida-public/AB6AXuC05Fn2RrTeXXbi8ozDNSOEp966CdSel8NRXnfqnE_9L4NlK7VPfAnROXfVs27_LXYlXroCvXOKBtRvldzWFIKIOXjMeG-vykL9icHpUz1VPoqjgP4VRZQkfydZohsCGV0-Y-wgmD8RgcJJyPgDtNxJ-FrCfUXzGgppZfHLwG3-tN9CqL9oSFa1afF9CDibssiTAcWqya6Rxz1uSEQhlK-XhhUhO5-M5QrwnPj31iav7vovFVgnOAGdgfwi5bW4IPWFwXQfqC_wbEg"
-              title="Cognitive Growth"
-              desc="Boosts creativity, focus, and fine motor skills through art."
-            />
-            <WhyCard
-              bg="#FEFCE8"
-              iconSrc="https://lh3.googleusercontent.com/aida-public/AB6AXuA1NgK7ZecsjWENFgT54D5Cv7_WmCJQmXcjVv2vDTOohUD08d6ixK0W8VSCjBec872DQ56yJRCZWjM3nMkcFbfrjffEBuqgP62_b3wdF1ffUSUaYQR2bWbjGsv5LqTUe4ePnMWCIgqEwQtyDbCtl00mUNAbqsSkubAEACbLuU0NWjKMcosJIMVAO6No4bjom5d37epqn_B2eymBS-0CFmPkuIIP6yljbIcbt0OLzKeSVZgWR4_BTe5Zipc8EKN83XAdX72AcsKH18A"
-              title="Screen-Free Fun"
-              desc="Engaging, hands-on activity that keeps kids entertained."
-            />
-            <WhyCard
-              bg="#FEF2F2"
-              iconSrc="https://lh3.googleusercontent.com/aida-public/AB6AXuD-C7wnjb5D37c9ELK5XHJi86GQiHBzVQLW8RWz-gdqnMaiUrNUTdJpLkh5Z5nj0Q4-pfO_PX-yYZLgGq3VE6jjxtDZLjAQqp_Jt1cTRjszStJusR7U9b71bICgoXDP_DouaMmNbyV-g0htz3vzAvPTdsXS6ChxzsfF5ebH9KHSRUJaDAf2zyCuMUy-GqgQjvYQYu3eNvSihMnFVN5iW-QiHzcowhy97nhagNPl36Xbim3Xgrcr2oIdlioZDZNvIFjAYmvZkSIvD3M"
-              title="Travel-Friendly Hobby"
-              desc="Portable kits perfect for vacations or quiet time anywhere."
-            />
-          </div>
-        </div>
-      </section>
+      <WhySection />
 
       {/* ─── DYNAMIC THEME SECTIONS FROM DATABASE ─── */}
       {activeThemeSections.map(({ sectionConfig, themeProducts }, index) => {
@@ -978,11 +990,13 @@ export default function HomePage() {
                     className="font-bold text-3xl sm:text-4xl"
                     style={{ color: sectionConfig.textColor }}
                   >
-                    {sectionConfig.title}
+                    {sectionConfig.displayTitle || sectionConfig.title}
                   </h2>
-                  {sectionConfig.subtitle && (
+                  {(sectionConfig.displayDescription ||
+                    sectionConfig.subtitle) && (
                     <p className="text-xs sm:text-sm font-medium opacity-90 max-w-lg mx-auto">
-                      {sectionConfig.subtitle}
+                      {sectionConfig.displayDescription ||
+                        sectionConfig.subtitle}
                     </p>
                   )}
                   <div className="pt-1 pb-6">
@@ -1007,11 +1021,13 @@ export default function HomePage() {
                       className="font-extrabold leading-tight text-3xl sm:text-4xl md:text-5xl"
                       style={{ color: sectionConfig.textColor }}
                     >
-                      {sectionConfig.title}
+                      {sectionConfig.displayTitle || sectionConfig.title}
                     </h2>
-                    {sectionConfig.subtitle && (
+                    {(sectionConfig.displayDescription ||
+                      sectionConfig.subtitle) && (
                       <p className="text-xs sm:text-sm font-medium opacity-90 leading-relaxed">
-                        {sectionConfig.subtitle}
+                        {sectionConfig.displayDescription ||
+                          sectionConfig.subtitle}
                       </p>
                     )}
                     <div className="pt-2">
@@ -1039,11 +1055,13 @@ export default function HomePage() {
                       className="font-extrabold leading-tight text-3xl sm:text-4xl md:text-5xl"
                       style={{ color: sectionConfig.textColor }}
                     >
-                      {sectionConfig.title}
+                      {sectionConfig.displayTitle || sectionConfig.title}
                     </h2>
-                    {sectionConfig.subtitle && (
+                    {(sectionConfig.displayDescription ||
+                      sectionConfig.subtitle) && (
                       <p className="text-xs sm:text-sm font-medium opacity-90 leading-relaxed">
-                        {sectionConfig.subtitle}
+                        {sectionConfig.displayDescription ||
+                          sectionConfig.subtitle}
                       </p>
                     )}
                     <div className="pt-2">
@@ -1080,8 +1098,6 @@ export default function HomePage() {
         </Link>
       </div>
 
-
-
       {/* ─── BUNDLE PACKAGE PROMO BANNER ─── */}
       <section className="max-w-7xl mx-auto px-6 py-12">
         <div className="bg-gradient-to-r from-pink-200 via-yellow-200 to-sky-200 p-8 sm:p-10 rounded-3xl text-center space-y-4 shadow-sm border border-slate-100">
@@ -1090,8 +1106,8 @@ export default function HomePage() {
             Build Your Custom Craft Package
           </h3>
           <p className="text-xs sm:text-sm text-slate-700 max-w-xl mx-auto">
-            Select any 3 or 5 plaster figurines and POP painting kits to receive an
-            automatic 10% to 15% discount at checkout.
+            Select any 3 or 5 plaster figurines and POP painting kits to receive
+            an automatic 10% to 15% discount at checkout.
           </p>
           <Link
             href="/bundles"
@@ -1120,21 +1136,123 @@ function WhyCard({
 }) {
   return (
     <div
-      className="p-8 rounded-3xl text-center flex flex-col items-center"
+      className="p-6 sm:p-8 rounded-3xl text-center flex flex-col items-center justify-between h-full space-y-4"
       style={{ backgroundColor: bg }}
     >
-      <div className="w-20 h-20 mb-6 bg-white rounded-full flex items-center justify-center shadow-sm">
+      <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm overflow-hidden shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={iconSrc} alt={title} className="w-12 h-12 object-contain" />
+        <img
+          src={iconSrc}
+          alt={title}
+          className="w-full h-full object-contain p-1"
+        />
       </div>
-      <h3
-        className="font-bold mb-3"
-        style={{ fontSize: "20px", color: "#3C2A21" }}
-      >
-        {title}
-      </h3>
-      <p style={{ color: "#4B5563", fontSize: "16px" }}>{desc}</p>
+      <div>
+        <h3
+          className="font-bold mb-2 text-lg sm:text-xl"
+          style={{ color: "#3C2A21" }}
+        >
+          {title}
+        </h3>
+        <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">
+          {desc}
+        </p>
+      </div>
     </div>
+  );
+}
+
+function WhySection() {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
+
+  const cards = [
+    {
+      bg: "#EFF6FF",
+      iconSrc:
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuC05Fn2RrTeXXbi8ozDNSOEp966CdSel8NRXnfqnE_9L4NlK7VPfAnROXfVs27_LXYlXroCvXOKBtRvldzWFIKIOXjMeG-vykL9icHpUz1VPoqjgP4VRZQkfydZohsCGV0-Y-wgmD8RgcJJyPgDtNxJ-FrCfUXzGgppZfHLwG3-tN9CqL9oSFa1afF9CDibssiTAcWqya6Rxz1uSEQhlK-XhhUhO5-M5QrwnPj31iav7vovFVgnOAGdgfwi5bW4IPWFwXQfqC_wbEg",
+      title: "Cognitive Growth",
+      desc: "Boosts creativity, focus, and fine motor skills through art.",
+    },
+    {
+      bg: "#FEFCE8",
+      iconSrc:
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuA1NgK7ZecsjWENFgT54D5Cv7_WmCJQmXcjVv2vDTOohUD08d6ixK0W8VSCjBec872DQ56yJRCZWjM3nMkcFbfrjffEBuqgP62_b3wdF1ffUSUaYQR2bWbjGsv5LqTUe4ePnMWCIgqEwQtyDbCtl00mUNAbqsSkubAEACbLuU0NWjKMcosJIMVAO6No4bjom5d37epqn_B2eymBS-0CFmPkuIIP6yljbIcbt0OLzKeSVZgWR4_BTe5Zipc8EKN83XAdX72AcsKH18A",
+      title: "Screen-Free Fun",
+      desc: "Engaging, hands-on activity that keeps kids entertained.",
+    },
+    {
+      bg: "#FEF2F2",
+      iconSrc:
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuD-C7wnjb5D37c9ELK5XHJi86GQiHBzVQLW8RWz-gdqnMaiUrNUTdJpLkh5Z5nj0Q4-pfO_PX-yYZLgGq3VE6jjxtDZLjAQqp_Jt1cTRjszStJusR7U9b71bICgoXDP_DouaMmNbyV-g0htz3vzAvPTdsXS6ChxzsfF5ebH9KHSRUJaDAf2zyCuMUy-GqgQjvYQYu3eNvSihMnFVN5iW-QiHzcowhy97nhagNPl36Xbim3Xgrcr2oIdlioZDZNvIFjAYmvZkSIvD3M",
+      title: "Travel-Friendly Hobby",
+      desc: "Portable kits perfect for vacations or quiet time anywhere.",
+    },
+  ];
+
+  return (
+    <section style={{ backgroundColor: "white", padding: "64px 0" }}>
+      <div className="max-w-7xl mx-auto px-6 relative">
+        <h2
+          className="text-center font-bold mb-10"
+          style={{ fontSize: "30px", color: "#3C2A21" }}
+        >
+          Why Kits and Craft?
+        </h2>
+
+        {/* Carousel Container */}
+        <div className="relative group">
+          {/* Scroll Left Arrow (Visible on Mobile) */}
+          <button
+            onClick={scrollLeft}
+            aria-label="Scroll left"
+            className="md:hidden absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white/90 shadow-md border border-slate-200 text-[#3C2A21] hover:bg-white active:scale-95 cursor-pointer -ml-3"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          {/* Scroll Right Arrow (Visible on Mobile) */}
+          <button
+            onClick={scrollRight}
+            aria-label="Scroll right"
+            className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white/90 shadow-md border border-slate-200 text-[#3C2A21] hover:bg-white active:scale-95 cursor-pointer -mr-3"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+
+          {/* Scrollable Track */}
+          <div
+            ref={scrollRef}
+            className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory sleek-scrollbar pb-4 md:pb-0 px-1"
+          >
+            {cards.map((card, idx) => (
+              <div
+                key={idx}
+                className="w-[85vw] max-w-[320px] sm:w-[340px] md:w-auto shrink-0 md:shrink snap-center"
+              >
+                <WhyCard
+                  bg={card.bg}
+                  iconSrc={card.iconSrc}
+                  title={card.title}
+                  desc={card.desc}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -1157,12 +1275,14 @@ function ThemeProductCard({
             </span>
           )}
           <div className="flex flex-wrap items-center gap-1">
-            {(product.isNewLaunch || Boolean(product.badge?.toLowerCase().includes("new"))) && (
+            {(product.isNewLaunch ||
+              Boolean(product.badge?.toLowerCase().includes("new"))) && (
               <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 shadow-2xs uppercase tracking-wider">
                 ✨ New Launch
               </span>
             )}
-            {(product.isSellingFast || Boolean(product.badge?.toLowerCase().includes("selling"))) && (
+            {(product.isSellingFast ||
+              Boolean(product.badge?.toLowerCase().includes("selling"))) && (
               <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-2xs uppercase tracking-wider">
                 🔥 Selling Fast
               </span>

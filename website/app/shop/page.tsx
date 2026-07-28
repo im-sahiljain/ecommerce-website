@@ -123,7 +123,9 @@ function ShopPageContent() {
       id: pack.id,
       name: pack.name,
       price: Number(pack.price),
-      originalPrice: pack.originalPrice ? Number(pack.originalPrice) : undefined,
+      originalPrice: pack.originalPrice
+        ? Number(pack.originalPrice)
+        : undefined,
       theme: "General",
       category: pack.category || "Pack Set",
       ageGroup: "All Ages",
@@ -140,13 +142,18 @@ function ShopPageContent() {
       productIds: pack.productIds || [],
     }));
 
-    let list = [...products.filter((p) => p.isVisible !== false), ...packProducts];
+    let list = [
+      ...products.filter((p) => p.isVisible !== false),
+      ...packProducts,
+    ];
 
     if (selectedPackId) {
       list = list.filter((p) => p.id === selectedPackId);
     }
     if (selectedProductLineId) {
-      list = list.filter((p) => p.productLineId === selectedProductLineId || !p.productLineId);
+      list = list.filter(
+        (p) => p.productLineId === selectedProductLineId || !p.productLineId,
+      );
     }
     if (selectedTheme) {
       list = list.filter(
@@ -174,10 +181,14 @@ function ShopPageContent() {
       list = list.filter((p) => p.inStock);
     }
     if (filterNewLaunch) {
-      list = list.filter((p) => p.isNewLaunch || Boolean(p.badge?.includes("New")));
+      list = list.filter(
+        (p) => p.isNewLaunch || Boolean(p.badge?.includes("New")),
+      );
     }
     if (filterSellingFast) {
-      list = list.filter((p) => p.isSellingFast || Boolean(p.badge?.includes("Selling")));
+      list = list.filter(
+        (p) => p.isSellingFast || Boolean(p.badge?.includes("Selling")),
+      );
     }
 
     list = list.filter((p) => p.price <= maxPrice);
@@ -260,12 +271,13 @@ function ShopPageContent() {
 
       <div className="flex flex-col md:flex-row gap-8">
         {/* Filter Sidebar */}
-        <aside className="w-full md:w-64 shrink-0 space-y-6 md:sticky md:top-24 md:max-h-[calc(100vh-7rem)] overflow-y-auto pr-1">
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 soft-shadow space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <aside className="w-full md:w-64 shrink-0 md:sticky md:top-28 self-start">
+          <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-100 soft-shadow flex flex-col max-h-[calc(100vh-9.5rem)] overflow-hidden">
+            {/* Card Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-2 px-1 shrink-0">
               <h3 className="font-extrabold text-sm text-slate-800 flex items-center space-x-2">
                 <Filter className="w-4 h-4 text-pink-500" />
-                <span>Filter Facets</span>
+                <span>Filters</span>
               </h3>
               <button
                 onClick={() => {
@@ -280,11 +292,14 @@ function ShopPageContent() {
                   setFilterSellingFast(false);
                   setMaxPrice(2000);
                 }}
-                className="text-[11px] font-bold text-pink-600 hover:text-pink-700"
+                className="text-[11px] font-bold text-pink-600 hover:text-pink-700 cursor-pointer"
               >
                 Reset
               </button>
             </div>
+
+            {/* Inner Scrollable Filter Track */}
+            <div className="overflow-y-auto sleek-scrollbar space-y-6 flex-1 pr-3 pl-1 py-1">
 
             {/* Product Line Filter */}
             {productLines.length > 0 && (
@@ -293,7 +308,10 @@ function ShopPageContent() {
                   Product Line
                 </h4>
                 <div className="space-y-1">
-                  {[{ id: "", name: "All Product Lines" }, ...productLines.filter((pl) => pl.isVisible !== false)].map((pl) => (
+                  {[
+                    { id: "", name: "All Product Lines" },
+                    ...productLines.filter((pl) => pl.isVisible !== false),
+                  ].map((pl) => (
                     <button
                       key={pl.id || "all-lines"}
                       onClick={() => setSelectedProductLineId(pl.id)}
@@ -426,6 +444,7 @@ function ShopPageContent() {
                 </div>
               );
             })()}
+            </div>
           </div>
         </aside>
 
@@ -514,17 +533,24 @@ function ShopPageContent() {
                             <span className="px-2.5 py-1 bg-amber-500 text-white rounded-full text-[10px] font-black shadow-xs tracking-wider uppercase">
                               🎁 Pack of {product.productIds?.length || 1}
                             </span>
-                          ) : product.ageGroup && product.ageGroup.trim() !== "" ? (
+                          ) : product.ageGroup &&
+                            product.ageGroup.trim() !== "" ? (
                             <span className="px-2.5 py-1 bg-sky-100 text-sky-800 rounded-full text-[10px] font-bold shadow-xs">
                               {product.ageGroup}
                             </span>
                           ) : null}
-                          {(product.isNewLaunch || Boolean(product.badge?.toLowerCase().includes("new"))) && (
+                          {(product.isNewLaunch ||
+                            Boolean(
+                              product.badge?.toLowerCase().includes("new"),
+                            )) && (
                             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black text-slate-900 bg-amber-400 shadow-xs uppercase tracking-wider">
                               ✨ New Launch
                             </span>
                           )}
-                          {(product.isSellingFast || Boolean(product.badge?.toLowerCase().includes("selling"))) && (
+                          {(product.isSellingFast ||
+                            Boolean(
+                              product.badge?.toLowerCase().includes("selling"),
+                            )) && (
                             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black text-white bg-gradient-to-r from-red-500 to-rose-600 shadow-xs uppercase tracking-wider">
                               🔥 Selling Fast
                             </span>
