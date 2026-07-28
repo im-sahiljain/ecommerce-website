@@ -442,7 +442,7 @@ export default function ProductDetailPage() {
 
             {/* Gallery Thumbnails Row Below */}
             {allImages.length > 0 && (
-              <div className="flex items-center space-x-3 overflow-x-auto p-1">
+              <div className="flex items-center space-x-3 overflow-x-auto p-1 no-scrollbar">
                 {allImages.map((imgUrl, idx) => (
                   <button
                     key={idx}
@@ -706,7 +706,7 @@ export default function ProductDetailPage() {
 
           {/* Lightbox Thumbnails Bottom Row */}
           {allImages.length > 1 && (
-            <div className="flex items-center justify-center space-x-3 overflow-x-auto py-2 z-10 max-w-7xl w-full mx-auto">
+            <div className="flex items-center justify-center space-x-3 overflow-x-auto py-2 z-10 max-w-7xl w-full mx-auto no-scrollbar">
               {allImages.map((imgUrl, idx) => (
                 <button
                   key={idx}
