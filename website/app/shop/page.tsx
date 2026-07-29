@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "../../context/CartContext";
-import { ShieldCheck, Filter, ArrowUpDown, X } from "lucide-react";
+import { ShieldCheck, Filter, ArrowUpDown, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL } from "../../config/api";
 import OptimisticAddToCart from "../../components/OptimisticAddToCart";
@@ -22,6 +22,7 @@ interface Product {
   image: string;
   description: string;
   inStock: boolean;
+  likesCount?: number;
   featured?: boolean;
   badge?: string;
   isNewLaunch?: boolean;
@@ -582,6 +583,14 @@ function ShopPageContent() {
                             </span>
                           )}
                         </div>
+
+                        {/* Top-Right Like Count Badge if > 0 */}
+                        {(product.likesCount || 0) > 0 && (
+                          <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-rose-600 font-extrabold text-[10px] sm:text-xs flex items-center space-x-1 shadow-xs">
+                            <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
+                            <span>{product.likesCount}</span>
+                          </div>
+                        )}
                       </div>
 
                       <span className="text-[10px] font-bold uppercase tracking-wider text-pink-500">

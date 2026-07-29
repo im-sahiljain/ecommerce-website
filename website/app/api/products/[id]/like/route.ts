@@ -10,7 +10,7 @@ export async function POST(
     const body = await req.json().catch(() => ({}));
     const { userIdentifier } = body;
 
-    const result = db.likeProduct(id, userIdentifier || 'guest');
+    const result = await db.likeProduct(id, userIdentifier || 'guest');
     return NextResponse.json(result, { status: 200 });
   } catch (err: any) {
     return NextResponse.json(

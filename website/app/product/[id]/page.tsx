@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useParams } from "next/navigation";
 import { useCart } from "../../../context/CartContext";
 import {
@@ -9,6 +10,7 @@ import {
   Minus,
   Plus,
   ShoppingBag,
+  ShoppingCart,
   Truck,
   RotateCcw,
   Award,
@@ -20,6 +22,7 @@ import {
   Maximize2,
   X,
   Boxes,
+  Share2,
 } from "lucide-react";
 import { API_BASE_URL } from "../../../config/api";
 
@@ -56,7 +59,8 @@ interface SiteSettings {
 export default function ProductDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  const { addToCart } = useCart();
+  const { cart, addToCart, updateQuantity, removeFromCart, setIsCartOpen } =
+    useCart();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -65,6 +69,41 @@ export default function ProductDetailPage() {
   const [likesCount, setLikesCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [selectedImgIndex, setSelectedImgIndex] = useState(0);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [copyToast, setCopyToast] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleShare = async () => {
+    const siteUrl = typeof window !== "undefined" ? window.location.href : "";
+    const shareData = {
+      title: product?.name || "POP Craft & Candle Store",
+      text: `Check out ${product?.name || "this craft item"} on POP Craft & Candle Store!`,
+      url: siteUrl,
+    };
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // User cancelled share
+      }
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(siteUrl);
+        setCopyToast(true);
+        setTimeout(() => setCopyToast(false), 2500);
+      } catch (e) {
+        console.warn("Clipboard copy fallback failed", e);
+      }
+    }
+  };
 
   // Hover Zoom Lens State
   const [isHovered, setIsHovered] = useState(false);
@@ -126,6 +165,9 @@ export default function ProductDetailPage() {
 
           if (data && data.id) {
             setProduct(data);
+            if (typeof data.likesCount === "number") {
+              setLikesCount(data.likesCount);
+            }
           } else {
             // Fallback: try fetching as Pack
             const packRes = await fetch(`${API_BASE_URL}/api/packs/${id}`);
@@ -383,8 +425,19 @@ export default function ProductDetailPage() {
                 )} */}
               </div>
 
-              {/* Top-Right Action Buttons: Wishlist & Expand */}
+              {/* Top-Right Action Buttons: Share, Wishlist & Expand */}
               <div className="absolute top-4 right-4 flex items-center space-x-2 z-20">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                  }}
+                  title="Share Product"
+                  className="p-2.5 rounded-full bg-white/80 hover:bg-white text-slate-700 shadow-sm backdrop-blur-md transition hover:scale-105 active:scale-95"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -396,20 +449,37 @@ export default function ProductDetailPage() {
                   <Maximize2 className="w-4 h-4" />
                 </button>
 
-                <button
+                <motion.button
+                  layout
                   onClick={(e) => {
                     e.stopPropagation();
                     handleLikeToggle();
                   }}
-                  title="Save to Favorites"
-                  className={`p-2.5 rounded-full backdrop-blur-md transition shadow-sm ${
+                  title={isLiked ? "Unlike Product" : "Like Product"}
+                  className={`h-9 rounded-full backdrop-blur-md transition-all duration-300 shadow-sm flex items-center justify-center active:scale-95 ${
+                    likesCount > 0 ? "px-3 space-x-1.5" : "w-9 px-0"
+                  } ${
                     isLiked
                       ? "bg-rose-500 text-white"
-                      : "bg-white/80 text-slate-600 hover:text-rose-500 hover:bg-white"
+                      : "bg-white/80 text-slate-700 hover:text-rose-500 hover:bg-white"
                   }`}
                 >
-                  <Heart className="w-4 h-4 fill-current" />
-                </button>
+                  <Heart className={`w-4 h-4 shrink-0 transition-transform ${isLiked ? "fill-current scale-110" : ""}`} />
+                  <AnimatePresence initial={false}>
+                    {likesCount > 0 && (
+                      <motion.span
+                        key="img-like-count"
+                        initial={{ opacity: 0, width: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, width: "auto", scale: 1 }}
+                        exit={{ opacity: 0, width: 0, scale: 0.8 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        className="text-xs font-extrabold whitespace-nowrap overflow-hidden inline-block"
+                      >
+                        {likesCount}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
               </div>
 
               {/* Infinite Loop Left / Right Arrow Swipe Buttons */}
@@ -483,8 +553,8 @@ export default function ProductDetailPage() {
           )}
 
           {/* Product Info Section */}
-          <div className="space-y-6 flex flex-col justify-between">
-            <div>
+          <div className="flex flex-col justify-between h-full space-y-6">
+            <div className="flex-1 flex flex-col min-h-0">
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <div className="flex items-center space-x-2 text-xs font-bold text-pink-500 uppercase tracking-wider">
                   <Sparkles className="w-4 h-4" />
@@ -508,9 +578,51 @@ export default function ProductDetailPage() {
                 )}
               </div>
 
-              <h1 className="text-3xl font-extrabold text-slate-800 leading-tight">
-                {product.name}
-              </h1>
+              <div className="flex items-start justify-between gap-3">
+                <h1 className="text-3xl font-extrabold text-slate-800 leading-tight">
+                  {product.name}
+                </h1>
+                <div className="flex items-center space-x-2 shrink-0 mt-1">
+                  {/* Public Like Score Pill Button */}
+                  <motion.button
+                    layout
+                    onClick={handleLikeToggle}
+                    title={isLiked ? "Unlike product" : "Like this product"}
+                    className={`h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-xs active:scale-95 border ${
+                      likesCount > 0 ? "px-3 space-x-1.5" : "w-9 px-0"
+                    } ${
+                      isLiked
+                        ? "bg-rose-50 border-rose-200 text-rose-600"
+                        : "bg-slate-50 border-slate-200 text-slate-700 hover:border-rose-200 hover:text-rose-600"
+                    }`}
+                  >
+                    <Heart className={`w-4 h-4 shrink-0 transition-transform ${isLiked ? "fill-rose-500 text-rose-500 scale-110" : "text-rose-500"}`} />
+                    <AnimatePresence initial={false}>
+                      {likesCount > 0 && (
+                        <motion.span
+                          key="title-like-count"
+                          initial={{ opacity: 0, width: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, width: "auto", scale: 1 }}
+                          exit={{ opacity: 0, width: 0, scale: 0.8 }}
+                          transition={{ duration: 0.25, ease: "easeOut" }}
+                          className="text-xs font-extrabold whitespace-nowrap overflow-hidden inline-block"
+                        >
+                          {likesCount}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
+
+                  {/* Share Button */}
+                  <button
+                    onClick={handleShare}
+                    title="Share Product"
+                    className="p-2.5 bg-slate-100 hover:bg-pink-100 hover:text-pink-600 text-slate-600 rounded-full transition active:scale-95 flex items-center justify-center shadow-xs"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
 
               <div className="flex items-baseline space-x-3 mt-3">
                 <span className="text-3xl font-extrabold text-slate-900">
@@ -523,13 +635,46 @@ export default function ProductDetailPage() {
                 )}
               </div>
 
-              <p className="text-slate-600 text-sm leading-relaxed mt-4 font-medium whitespace-pre-line">
-                {product.description}
-              </p>
+              <div className="mt-4">
+                <motion.div
+                  initial={false}
+                  animate={{
+                    height:
+                      !isDescriptionExpanded && (product.description?.length || 0) > 130
+                        ? isMobile
+                          ? "7.5rem"
+                          : "14.8rem"
+                        : "auto",
+                  }}
+                  transition={{ duration: 0.35, ease: [0.04, 0.62, 0.23, 0.98] }}
+                  className="relative overflow-hidden"
+                >
+                  <div className="text-slate-700 text-sm leading-relaxed font-medium whitespace-pre-line pb-1">
+                    {product.description}
+                  </div>
 
+                  {/* Soft Fade Overlay when collapsed */}
+                  {!isDescriptionExpanded && (product.description?.length || 0) > 130 && (
+                    <div className="absolute bottom-0 inset-x-0 h-5 bg-gradient-to-t from-white/80 to-transparent pointer-events-none" />
+                  )}
+                </motion.div>
+
+                {(product.description?.length || 0) > 130 && (
+                  <button
+                    onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                    className="mt-2 text-xs font-extrabold text-pink-600 hover:text-pink-700 flex items-center space-x-1 focus:outline-none transition active:scale-95"
+                  >
+                    <span>{isDescriptionExpanded ? "Show Less ▲" : "Read More... ▼"}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Pinned Bottom Controls Section */}
+            <div className="mt-auto space-y-4 pt-2">
               {/* Conditional Specifications (Size & Material) */}
               {(product.size || product.material) && (
-                <div className="grid grid-cols-2 gap-4 mt-6 p-4 bg-slate-50/80 border border-slate-100 rounded-2xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-slate-50/80 border border-slate-100 rounded-2xl">
                   {product.size && (
                     <div>
                       <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
@@ -595,46 +740,78 @@ export default function ProductDetailPage() {
                     </div>
                   </div>
                 )}
-            </div>
+              <div className="my-3">
+                {(() => {
+                  const cartItem = cart.find((i) => i.id === product.id);
+                  const inCartQty = cartItem ? cartItem.quantity : 0;
+                  const totalCartItems = cart.reduce(
+                    (sum, item) => sum + item.quantity,
+                    0,
+                  );
 
-            <div className="space-y-6 pt-4 border-t border-slate-100">
-              {/* Quantity Selector */}
-              <div className="flex items-center space-x-4">
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                  Quantity:
-                </span>
-                <div className="flex items-center space-x-3 bg-slate-50 border border-slate-200 rounded-full p-1">
-                  <button
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-xs"
-                  >
-                    <Minus className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="font-bold text-sm w-6 text-center">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity((q) => q + 1)}
-                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-xs"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                      {/* Left Action: Quick Stepper Pill Control if in cart, else Add to Basket Button */}
+                      {inCartQty > 0 ? (
+                        <div className="w-full h-11 bg-pink-500 hover:bg-pink-600 text-white rounded-full flex items-center justify-between px-4 shadow-xs transition">
+                          <button
+                            onClick={() => {
+                              if (inCartQty === 1) {
+                                removeFromCart(product.id);
+                              } else {
+                                updateQuantity(product.id, -1);
+                              }
+                            }}
+                            className="p-1 hover:bg-white/20 rounded-full transition active:scale-90"
+                            title="Decrease Quantity"
+                          >
+                            <Minus className="w-4 h-4 text-white" />
+                          </button>
+                          <span className="font-bold text-sm tracking-wide text-white">
+                            {inCartQty}
+                          </span>
+                          <button
+                            onClick={() => addToCart(product, 1, false)}
+                            className="p-1 hover:bg-white/20 rounded-full transition active:scale-90"
+                            title="Increase Quantity"
+                          >
+                            <Plus className="w-4 h-4 text-white" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => addToCart(product, 1, false)}
+                          disabled={!isOrderingAllowed}
+                          className={`w-full h-11 font-bold text-xs rounded-full flex items-center justify-center space-x-1.5 shadow-xs transition active:scale-98 ${
+                            isOrderingAllowed
+                              ? "bg-pink-500 hover:bg-pink-600 text-white"
+                              : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                          }`}
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          <span>
+                            {isOrderingAllowed
+                              ? `Add to Basket — ₹${product.price.toFixed(2)}`
+                              : "Ordering Disabled"}
+                          </span>
+                        </button>
+                      )}
+
+                      {/* Right Action: Always Visible Yellow View Cart Button */}
+                      <button
+                        onClick={() => setIsCartOpen(true)}
+                        className="w-full h-11 bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded-full flex items-center justify-center space-x-1.5 shadow-xs transition active:scale-98"
+                      >
+                        <ShoppingCart className="w-3.5 h-3.5 text-slate-900" />
+                        <span>View Basket ({totalCartItems})</span>
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
 
-              {/* Add to Cart CTA */}
-              <button
-                onClick={() => addToCart(product, quantity)}
-                className="w-full py-4 bg-pink-300 hover:bg-pink-400 text-slate-800 hover:text-white font-extrabold text-base rounded-full flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transition transform active:scale-98"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                <span>
-                  Add to Basket — ₹{(product.price * quantity).toFixed(2)}
-                </span>
-              </button>
-
               {/* Trust Badges */}
-              <div className="grid grid-cols-3 gap-2 pt-4 text-center border-t border-slate-100 text-[11px] font-bold text-slate-600">
+              <div className="grid grid-cols-3 gap-2 mt-6 pt-6 text-center border-t border-slate-100 text-[11px] font-bold text-slate-600">
                 <div className="p-2 bg-slate-50 rounded-2xl flex flex-col items-center justify-center">
                   <Truck className="w-4 h-4 text-sky-500 mb-1" />
                   <span>Fast Shipping</span>
@@ -726,6 +903,13 @@ export default function ProductDetailPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Copy Link Toast Notification */}
+      {copyToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-4 py-2.5 bg-slate-900/90 text-white font-bold text-xs rounded-full shadow-2xl backdrop-blur-md flex items-center space-x-2 animate-bounce">
+          <span>Link copied to clipboard! 📋</span>
         </div>
       )}
     </>

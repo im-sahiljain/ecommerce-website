@@ -124,6 +124,7 @@ function mapRowToProduct(r: any): Product {
     size: r.size || undefined,
     material: r.material || undefined,
     isVisible: r.is_visible !== false,
+    likesCount: r.likes_count ? Number(r.likes_count) : 0,
     createdAt: r.created_at ? new Date(r.created_at).toISOString() : undefined,
     updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : undefined,
   };
@@ -1176,11 +1177,25 @@ export class Database {
     };
   }
   recordProductView(_productId: string): void {}
-  likeProduct(
-    _productId: string,
+  async likeProduct(
+    productId: string,
     _userIdentifier: string = 'guest'
-  ): { likes: number; isLiked: boolean } {
-    return { likes: 0, isLiked: false };
+  ): Promise<{ likes: number; isLiked: boolean }> {
+    const pool = this.pgPool;
+    if (pool) {
+      try {
+        const res = await pool.query(
+          `UPDATE public.products SET likes_count = COALESCE(likes_count, 0) + 1 WHERE id = $1 RETURNING likes_count`,
+          [productId]
+        );
+        if (res.rows.length > 0) {
+          return { likes: Number(res.rows[0].likes_count), isLiked: true };
+        }
+      } catch (err: any) {
+        console.warn('⚠️ PG likeProduct error:', err.message);
+      }
+    }
+    return { likes: 1, isLiked: true };
   }
   getAllAnalytics(): Record<string, ProductAnalytics> {
     return {};
