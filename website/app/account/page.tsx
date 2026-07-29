@@ -135,6 +135,7 @@ export default function AccountPage() {
 
   const getStatusStep = (status: string) => {
     switch (status) {
+      case 'WhatsApp Initiated': return 1;
       case 'Pending': return 1;
       case 'Processing': return 2;
       case 'Shipped': return 3;

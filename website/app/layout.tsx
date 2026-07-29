@@ -3,11 +3,7 @@ import React from "react";
 import StoreProvider from "../store/StoreProvider";
 import { AuthProvider } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import AuthModal from "../components/AuthModal";
-import CartDrawer from "../components/CartDrawer";
-import WhatsappFloatingButton from "../components/WhatsappFloatingButton";
+import StorefrontLayout from "../components/StorefrontLayout";
 
 export const metadata = {
   metadataBase: new URL(
@@ -83,14 +79,7 @@ export default function RootLayout({
         <StoreProvider>
           <AuthProvider>
             <CartProvider>
-              <div>
-                <Navbar />
-                <main>{children}</main>
-              </div>
-              <Footer />
-              <AuthModal />
-              <CartDrawer />
-              <WhatsappFloatingButton />
+              <StorefrontLayout>{children}</StorefrontLayout>
             </CartProvider>
           </AuthProvider>
         </StoreProvider>

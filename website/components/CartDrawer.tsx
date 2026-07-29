@@ -44,13 +44,15 @@ export default function CartDrawer() {
   const [isWaModalOpen, setIsWaModalOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/settings`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data) setSettings(data);
-      })
-      .catch(() => {});
-  }, []);
+    if (isCartOpen) {
+      fetch(`${API_BASE_URL}/api/settings`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data) setSettings(data);
+        })
+        .catch(() => {});
+    }
+  }, [isCartOpen]);
 
   const subtotal = Math.round(totalPrice);
   const onlineShipping = 250;

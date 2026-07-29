@@ -101,7 +101,7 @@ Thank you! Please confirm my order and shipping fee.`;
           subtotal,
           shipping: 0,
           total: subtotal,
-          status: "Pending (WhatsApp)",
+          status: "WhatsApp Initiated",
         }),
       });
     } catch (err) {
