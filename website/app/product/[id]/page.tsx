@@ -52,6 +52,7 @@ interface Product {
 
 interface SiteSettings {
   isGlobalOrderingEnabled: boolean;
+  isWhatsappOrderingEnabled?: boolean;
   whatsappNumber: string;
   whatsappMessageTemplate: string;
 }
@@ -333,8 +334,9 @@ export default function ProductDetailPage() {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://craftandkit.vercel.app/";
   const isOrderingAllowed =
-    (settings?.isGlobalOrderingEnabled ?? true) &&
-    (product.isOrderingEnabled ?? true);
+    (product.isOrderingEnabled ?? true) &&
+    ((settings?.isGlobalOrderingEnabled ?? true) ||
+      (settings?.isWhatsappOrderingEnabled ?? true));
   const phoneClean = (settings?.whatsappNumber || "+919876543210").replace(
     /[^0-9]/g,
     "",

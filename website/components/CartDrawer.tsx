@@ -35,7 +35,7 @@ export default function CartDrawer() {
   } = useCart();
 
   const [settings, setSettings] = useState<SiteSettings>({
-    isGlobalOrderingEnabled: true,
+    isGlobalOrderingEnabled: false,
     isWhatsappOrderingEnabled: true,
     isWhatsappChatButtonEnabled: true,
     isWhatsappEnabled: true,
@@ -43,15 +43,14 @@ export default function CartDrawer() {
   });
   const [isWaModalOpen, setIsWaModalOpen] = useState(false);
 
+  // Eager Initial Fetch on Site Mount + Refresh on Cart Drawer Open
   useEffect(() => {
-    if (isCartOpen) {
-      fetch(`${API_BASE_URL}/api/settings`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data) setSettings(data);
-        })
-        .catch(() => {});
-    }
+    fetch(`${API_BASE_URL}/api/settings`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) setSettings(data);
+      })
+      .catch(() => {});
   }, [isCartOpen]);
 
   const subtotal = Math.round(totalPrice);
