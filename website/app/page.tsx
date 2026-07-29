@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowRight,
+  Heart,
 } from "lucide-react";
 
 interface Product {
@@ -37,6 +38,7 @@ interface Product {
   material?: string;
   isVisible?: boolean;
   inStock?: boolean;
+  likesCount?: number;
   attributes?: Record<string, string>;
   createdAt?: string;
   updatedAt?: string;
@@ -1299,6 +1301,13 @@ function ThemeProductCard({
               alt={product.name}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition duration-500 ease-out"
             />
+            {/* Top-Right Like Count Badge if > 0 */}
+            {(product.likesCount || 0) > 0 && (
+              <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-rose-600 font-extrabold text-[10px] sm:text-xs flex items-center space-x-1 shadow-xs">
+                <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
+                <span>{product.likesCount}</span>
+              </div>
+            )}
           </div>
 
           {/* Product Name */}

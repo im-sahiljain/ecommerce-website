@@ -35,6 +35,7 @@ export interface Product {
   seoTitle?: string;
   seoDescription?: string;
   featured?: boolean;
+  likesCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }
