@@ -1,5 +1,7 @@
 "use client";
 
+// This is backup1
+
 import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useCart } from "../context/CartContext";
