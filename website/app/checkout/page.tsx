@@ -33,6 +33,16 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [orderSuccess, setOrderSuccess] = useState<any>(null);
+  const [settings, setSettings] = useState<{ isGlobalOrderingEnabled?: boolean }>({});
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/settings`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) setSettings(data);
+      })
+      .catch(() => {});
+  }, []);
 
   // Auto select default address or pre-fill
   useEffect(() => {
@@ -69,6 +79,11 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (settings.isGlobalOrderingEnabled === false) {
+      setError("Website online cart & checkout is currently disabled by store admin.");
+      return;
+    }
+
     if (!user || !token) {
       setError("You must log in to place an order.");
       openAuth();
