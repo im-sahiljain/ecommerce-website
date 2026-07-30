@@ -1,16 +1,15 @@
 import { MetadataRoute } from "next";
-import { API_BASE_URL } from "../config/api";
+import { db } from "@/lib/db";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://craftandkit.vercel.app/";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://kitsandcraft.vercel.app/";
 
   let productUrls: MetadataRoute.Sitemap = [];
   let categoryUrls: MetadataRoute.Sitemap = [];
 
   try {
-    const resProducts = await fetch(`${API_BASE_URL}/api/products`);
-    const products = await resProducts.json();
+    const products = await db.getProducts();
     if (Array.isArray(products)) {
       productUrls = products.map((product: any) => ({
         url: `${baseUrl}/product/${product.id}`,
@@ -20,8 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
     }
 
-    const resCategories = await fetch(`${API_BASE_URL}/api/categories`);
-    const categories = await resCategories.json();
+    const categories = await db.getCategories();
     if (Array.isArray(categories)) {
       categoryUrls = categories.map((cat: any) => ({
         url: `${baseUrl}/shop?category=${encodeURIComponent(cat.slug || cat.name)}`,

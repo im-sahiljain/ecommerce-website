@@ -56,8 +56,8 @@ export default function BundlesPage() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch(`${API_BASE_URL}/api/products`).then((res) => res.json()),
-      fetch(`${API_BASE_URL}/api/bundles`).then((res) => res.json()),
+      fetch('/api/products').then((res) => res.json()),
+      fetch('/api/bundles').then((res) => res.json()),
     ])
       .then(([prodsData, bundlesData]) => {
         if (Array.isArray(bundlesData)) {

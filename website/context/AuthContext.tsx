@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchAddresses = async (): Promise<UserAddress[]> => {
     if (!token) return [];
     try {
-      const res = await fetch(`${API_BASE_URL}/api/users/addresses`, {
+      const res = await fetch('/api/users/addresses', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const addAddress = async (addressData: Omit<UserAddress, 'id' | 'userIdentifier'>): Promise<UserAddress | null> => {
     if (!token) return null;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/users/addresses`, {
+      const res = await fetch('/api/users/addresses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const setDefaultAddress = async (addressId: string): Promise<boolean> => {
     if (!token) return false;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/users/addresses/${addressId}/default`, {
+      const res = await fetch(`/api/users/addresses/${addressId}/default`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -123,7 +123,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const deleteAddress = async (addressId: string): Promise<boolean> => {
     if (!token) return false;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/users/addresses/${addressId}`, {
+      const res = await fetch(`/api/users/addresses/${addressId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (identifier: string, password?: string, name?: string) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/users/login`, {
+      const res = await fetch('/api/users/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier, password, name }),
@@ -165,7 +165,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!token) return true;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/users/profile`, {
+      const res = await fetch('/api/users/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -121,8 +121,8 @@ export default function ProductDetailPage() {
         if (id.startsWith("pack-")) {
           // Fetch Pack directly
           const [packRes, prodsRes] = await Promise.all([
-            fetch(`${API_BASE_URL}/api/packs/${id}`),
-            fetch(`${API_BASE_URL}/api/products`),
+            fetch(`/api/packs/${id}`),
+            fetch(`/api/products`),
           ]);
           const packData = await packRes.json();
           const allProds = await prodsRes.json();
@@ -161,7 +161,7 @@ export default function ProductDetailPage() {
           }
         } else {
           // Fetch Regular Product
-          const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
+          const res = await fetch(`/api/products/${id}`);
           const data = await res.json();
 
           if (data && data.id) {
@@ -171,11 +171,11 @@ export default function ProductDetailPage() {
             }
           } else {
             // Fallback: try fetching as Pack
-            const packRes = await fetch(`${API_BASE_URL}/api/packs/${id}`);
+            const packRes = await fetch(`/api/packs/${id}`);
             const packData = await packRes.json();
 
             if (packData && packData.id) {
-              const prodsRes = await fetch(`${API_BASE_URL}/api/products`);
+              const prodsRes = await fetch(`/api/products`);
               const allProds = await prodsRes.json();
               const included = Array.isArray(allProds)
                 ? allProds.filter((p: any) =>
@@ -219,7 +219,7 @@ export default function ProductDetailPage() {
 
     loadProductOrPack();
 
-    fetch(`${API_BASE_URL}/api/settings`)
+    fetch(`/api/settings`)
       .then((res) => res.json())
       .then((data) => {
         if (data) setSettings(data);
@@ -277,7 +277,7 @@ export default function ProductDetailPage() {
 
   const handleLikeToggle = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/products/${id}/like`, {
+      const res = await fetch(`/api/products/${id}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userIdentifier: "guest" }),

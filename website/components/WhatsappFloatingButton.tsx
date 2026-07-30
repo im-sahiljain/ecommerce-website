@@ -26,7 +26,7 @@ export default function WhatsappFloatingButton() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/settings`)
+    fetch('/api/settings')
       .then((res) => res.json())
       .then((data) => {
         if (data) setSettings(data);

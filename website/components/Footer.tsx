@@ -23,7 +23,7 @@ export default function Footer() {
   const [categories, setCategories] = useState<CategoryItem[]>([]);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/themes`)
+    fetch('/api/themes')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -32,7 +32,7 @@ export default function Footer() {
       })
       .catch(() => {});
 
-    fetch(`${API_BASE_URL}/api/categories`)
+    fetch('/api/categories')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

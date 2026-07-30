@@ -17,7 +17,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { API_BASE_URL } from "../config/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductLine {
@@ -61,21 +60,23 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/product-lines`)
+    fetch("/api/product-lines")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setProductLines(data.filter((l) => l.isVisible !== false));
+        if (Array.isArray(data))
+          setProductLines(data.filter((l) => l.isVisible !== false));
       })
       .catch(() => {});
 
-    fetch(`${API_BASE_URL}/api/categories`)
+    fetch("/api/categories")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setCategories(data.filter((c) => c.isVisible !== false));
+        if (Array.isArray(data))
+          setCategories(data.filter((c) => c.isVisible !== false));
       })
       .catch(() => {});
 
-    fetch(`${API_BASE_URL}/api/packs`)
+    fetch("/api/packs")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setPacks(data);

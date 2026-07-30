@@ -132,12 +132,17 @@ function mapRowToProduct(r: any): Product {
 
 declare global {
   var _pgPool: Pool | undefined;
+  var _pgPoolUrl: string | undefined;
 }
 
 function getPool(): Pool | null {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) return null;
-  if (!global._pgPool) {
+  if (!global._pgPool || global._pgPoolUrl !== connectionString) {
+    if (global._pgPool) {
+      global._pgPool.end().catch(() => {});
+    }
+    global._pgPoolUrl = connectionString;
     global._pgPool = new Pool({
       connectionString,
       ssl: { rejectUnauthorized: false },

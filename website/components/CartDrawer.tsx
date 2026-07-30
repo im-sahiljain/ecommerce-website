@@ -45,7 +45,7 @@ export default function CartDrawer() {
 
   // Eager Initial Fetch on Site Mount + Refresh on Cart Drawer Open
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/settings`)
+    fetch('/api/settings')
       .then((res) => res.json())
       .then((data) => {
         if (data) setSettings(data);

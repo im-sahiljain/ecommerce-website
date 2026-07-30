@@ -81,7 +81,7 @@ function ShopPageContent() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/products`)
+    fetch('/api/products')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setProducts(data);
@@ -89,21 +89,21 @@ function ShopPageContent() {
       })
       .catch(() => setLoading(false));
 
-    fetch(`${API_BASE_URL}/api/packs`)
+    fetch('/api/packs')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setPacks(data);
       })
       .catch(() => {});
 
-    fetch(`${API_BASE_URL}/api/product-lines`)
+    fetch('/api/product-lines')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setProductLines(data);
       })
       .catch(() => {});
 
-    fetch(`${API_BASE_URL}/api/facets`)
+    fetch('/api/facets')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setFacets(data);
