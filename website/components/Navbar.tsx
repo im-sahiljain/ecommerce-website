@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 interface ProductLine {
   id: string;
@@ -121,9 +122,16 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <span className="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-[#3C2A21] bg-clip-text text-transparent group-hover:opacity-90 transition">
+            {/* <span className="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-[#3C2A21] bg-clip-text text-transparent group-hover:opacity-90 transition">
               Kits & Craft
-            </span>
+            </span> */}
+            <Image
+              src="/images/logo.png"
+              alt="Logo"
+              width={100}
+              height={50}
+              className="cursor-pointer"
+            />
           </Link>
         </div>
 

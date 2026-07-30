@@ -549,44 +549,50 @@ function ShopPageContent() {
                       href={`/product/${product.id}`}
                       className="block group"
                     >
+                      {/* Badges Header Bar above Image */}
+                      <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2.5 min-h-[22px]">
+                        {product.isPack ? (
+                          <span className="px-2.5 py-0.5 bg-amber-500 text-white rounded-full text-[10px] font-black shadow-2xs tracking-wider uppercase">
+                            🎁 Pack of {product.productIds?.length || 1}
+                          </span>
+                        ) : product.ageGroup && product.ageGroup.trim() !== "" ? (
+                          <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200/60 shadow-2xs">
+                            {product.ageGroup}
+                          </span>
+                        ) : (
+                          <span />
+                        )}
+
+                        {(product.isNewLaunch ||
+                          Boolean(
+                            product.badge?.toLowerCase().includes("new"),
+                          )) && (
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 shadow-2xs uppercase tracking-wider">
+                            ✨ New Launch
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Product Image Container */}
                       <div className="relative rounded-2xl overflow-hidden mb-3 aspect-square bg-slate-50 border border-slate-100">
                         <img
                           src={product.image}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                         />
-                        <div className="absolute top-2 left-2 flex flex-col space-y-1 z-10">
-                          {product.isPack ? (
-                            <span className="px-2.5 py-1 bg-amber-500 text-white rounded-full text-[10px] font-black shadow-xs tracking-wider uppercase">
-                              🎁 Pack of {product.productIds?.length || 1}
-                            </span>
-                          ) : product.ageGroup &&
-                            product.ageGroup.trim() !== "" ? (
-                            <span className="px-2.5 py-1 bg-sky-100 text-sky-800 rounded-full text-[10px] font-bold shadow-xs">
-                              {product.ageGroup}
-                            </span>
-                          ) : null}
-                          {(product.isNewLaunch ||
-                            Boolean(
-                              product.badge?.toLowerCase().includes("new"),
-                            )) && (
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black text-slate-900 bg-amber-400 shadow-xs uppercase tracking-wider">
-                              ✨ New Launch
-                            </span>
-                          )}
-                          {(product.isSellingFast ||
-                            Boolean(
-                              product.badge?.toLowerCase().includes("selling"),
-                            )) && (
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black text-white bg-gradient-to-r from-red-500 to-rose-600 shadow-xs uppercase tracking-wider">
-                              🔥 Selling Fast
-                            </span>
-                          )}
-                        </div>
+                        {/* Top-Left Selling Fast Badge inside Image */}
+                        {(product.isSellingFast ||
+                          Boolean(
+                            product.badge?.toLowerCase().includes("selling"),
+                          )) && (
+                          <span className="absolute top-2.5 left-2.5 z-10 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-xs uppercase tracking-wider">
+                            🔥 Selling Fast
+                          </span>
+                        )}
 
                         {/* Top-Right Like Count Badge if > 0 */}
                         {(product.likesCount || 0) > 0 && (
-                          <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-rose-600 font-extrabold text-[10px] sm:text-xs flex items-center space-x-1 shadow-xs">
+                          <div className="absolute top-2.5 right-2.5 z-10 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-rose-600 font-extrabold text-[10px] sm:text-xs flex items-center space-x-1 shadow-xs">
                             <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
                             <span>{product.likesCount}</span>
                           </div>
