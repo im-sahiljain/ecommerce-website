@@ -53,7 +53,7 @@ export default function WhatsappFloatingButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fixed bottom-6 right-6 z-50 
+      className="fixed bottom-6 right-6 z-40 
       bg-emerald-600 hover:bg-emerald-700 text-white h-14 rounded-full shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center px-3.5 space-x-2 group cursor-pointer border-2 border-white/30"
     >
       <WhatsappIcon className="w-7 h-7 text-white shrink-0" />

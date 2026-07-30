@@ -294,7 +294,7 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-pulse">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 sm:py-10 lg:py-12 animate-pulse">
         <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="space-y-4">
             <div className="aspect-square w-full bg-slate-200 rounded-3xl" />
@@ -384,7 +384,7 @@ export default function ProductDetailPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 sm:py-10 lg:py-12">
         <div className="relative bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 soft-shadow grid grid-cols-1 md:grid-cols-2 gap-10">
           {/* Image & Gallery Section */}
           <div className="space-y-4">
@@ -466,7 +466,9 @@ export default function ProductDetailPage() {
                       : "bg-white/80 text-slate-700 hover:text-rose-500 hover:bg-white"
                   }`}
                 >
-                  <Heart className={`w-4 h-4 shrink-0 transition-transform ${isLiked ? "fill-current scale-110" : ""}`} />
+                  <Heart
+                    className={`w-4 h-4 shrink-0 transition-transform ${isLiked ? "fill-current scale-110" : ""}`}
+                  />
                   <AnimatePresence initial={false}>
                     {likesCount > 0 && (
                       <motion.span
@@ -598,7 +600,9 @@ export default function ProductDetailPage() {
                         : "bg-slate-50 border-slate-200 text-slate-700 hover:border-rose-200 hover:text-rose-600"
                     }`}
                   >
-                    <Heart className={`w-4 h-4 shrink-0 transition-transform ${isLiked ? "fill-rose-500 text-rose-500 scale-110" : "text-rose-500"}`} />
+                    <Heart
+                      className={`w-4 h-4 shrink-0 transition-transform ${isLiked ? "fill-rose-500 text-rose-500 scale-110" : "text-rose-500"}`}
+                    />
                     <AnimatePresence initial={false}>
                       {likesCount > 0 && (
                         <motion.span
@@ -642,13 +646,17 @@ export default function ProductDetailPage() {
                   initial={false}
                   animate={{
                     height:
-                      !isDescriptionExpanded && (product.description?.length || 0) > 130
+                      !isDescriptionExpanded &&
+                      (product.description?.length || 0) > 130
                         ? isMobile
                           ? "7.5rem"
                           : "14.8rem"
                         : "auto",
                   }}
-                  transition={{ duration: 0.35, ease: [0.04, 0.62, 0.23, 0.98] }}
+                  transition={{
+                    duration: 0.35,
+                    ease: [0.04, 0.62, 0.23, 0.98],
+                  }}
                   className="relative overflow-hidden"
                 >
                   <div className="text-slate-700 text-sm leading-relaxed font-medium whitespace-pre-line pb-1">
@@ -656,17 +664,22 @@ export default function ProductDetailPage() {
                   </div>
 
                   {/* Soft Fade Overlay when collapsed */}
-                  {!isDescriptionExpanded && (product.description?.length || 0) > 130 && (
-                    <div className="absolute bottom-0 inset-x-0 h-5 bg-gradient-to-t from-white/80 to-transparent pointer-events-none" />
-                  )}
+                  {!isDescriptionExpanded &&
+                    (product.description?.length || 0) > 130 && (
+                      <div className="absolute bottom-0 inset-x-0 h-5 bg-gradient-to-t from-white/80 to-transparent pointer-events-none" />
+                    )}
                 </motion.div>
 
                 {(product.description?.length || 0) > 130 && (
                   <button
-                    onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                    onClick={() =>
+                      setIsDescriptionExpanded(!isDescriptionExpanded)
+                    }
                     className="mt-2 text-xs font-extrabold text-pink-600 hover:text-pink-700 flex items-center space-x-1 focus:outline-none transition active:scale-95"
                   >
-                    <span>{isDescriptionExpanded ? "Show Less ▲" : "Read More... ▼"}</span>
+                    <span>
+                      {isDescriptionExpanded ? "Show Less ▲" : "Read More... ▼"}
+                    </span>
                   </button>
                 )}
               </div>
@@ -834,7 +847,7 @@ export default function ProductDetailPage() {
 
       {/* Fullscreen Popup Lightbox Modal */}
       {isFullscreenModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-8 animate-fade-in text-white">
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-8 animate-fade-in text-white">
           {/* Header */}
           <div className="flex justify-between items-center z-10 max-w-7xl w-full mx-auto">
             <div className="flex items-center space-x-3">
