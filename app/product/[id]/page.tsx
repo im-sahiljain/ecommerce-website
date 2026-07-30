@@ -84,8 +84,8 @@ export default function ProductDetailPage() {
   const handleShare = async () => {
     const siteUrl = typeof window !== "undefined" ? window.location.href : "";
     const shareData = {
-      title: product?.name || "POP Craft & Candle Store",
-      text: `Check out ${product?.name || "this craft item"} on POP Craft & Candle Store!`,
+      title: product?.name || "Kits & Craft",
+      text: `Check out ${product?.name || "this craft item"} on Kits & Craft!`,
       url: siteUrl,
     };
 
@@ -332,7 +332,7 @@ export default function ProductDetailPage() {
   }
 
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://craftandkit.vercel.app/";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://kitsandcraft.vercel.app/";
   const isOrderingAllowed =
     (product.isOrderingEnabled ?? true) &&
     ((settings?.isGlobalOrderingEnabled ?? true) ||
@@ -360,7 +360,7 @@ export default function ProductDetailPage() {
     sku: (product as any).sku || product.id,
     brand: {
       "@type": "Brand",
-      name: "POP Craft & Candle Store",
+      name: "Kits & Craft",
     },
     category: product.category,
     offers: {
