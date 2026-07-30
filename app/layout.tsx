@@ -7,15 +7,14 @@ import StorefrontLayout from "../components/StorefrontLayout";
 
 const SEO_IMAGE_URL =
   process.env.NEXT_PUBLIC_SEO_IMAGE_URL ||
-  "https://res.cloudinary.com/dagkrnoap/image/upload/v1785172624/Ecommerce/Products/General/onduwnvvkdslu17y5y9z.png";
+  "https://res.cloudinary.com/dagkrnoap/image/upload/v1785413297/indian-kids-painting_zcbcf2.jpg";
 
 export const metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || "https://kitsandcraft.vercel.app/",
   ),
   title: {
-    default:
-      "Kits & Craft | Plaster Painting Kits for Kids & Home Décor India",
+    default: "Kits & Craft | Plaster Painting Kits for Kids & Home Décor India",
     template: "%s | Kits & Craft",
   },
   description:
@@ -28,6 +27,9 @@ export const metadata = {
     "Non toxic painting set for toddlers",
     "Kids activity box return gift bulk order",
     "Aesthetic plaster figurines for home decor",
+    "pop figurines",
+    "pop painting kits",
+    "pop blocks for kids",
   ],
   authors: [{ name: "Kits & Craft" }],
   creator: "Kits & Craft",
@@ -37,8 +39,7 @@ export const metadata = {
     locale: "en_IN",
     url: "https://kitsandcraft.vercel.app/",
     siteName: "Kits & Craft",
-    title:
-      "Kits & Craft | Plaster Painting Kits for Kids & Home Décor India",
+    title: "Kits & Craft | Plaster Painting Kits for Kids & Home Décor India",
     description:
       "Discover non-toxic plaster painting kits for kids, birthday return gift boxes, and aesthetic home décor craft figurines.",
     images: [
