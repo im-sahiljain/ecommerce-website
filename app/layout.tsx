@@ -5,55 +5,57 @@ import { AuthProvider } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
 import StorefrontLayout from "../components/StorefrontLayout";
 
+const SEO_IMAGE_URL =
+  process.env.NEXT_PUBLIC_SEO_IMAGE_URL ||
+  "https://res.cloudinary.com/dagkrnoap/image/upload/v1785172624/Ecommerce/Products/General/onduwnvvkdslu17y5y9z.png";
+
 export const metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || "https://craftandkit.vercel.app/",
   ),
   title: {
     default:
-      "POP Craft & Candle Store | Plaster Painting Kits for Kids & Aesthetic Soy Candles India",
-    template: "%s | POP Craft & Candle Store",
+      "Kits & Craft | Plaster Painting Kits for Kids & Home Décor India",
+    template: "%s | Kits & Craft",
   },
   description:
-    "Shop ready-to-paint plaster craft kits, DIY plaster figurines for kids birthday return gifts, and hand-poured non-toxic aesthetic soy wax candles in India.",
+    "Shop ready-to-paint plaster craft kits, DIY plaster figurines for kids birthday return gifts, and aesthetic home décor craft kits in India.",
   keywords: [
+    "Kits & Craft India",
     "Plaster painting kits for kids India",
     "Ready to paint plaster figurines",
     "DIY craft kits for birthday return gifts",
     "Non toxic painting set for toddlers",
     "Kids activity box return gift bulk order",
-    "Hand-poured soy wax candles India",
-    "Aesthetic pillar candles for home decor",
-    "Luxury botanical scented candles",
-    "Eco friendly non toxic soy candles online",
+    "Aesthetic plaster figurines for home decor",
   ],
-  authors: [{ name: "POP Craft & Candle Store" }],
-  creator: "POP Craft & Candle Store",
-  publisher: "POP Craft & Candle Store",
+  authors: [{ name: "Kits & Craft" }],
+  creator: "Kits & Craft",
+  publisher: "Kits & Craft",
   openGraph: {
     type: "website",
     locale: "en_IN",
     url: "https://craftandkit.vercel.app/",
-    siteName: "POP Craft & Candle Store",
+    siteName: "Kits & Craft",
     title:
-      "POP Craft & Candle Store | Plaster Painting Kits for Kids & Aesthetic Soy Candles India",
+      "Kits & Craft | Plaster Painting Kits for Kids & Home Décor India",
     description:
-      "Discover non-toxic plaster painting kits for kids, birthday return gift boxes, and hand-poured aesthetic soy wax candles.",
+      "Discover non-toxic plaster painting kits for kids, birthday return gift boxes, and aesthetic home décor craft figurines.",
     images: [
       {
-        url: "/images/hero/indian-kids-painting.png",
+        url: SEO_IMAGE_URL,
         width: 1200,
         height: 630,
-        alt: "Kids painting plaster craft kits - POP Craft & Candle Store",
+        alt: "Kits & Craft - Plaster Painting Kits & Home Décor",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "POP Craft & Candle Store | Plaster Painting Kits & Soy Candles",
+    title: "Kits & Craft | Plaster Painting Kits & Home Décor",
     description:
-      "Shop non-toxic DIY plaster craft kits & aesthetic soy candles.",
-    images: ["/images/hero/indian-kids-painting.png"],
+      "Shop non-toxic DIY plaster craft kits & aesthetic home décor figurines.",
+    images: [SEO_IMAGE_URL],
   },
   robots: {
     index: true,
