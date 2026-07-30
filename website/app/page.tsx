@@ -1275,20 +1275,12 @@ function ThemeProductCard({
               {product.ageGroup}
             </span>
           )}
-          <div className="flex flex-wrap items-center gap-1">
-            {(product.isNewLaunch ||
-              Boolean(product.badge?.toLowerCase().includes("new"))) && (
-              <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 shadow-2xs uppercase tracking-wider">
-                ✨ New Launch
-              </span>
-            )}
-            {(product.isSellingFast ||
-              Boolean(product.badge?.toLowerCase().includes("selling"))) && (
-              <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-2xs uppercase tracking-wider">
-                🔥 Selling Fast
-              </span>
-            )}
-          </div>
+          {(product.isNewLaunch ||
+            Boolean(product.badge?.toLowerCase().includes("new"))) && (
+            <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 shadow-2xs uppercase tracking-wider">
+              ✨ New Launch
+            </span>
+          )}
         </div>
 
         {/* Product Image Container */}
@@ -1300,6 +1292,13 @@ function ThemeProductCard({
               alt={product.name}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition duration-500 ease-out"
             />
+            {/* Top-Left Selling Fast Badge */}
+            {(product.isSellingFast ||
+              Boolean(product.badge?.toLowerCase().includes("selling"))) && (
+              <span className="absolute top-2 left-2 z-10 text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-xs uppercase tracking-wider">
+                🔥 Selling Fast
+              </span>
+            )}
             {/* Top-Right Like Count Badge if > 0 */}
             {(product.likesCount || 0) > 0 && (
               <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-rose-600 font-extrabold text-[10px] sm:text-xs flex items-center space-x-1 shadow-xs">
