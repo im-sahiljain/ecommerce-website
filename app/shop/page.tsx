@@ -50,6 +50,7 @@ interface CategoryFacet {
 
 function ShopPageContent() {
   const searchParams = useSearchParams();
+  const initialSearch = searchParams.get("search") || searchParams.get("q") || "";
   const initialTheme = searchParams.get("theme") || "";
   const initialCategory = searchParams.get("category") || "";
   const initialAge = searchParams.get("ageGroup") || "";
@@ -64,6 +65,7 @@ function ShopPageContent() {
   const [loading, setLoading] = useState(true);
 
   // Filters State
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedProductLineId, setSelectedProductLineId] =
     useState(initialProductLineId);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
@@ -194,7 +196,16 @@ function ShopPageContent() {
       );
     }
 
-    list = list.filter((p) => p.price <= maxPrice);
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.theme && p.theme.toLowerCase().includes(q)) ||
+          (p.category && p.category.toLowerCase().includes(q)) ||
+          (p.description && p.description.toLowerCase().includes(q))
+      );
+    }
 
     if (sortOrder === "low-to-high") {
       list.sort((a, b) => a.price - b.price);
@@ -208,6 +219,7 @@ function ShopPageContent() {
   }, [
     products,
     packs,
+    searchQuery,
     selectedProductLineId,
     selectedTheme,
     selectedCategory,
