@@ -332,7 +332,7 @@ export default function ProductDetailPage() {
   }
 
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://craftandkit.vercel.app/";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://kitsandcraft.vercel.app/";
   const isOrderingAllowed =
     (product.isOrderingEnabled ?? true) &&
     ((settings?.isGlobalOrderingEnabled ?? true) ||

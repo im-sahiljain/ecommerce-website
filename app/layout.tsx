@@ -11,7 +11,7 @@ const SEO_IMAGE_URL =
 
 export const metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://craftandkit.vercel.app/",
+    process.env.NEXT_PUBLIC_SITE_URL || "https://kitsandcraft.vercel.app/",
   ),
   title: {
     default:
@@ -35,7 +35,7 @@ export const metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://craftandkit.vercel.app/",
+    url: "https://kitsandcraft.vercel.app/",
     siteName: "Kits & Craft",
     title:
       "Kits & Craft | Plaster Painting Kits for Kids & Home Décor India",
