@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useCart } from "../context/CartContext";
 import { useAppSelector } from "../store/hooks";
@@ -1269,18 +1269,23 @@ function ThemeProductCard({
     <div className="bg-white/95 backdrop-blur-md rounded-3xl p-4 sm:p-5 w-full flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl border border-white/60 text-[#3C2A21] shadow-md group relative">
       <div>
         {/* Badges Header */}
-        <div className="flex flex-wrap items-center justify-between gap-1.5 mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-1 mb-2.5">
           {product.ageGroup && product.ageGroup.trim() !== "" && (
-            <span className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200/60 shadow-2xs">
+            <span className="text-[9px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200/60 shadow-2xs whitespace-nowrap">
               {product.ageGroup}
             </span>
           )}
-          {(product.isNewLaunch ||
-            Boolean(product.badge?.toLowerCase().includes("new"))) && (
-            <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 shadow-2xs uppercase tracking-wider">
+          {product.isSellingFast ||
+          Boolean(product.badge?.toLowerCase().includes("selling")) ? (
+            <span className="text-[9px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-2xs uppercase tracking-wider whitespace-nowrap">
+              🔥 Selling Fast
+            </span>
+          ) : product.isNewLaunch ||
+            Boolean(product.badge?.toLowerCase().includes("new")) ? (
+            <span className="text-[9px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 shadow-2xs uppercase tracking-wider whitespace-nowrap">
               ✨ New Launch
             </span>
-          )}
+          ) : null}
         </div>
 
         {/* Product Image Container */}
@@ -1292,16 +1297,9 @@ function ThemeProductCard({
               alt={product.name}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition duration-500 ease-out"
             />
-            {/* Top-Left Selling Fast Badge */}
-            {(product.isSellingFast ||
-              Boolean(product.badge?.toLowerCase().includes("selling"))) && (
-              <span className="absolute top-2 left-2 z-10 text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-xs uppercase tracking-wider">
-                🔥 Selling Fast
-              </span>
-            )}
-            {/* Top-Right Like Count Badge if > 0 */}
+            {/* Bottom-Right Like Count Badge if > 0 */}
             {(product.likesCount || 0) > 0 && (
-              <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-rose-600 font-extrabold text-[10px] sm:text-xs flex items-center space-x-1 shadow-xs">
+              <div className="absolute bottom-2.5 right-2.5 z-10 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-rose-600 font-extrabold text-[10px] sm:text-xs flex items-center space-x-1 shadow-xs">
                 <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
                 <span>{product.likesCount}</span>
               </div>
@@ -1309,7 +1307,7 @@ function ThemeProductCard({
           </div>
 
           {/* Product Name */}
-          <h3 className="font-extrabold text-sm sm:text-base text-[#3C2A21] group-hover:text-sky-700 transition line-clamp-1 mb-1 leading-snug">
+          <h3 className="font-extrabold text-left text-sm sm:text-base text-[#3C2A21] group-hover:text-sky-700 transition line-clamp-1 mb-1 leading-snug">
             {product.name}
           </h3>
         </Link>
@@ -1333,7 +1331,7 @@ function ThemeProductCard({
   );
 }
 
-/* ─── PRODUCT CAROUSEL FOR THEME SECTIONS (INFINITE LOOP, 1-CARD STEP) ─── */
+/* ─── PRODUCT CAROUSEL FOR THEME SECTIONS (INFINITE LOOP & SWIPE) ─── */
 function ThemeProductCarousel({
   themeProducts,
   onAddToCart,
@@ -1341,7 +1339,7 @@ function ThemeProductCarousel({
   themeProducts: Product[];
   onAddToCart: (p: Product) => void;
 }) {
-  const [cardsPerView, setCardsPerView] = useState(3);
+  const [cardsPerView, setCardsPerView] = useState(2);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1354,42 +1352,44 @@ function ThemeProductCarousel({
 
   const realLen = themeProducts?.length || 0;
 
-  // Number of clone cards on each side. Must be enough to fill the
-  // viewport during the wrap-around, but capped at realLen so we never
-  // try to slice more unique items than actually exist.
-  const cloneCount = Math.min(Math.max(cardsPerView, 1), realLen);
+  // Repeat products array enough times so there's always a seamless buffer before & after
+  const repeatCount = useMemo(() => {
+    if (realLen === 0) return 1;
+    return Math.max(5, Math.ceil(10 / realLen));
+  }, [realLen]);
 
-  // Build extended infinite array with clone buffers
   const extendedProducts = useMemo(() => {
     if (!themeProducts || realLen === 0) return [];
-    if (cloneCount === 0) return [];
-    const cloneHead = themeProducts.slice(-cloneCount);
-    const cloneTail = themeProducts.slice(0, cloneCount);
-    return [
-      ...cloneHead.map((p, i) => ({ ...p, cloneKey: `head-${i}` })),
-      ...themeProducts.map((p, i) => ({ ...p, cloneKey: `real-${i}` })),
-      ...cloneTail.map((p, i) => ({ ...p, cloneKey: `tail-${i}` })),
-    ];
-  }, [themeProducts, cloneCount, realLen]);
+    const list: (Product & { uniqueKey: string })[] = [];
+    for (let r = 0; r < repeatCount; r++) {
+      themeProducts.forEach((p, i) => {
+        list.push({ ...p, uniqueKey: `rep-${r}-prod-${p.id}-${i}` });
+      });
+    }
+    return list;
+  }, [themeProducts, realLen, repeatCount]);
 
-  const startIndex = cloneCount;
+  // Center starting position around middle repeat set
+  const middleRepeat = Math.floor(repeatCount / 2);
+  const startIndex = middleRepeat * realLen;
+
   const [currentIndex, setCurrentIndex] = useState(startIndex);
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Measure the real pixel width of one "step" (card + gap) so the
-  // translateX always moves exactly one card, regardless of gap size,
-  // padding, or how percentages round at different viewport widths.
-  const trackRef = React.useRef<HTMLDivElement | null>(null);
+  // Sync starting index when themeProducts change
+  useEffect(() => {
+    setCurrentIndex(startIndex);
+  }, [startIndex]);
+
+  const trackRef = useRef<HTMLDivElement | null>(null);
   const [stepPx, setStepPx] = useState(0);
 
-  const measureStep = React.useCallback(() => {
+  const measureStep = useCallback(() => {
     const track = trackRef.current;
     if (!track || track.children.length < 2) return;
     const first = track.children[0] as HTMLElement;
     const second = track.children[1] as HTMLElement;
-    // Distance between the start of card 1 and the start of card 2
-    // = card width + gap, however the gap is implemented.
     const step = second.offsetLeft - first.offsetLeft;
     if (step > 0) setStepPx(step);
   }, []);
@@ -1399,13 +1399,6 @@ function ThemeProductCarousel({
     window.addEventListener("resize", measureStep);
     return () => window.removeEventListener("resize", measureStep);
   }, [measureStep, extendedProducts, cardsPerView]);
-
-  useEffect(() => {
-    setCurrentIndex(startIndex);
-    // Re-measure after layout settles for the new product set.
-    const id = requestAnimationFrame(measureStep);
-    return () => cancelAnimationFrame(id);
-  }, [themeProducts, startIndex, measureStep]);
 
   const handleNext = () => {
     if (isAnimating) return;
@@ -1423,19 +1416,19 @@ function ThemeProductCarousel({
 
   const handleTransitionEnd = () => {
     setIsAnimating(false);
-    if (!themeProducts || realLen === 0) return;
+    if (realLen === 0) return;
 
+    // Seamless silent wrap-around when reaching near the boundaries
     if (currentIndex >= startIndex + realLen) {
       setIsTransitioning(false);
-      setCurrentIndex(currentIndex - realLen);
+      setCurrentIndex((prev) => prev - realLen);
     } else if (currentIndex < startIndex) {
       setIsTransitioning(false);
-      setCurrentIndex(currentIndex + realLen);
+      setCurrentIndex((prev) => prev + realLen);
     }
   };
 
-  // Turn transitions back on after a snap (transition was disabled for
-  // one frame to jump invisibly from clone -> real position).
+  // Re-enable CSS transition after a silent snap frame
   useEffect(() => {
     if (!isTransitioning) {
       const id = requestAnimationFrame(() => setIsTransitioning(true));
@@ -1443,29 +1436,46 @@ function ThemeProductCarousel({
     }
   }, [isTransitioning]);
 
+  // Touch / Drag Swipe Gesture State
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchDeltaX, setTouchDeltaX] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    setTouchStartX(clientX);
+    setTouchDeltaX(0);
+    setIsSwiping(true);
+    setIsAnimating(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (touchStartX === null || !isSwiping) return;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const deltaX = clientX - touchStartX;
+    setTouchDeltaX(deltaX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isSwiping) return;
+    setIsSwiping(false);
+    setTouchStartX(null);
+
+    if (touchDeltaX < -30) {
+      setIsAnimating(false);
+      handleNext();
+    } else if (touchDeltaX > 30) {
+      setIsAnimating(false);
+      handlePrev();
+    }
+
+    setTouchDeltaX(0);
+  };
+
   if (!themeProducts || realLen === 0) {
     return (
       <div className="text-center py-8 text-slate-500 font-medium">
         No items available in this theme yet.
-      </div>
-    );
-  }
-
-  // If there aren't enough products to fill a viewport, looping/cloning
-  // isn't meaningful (and can't be built safely) — just render statically.
-  if (realLen <= cardsPerView) {
-    return (
-      <div className="relative w-full max-w-5xl mx-auto px-1 sm:px-2">
-        <div className="flex w-full gap-3 sm:gap-4 py-8 -my-4 px-2">
-          {themeProducts.map((p) => (
-            <div
-              key={p.id}
-              className="w-[calc(50%-6px)] md:w-[calc(33.333%-11px)] shrink-0 flex"
-            >
-              <ThemeProductCard product={p} onAdd={() => onAddToCart(p)} />
-            </div>
-          ))}
-        </div>
       </div>
     );
   }
@@ -1476,7 +1486,7 @@ function ThemeProductCarousel({
       <button
         onClick={handlePrev}
         aria-label="Previous product"
-        className="absolute left-2 sm:left-3 md:left-4 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white/95 text-[#3C2A21] shadow-xl border border-slate-200/80 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer hover:bg-white"
+        className="absolute -left-3 sm:-left-5 md:-left-10 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white text-[#3C2A21] shadow-2xl border border-slate-200/90 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer hover:bg-slate-50"
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
@@ -1485,26 +1495,35 @@ function ThemeProductCarousel({
       <button
         onClick={handleNext}
         aria-label="Next product"
-        className="absolute right-2 sm:right-3 md:right-4 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white/95 text-[#3C2A21] shadow-xl border border-slate-200/80 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer hover:bg-white"
+        className="absolute -right-3 sm:-right-5 md:-right-10 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white text-[#3C2A21] shadow-2xl border border-slate-200/90 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer hover:bg-slate-50"
       >
         <ChevronRight className="w-5 h-5" />
       </button>
 
       {/* Product Cards Track Container */}
-      <div className="overflow-hidden w-full py-8 -my-4 px-2">
+      <div
+        className="overflow-hidden w-full py-8 -my-4 px-2 select-none touch-pan-y cursor-grab active:cursor-grabbing"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleTouchStart}
+        onMouseMove={handleTouchMove}
+        onMouseUp={handleTouchEnd}
+        onMouseLeave={handleTouchEnd}
+      >
         <div
           ref={trackRef}
-          className={`flex w-full ${isTransitioning ? "transition-transform duration-500 ease-out" : ""} gap-3 sm:gap-4`}
+          className={`flex w-full ${isTransitioning && !isSwiping ? "transition-transform duration-500 ease-out" : ""} gap-3 sm:gap-4`}
           style={{
             transform: stepPx
-              ? `translateX(-${currentIndex * stepPx}px)`
-              : `translateX(-${currentIndex * (100 / cardsPerView)}%)`, // fallback before first measure
+              ? `translateX(-${currentIndex * stepPx - (isSwiping ? touchDeltaX : 0)}px)`
+              : `translateX(-${currentIndex * (100 / cardsPerView)}%)`,
           }}
           onTransitionEnd={handleTransitionEnd}
         >
-          {extendedProducts.map((p, i) => (
+          {extendedProducts.map((p) => (
             <div
-              key={`${p.id}-${p.cloneKey || i}`}
+              key={p.uniqueKey}
               className="w-[calc(50%-6px)] md:w-[calc(33.333%-11px)] shrink-0 flex"
             >
               <ThemeProductCard product={p} onAdd={() => onAddToCart(p)} />
