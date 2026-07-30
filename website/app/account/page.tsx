@@ -69,7 +69,7 @@ export default function AccountPage() {
       return;
     }
 
-    fetch(`${API_BASE_URL}/api/orders/my-orders`, {
+    fetch('/api/orders/my-orders', {
       headers: {
         'Authorization': `Bearer ${token}`
       }

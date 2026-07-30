@@ -18,7 +18,7 @@ export interface ProductCatalogItem {
 export const productApi = createApi({
   reducerPath: 'productApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/' 
+    baseUrl: '/api/' 
   }),
   keepUnusedDataFor: 60, // Retain entries in memory for 60s
   refetchOnMountOrArgChange: false, // Prevent duplicate refetches within view cycles

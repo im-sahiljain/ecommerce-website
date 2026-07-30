@@ -13,11 +13,8 @@ export async function addToCartAction(
   productId: string,
   quantity: number = 1
 ): Promise<CartActionResult> {
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-  const agent = getKeepAliveAgent(backendUrl);
-
   try {
-    const response = await fetch(`${backendUrl}/api/cart/add`, {
+    const response = await fetch('/api/cart/add', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

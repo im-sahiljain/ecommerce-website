@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useCart } from "../context/CartContext";
 import { useAppSelector } from "../store/hooks";
 import type { RootState } from "../store/store";
-import { API_BASE_URL } from "../config/api";
 import OptimisticAddToCart from "../components/OptimisticAddToCart";
 
 import {
@@ -327,21 +326,21 @@ export default function HomePage() {
   const products = reduxProducts.length > 0 ? reduxProducts : fetchedProducts;
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/products`)
+    fetch("/api/products")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setFetchedProducts(data);
       })
       .catch(() => {});
 
-    fetch(`${API_BASE_URL}/api/homepage-sections`)
+    fetch("/api/homepage-sections")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) setDbThemeSections(data);
       })
       .catch(() => {});
 
-    fetch(`${API_BASE_URL}/api/themes`)
+    fetch("/api/themes")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setFetchedThemes(data);

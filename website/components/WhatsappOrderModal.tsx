@@ -83,7 +83,7 @@ Thank you! Please confirm my order and shipping fee.`;
 
     // 1. Dual-register order on backend API so it shows up in Admin Panel /orders
     try {
-      await fetch(`${API_BASE_URL}/api/orders`, {
+      await fetch('/api/orders', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

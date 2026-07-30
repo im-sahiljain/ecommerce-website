@@ -36,7 +36,7 @@ export default function CheckoutPage() {
   const [settings, setSettings] = useState<{ isGlobalOrderingEnabled?: boolean }>({});
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/settings`)
+    fetch('/api/settings')
       .then((res) => res.json())
       .then((data) => {
         if (data) setSettings(data);
@@ -140,7 +140,7 @@ export default function CheckoutPage() {
     };
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/orders`, {
+      const res = await fetch('/api/orders', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
