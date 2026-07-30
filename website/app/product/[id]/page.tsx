@@ -834,7 +834,7 @@ export default function ProductDetailPage() {
 
       {/* Fullscreen Popup Lightbox Modal */}
       {isFullscreenModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-8 animate-fade-in text-white">
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-8 animate-fade-in text-white">
           {/* Header */}
           <div className="flex justify-between items-center z-10 max-w-7xl w-full mx-auto">
             <div className="flex items-center space-x-3">
