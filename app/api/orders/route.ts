@@ -12,6 +12,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(userOrders, { status: 200 });
     }
 
+    const pageParam = searchParams.get('page');
+    if (pageParam) {
+      const page = Math.max(1, Number(pageParam) || 1);
+      const pageSize = Math.min(50, Math.max(1, Number(searchParams.get('limit') || 20)));
+      const status = searchParams.get('status') || undefined;
+      const result = await db.listOrders({
+        status,
+        limit: pageSize,
+        offset: (page - 1) * pageSize,
+      });
+      return NextResponse.json({ ...result, page, pageSize }, { status: 200 });
+    }
+
     const orders = await db.getOrders();
     return NextResponse.json(orders, { status: 200 });
   } catch (err: any) {

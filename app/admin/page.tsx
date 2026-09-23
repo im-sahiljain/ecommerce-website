@@ -40,11 +40,11 @@ export default function AdminDashboardPage() {
             Admin Dashboard Overview
           </h1>
           <p className="text-slate-500 text-xs mt-1">
-            Manage catalog listings, categories, themes, age groups, and customer orders.
+            Manage catalog listings, categories, and customer orders.
           </p>
         </div>
         <Link
-          href="/admin/products"
+          href="/admin/products/new"
           className="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs transition shrink-0 inline-flex items-center justify-center"
         >
           + Add New Craft Product
@@ -107,7 +107,7 @@ export default function AdminDashboardPage() {
       {/* Quick Management Shortcuts */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
         <h3 className="font-extrabold text-base text-slate-800">Quick Catalog Actions</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs font-bold">
           <Link
             href="/admin/products"
             className="p-4 bg-sky-50 hover:bg-sky-100/80 text-sky-900 rounded-xl transition text-center border border-sky-100"
@@ -119,12 +119,6 @@ export default function AdminDashboardPage() {
             className="p-4 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 rounded-xl transition text-center border border-emerald-100"
           >
             🏷️ Manage Categories
-          </Link>
-          <Link
-            href="/admin/themes"
-            className="p-4 bg-purple-50 hover:bg-purple-100/80 text-purple-900 rounded-xl transition text-center border border-purple-100"
-          >
-            🎨 Manage Themes
           </Link>
           <Link
             href="/admin/orders"

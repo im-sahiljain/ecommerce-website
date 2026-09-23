@@ -19,3 +19,36 @@ export async function GET(
     );
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const existing = await db.getOrderById(id);
+    if (!existing) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    const deleted = await db.deleteOrder(existing.id);
+    if (!deleted) {
+      return NextResponse.json({ error: 'Failed to delete order' }, { status: 500 });
+    }
+
+    return NextResponse.json(
+      { success: true, id: existing.id, orderNumber: existing.orderNumber },
+      { status: 200 }
+    );
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: err.message || 'Failed to delete order' },
+      { status: 500 }
+    );
+  }
+}

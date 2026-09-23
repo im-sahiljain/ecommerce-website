@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { HOMEPAGE_CMS_PAUSED } from '@/lib/homepageCms';
 
 export async function PUT(req: NextRequest) {
+  if (HOMEPAGE_CMS_PAUSED) {
+    return NextResponse.json(
+      {
+        paused: true,
+        message:
+          'Homepage CMS is not used by the storefront. Database operations are paused.',
+      },
+      { status: 503 }
+    );
+  }
   try {
     const body = await req.json();
     const { orderedIds } = body;

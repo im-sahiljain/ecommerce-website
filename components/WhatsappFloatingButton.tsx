@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { API_BASE_URL } from "../config/api";
+import { useEffect, useState } from "react";
 
 interface SiteSettings {
   isWhatsappChatButtonEnabled?: boolean;
@@ -22,17 +21,37 @@ function WhatsappIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+const DESKTOP_HOVER = "(min-width: 640px) and (hover: hover) and (pointer: fine)";
+
 export default function WhatsappFloatingButton() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [introOpen, setIntroOpen] = useState(true);
+  const [hovered, setHovered] = useState(false);
+  const [desktopHover, setDesktopHover] = useState(false);
 
   useEffect(() => {
-    fetch('/api/settings')
+    fetch("/api/settings")
       .then((res) => res.json())
       .then((data) => {
         if (data) setSettings(data);
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia(DESKTOP_HOVER);
+    const update = () => setDesktopHover(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (!settings) return;
+    setIntroOpen(true);
+    const timer = window.setTimeout(() => setIntroOpen(false), 1800);
+    return () => window.clearTimeout(timer);
+  }, [settings]);
 
   const isEnabled = settings
     ? settings.isWhatsappChatButtonEnabled !== false &&
@@ -46,6 +65,7 @@ export default function WhatsappFloatingButton() {
     "Hi! I have a question about products on your website.",
   );
   const whatsappUrl = `https://wa.me/${phoneClean}?text=${messageText}`;
+  const expanded = introOpen || (desktopHover && hovered);
 
   return (
     <a
@@ -53,11 +73,20 @@ export default function WhatsappFloatingButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fixed bottom-6 right-6 z-40 
-      bg-emerald-600 hover:bg-emerald-700 text-white h-14 rounded-full shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center px-3.5 space-x-2 group cursor-pointer border-2 border-white/30"
+      onMouseEnter={() => {
+        if (desktopHover) setHovered(true);
+      }}
+      onMouseLeave={() => setHovered(false)}
+      className={`fixed bottom-6 right-6 z-40 flex h-14 w-max min-w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-emerald-600 text-white shadow-2xl transition-all duration-500 ease-in-out ${
+        expanded ? "max-w-56 gap-2 px-4" : "max-w-14 gap-0 px-0"
+      }`}
     >
-      <WhatsappIcon className="w-7 h-7 text-white shrink-0" />
-      <span className="max-w-0 group-hover:max-w-xs overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap text-xs font-black tracking-wide opacity-0 group-hover:opacity-100">
+      <WhatsappIcon className="h-7 w-7 shrink-0 text-white" />
+      <span
+        className={`overflow-hidden whitespace-nowrap text-xs font-black tracking-wide transition-all duration-500 ease-in-out ${
+          expanded ? "max-w-40 opacity-100" : "max-w-0 min-w-0 opacity-0"
+        }`}
+      >
         Chat with us
       </span>
     </a>

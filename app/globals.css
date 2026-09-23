@@ -10,6 +10,28 @@ body {
   color: #1E293B;
 }
 
+/* Storefront type is larger than the browser default and grows with the screen.
+   Fixed pixel labels stay readable without scaling layout spacing. */
+.storefront {
+  font-size: clamp(1.0625rem, 0.98rem + 0.35vw, 1.1875rem);
+  line-height: 1.6;
+}
+
+.storefront [class*="text-[9px]"] {
+  font-size: clamp(0.6875rem, 0.64rem + 0.2vw, 0.75rem);
+  line-height: 1.35;
+}
+
+.storefront [class*="text-[10px]"] {
+  font-size: clamp(0.75rem, 0.7rem + 0.22vw, 0.8125rem);
+  line-height: 1.35;
+}
+
+.storefront [class*="text-[11px]"] {
+  font-size: clamp(0.8125rem, 0.76rem + 0.22vw, 0.875rem);
+  line-height: 1.4;
+}
+
 /* Custom Soft Shadows */
 .soft-shadow {
   box-shadow: 0px 10px 30px rgba(30, 41, 59, 0.05);

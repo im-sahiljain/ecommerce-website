@@ -21,7 +21,7 @@ export default function StorefrontLayout({
   }
 
   return (
-    <>
+    <div className="storefront">
       <div>
         <Navbar />
         <main>{children}</main>
@@ -30,6 +30,6 @@ export default function StorefrontLayout({
       <AuthModal />
       <CartDrawer />
       <WhatsappFloatingButton />
-    </>
+    </div>
   );
 }

@@ -775,6 +775,118 @@ export class Database {
   // ORDERS
   // ═══════════════════════════════════════════
 
+  async listOrders(options: {
+    status?: string;
+    limit: number;
+    offset: number;
+  }): Promise<{
+    orders: Array<{
+      id: string;
+      orderNumber: string;
+      customerName: string;
+      phone: string;
+      status: Order['status'];
+      total: number;
+      createdAt: string;
+      itemCount: number;
+    }>;
+    total: number;
+    statusCounts: Record<string, number>;
+  }> {
+    const pool = this.pgPool;
+    const empty = { orders: [], total: 0, statusCounts: {} as Record<string, number> };
+    if (!pool) return empty;
+
+    const status = options.status || null;
+    const limit = options.limit;
+    const offset = options.offset;
+
+    try {
+      const [rowsRes, totalRes, countsRes] = await Promise.all([
+        pool.query(
+          `
+          SELECT
+            id,
+            order_number,
+            customer_name,
+            phone,
+            status,
+            total,
+            created_at,
+            CASE
+              WHEN items IS NULL THEN 0
+              WHEN jsonb_typeof(items::jsonb) = 'array' THEN jsonb_array_length(items::jsonb)
+              ELSE 0
+            END AS item_count
+          FROM public.orders
+          WHERE ($1::text IS NULL OR status = $1)
+          ORDER BY created_at DESC
+          LIMIT $2 OFFSET $3
+          `,
+          [status, limit, offset]
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS total FROM public.orders WHERE ($1::text IS NULL OR status = $1)`,
+          [status]
+        ),
+        pool.query(
+          `SELECT status, COUNT(*)::int AS count FROM public.orders GROUP BY status`
+        ),
+      ]);
+
+      const statusCounts: Record<string, number> = {};
+      for (const row of countsRes.rows) {
+        statusCounts[row.status] = row.count;
+      }
+
+      return {
+        orders: rowsRes.rows.map((r) => ({
+          id: r.id,
+          orderNumber: r.order_number,
+          customerName: r.customer_name,
+          phone: r.phone || '',
+          status: r.status,
+          total: Number(r.total),
+          createdAt: r.created_at,
+          itemCount: Number(r.item_count) || 0,
+        })),
+        total: totalRes.rows[0]?.total || 0,
+        statusCounts,
+      };
+    } catch (err: any) {
+      console.warn('⚠️ PG listOrders error:', err.message);
+      return empty;
+    }
+  }
+
+  async getOrderStats(): Promise<{
+    totalOrders: number;
+    totalRevenue: number;
+    pendingOrders: number;
+  }> {
+    const pool = this.pgPool;
+    const empty = { totalOrders: 0, totalRevenue: 0, pendingOrders: 0 };
+    if (!pool) return empty;
+    try {
+      const res = await pool.query(`
+        SELECT
+          COUNT(*)::int AS total_orders,
+          COALESCE(SUM(total), 0)::float8 AS total_revenue,
+          COUNT(*) FILTER (WHERE status = 'Pending')::int AS pending_orders
+        FROM public.orders
+      `);
+      const row = res.rows[0];
+      return {
+        totalOrders: row?.total_orders || 0,
+        totalRevenue: Number(row?.total_revenue) || 0,
+        pendingOrders: row?.pending_orders || 0,
+      };
+    } catch (err: any) {
+      console.warn('⚠️ PG getOrderStats error:', err.message);
+      return empty;
+    }
+  }
+
   async getOrders(): Promise<Order[]> {
     const pool = this.pgPool;
     if (!pool) return [];
@@ -915,6 +1027,21 @@ export class Database {
     } catch (err: any) {
       console.warn('⚠️ PG updateOrderStatus error:', err.message);
       return null;
+    }
+  }
+
+  async deleteOrder(id: string): Promise<boolean> {
+    const pool = this.pgPool;
+    if (!pool) return false;
+    try {
+      const res = await pool.query(
+        `DELETE FROM public.orders WHERE id = $1 OR order_number = $1`,
+        [id]
+      );
+      return (res.rowCount || 0) > 0;
+    } catch (err: any) {
+      console.warn('⚠️ PG deleteOrder error:', err.message);
+      throw err;
     }
   }
 

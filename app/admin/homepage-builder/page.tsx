@@ -15,6 +15,8 @@ import {
   Sliders,
 } from "lucide-react";
 import { adminFetch } from "@/config/adminAuth";
+import { DEFAULT_HOMEPAGE_SECTIONS } from "@/components/home/homepageSections";
+import { HOMEPAGE_CMS_PAUSED } from "@/lib/homepageCms";
 
 export interface DecorationItem {
   id: string;
@@ -46,7 +48,6 @@ export interface HomepageSection {
 
 export default function HomepageBuilderPage() {
   const [sections, setSections] = useState<HomepageSection[]>([]);
-  const [dbThemes, setDbThemes] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingSection, setEditingSection] = useState<HomepageSection | null>(
     null,
@@ -66,6 +67,10 @@ export default function HomepageBuilderPage() {
   const [newTextColor, setNewTextColor] = useState("#FFFFFF");
 
   const fetchSections = () => {
+    if (HOMEPAGE_CMS_PAUSED) {
+      setLoading(false);
+      return;
+    }
     adminFetch("/api/homepage-sections")
       .then((res) => res.json())
       .then((data) => {
@@ -75,24 +80,18 @@ export default function HomepageBuilderPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-
-    adminFetch("/api/themes")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setDbThemes(data);
-      })
-      .catch(() => {});
   };
 
   useEffect(() => {
     fetchSections();
   }, []);
 
-  const availableThemeNames = Array.from(
-    new Set(dbThemes.map((t) => t.name).filter(Boolean)),
-  );
+  const availableThemeNames = DEFAULT_HOMEPAGE_SECTIONS.map(
+    (section) => section.themeKeyword,
+  ).filter(Boolean);
 
   const handleToggleVisibility = async (id: string, currentVal: boolean) => {
+    if (HOMEPAGE_CMS_PAUSED) return;
     setSections((prev) =>
       prev.map((s) => (s.id === id ? { ...s, isVisible: !currentVal } : s)),
     );
@@ -103,6 +102,7 @@ export default function HomepageBuilderPage() {
   };
 
   const handleMove = async (index: number, direction: "up" | "down") => {
+    if (HOMEPAGE_CMS_PAUSED) return;
     const targetIdx = direction === "up" ? index - 1 : index + 1;
     if (targetIdx < 0 || targetIdx >= sections.length) return;
 
@@ -121,6 +121,7 @@ export default function HomepageBuilderPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (HOMEPAGE_CMS_PAUSED) return;
     if (!confirm("Are you sure you want to remove this homepage section?"))
       return;
     setSections((prev) => prev.filter((s) => s.id !== id));
@@ -130,6 +131,7 @@ export default function HomepageBuilderPage() {
   };
 
   const handleSaveEdit = async () => {
+    if (HOMEPAGE_CMS_PAUSED) return;
     if (!editingSection) return;
     setSections((prev) =>
       prev.map((s) => (s.id === editingSection.id ? editingSection : s)),
@@ -144,6 +146,7 @@ export default function HomepageBuilderPage() {
 
   const handleCreateNew = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (HOMEPAGE_CMS_PAUSED) return;
     if (!newTitle) return;
 
     const payload = {
@@ -205,6 +208,34 @@ export default function HomepageBuilderPage() {
     return (
       <div className="p-12 text-center text-slate-500 font-bold">
         Loading Homepage Sections...
+      </div>
+    );
+  }
+
+  if (HOMEPAGE_CMS_PAUSED) {
+    return (
+      <div className="mx-auto max-w-5xl space-y-6 px-4 py-6">
+        <div className="rounded-3xl bg-slate-900 p-6 text-white shadow-xl sm:p-8">
+          <span className="inline-flex items-center space-x-1.5 text-xs font-black uppercase tracking-widest text-amber-300">
+            <Sparkles className="h-4 w-4" />
+            <span>Not in use</span>
+          </span>
+          <h1 className="mt-1 text-2xl font-extrabold text-white sm:text-3xl">
+            Homepage Layout Builder
+          </h1>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300">
+            The storefront homepage is built from code in{" "}
+            <span className="font-mono text-amber-100">
+              components/home/homepageSections.tsx
+            </span>
+            . This screen does not change the live page.
+          </p>
+        </div>
+        <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-sm leading-relaxed text-amber-950">
+          Database reads and writes for homepage sections are paused. Saved
+          rows stay in the database. Add, reorder, hide, and delete stay off
+          until this CMS is turned back on.
+        </div>
       </div>
     );
   }

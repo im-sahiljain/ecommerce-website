@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { HOMEPAGE_CMS_PAUSED } from '@/lib/homepageCms';
+
+function pausedResponse() {
+  return NextResponse.json(
+    {
+      paused: true,
+      message:
+        'Homepage CMS is not used by the storefront. Database operations are paused.',
+    },
+    { status: 503 }
+  );
+}
 
 export async function GET(_req: NextRequest) {
+  if (HOMEPAGE_CMS_PAUSED) return pausedResponse();
   try {
     const sections = await db.getHomepageSections();
     return NextResponse.json(sections, { status: 200 });
@@ -15,6 +28,7 @@ export async function GET(_req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (HOMEPAGE_CMS_PAUSED) return pausedResponse();
   try {
     const body = await req.json();
     const {

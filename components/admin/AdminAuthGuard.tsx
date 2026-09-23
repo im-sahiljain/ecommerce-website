@@ -16,7 +16,6 @@ import {
   Sparkles,
   LogOut,
   ShieldCheck,
-  Palette,
   ChevronLeft,
   ChevronRight,
   Menu,
@@ -45,12 +44,6 @@ const navItems = [
     color: "text-yellow-400",
   },
   {
-    href: "/admin/themes",
-    label: "Themes Manager",
-    icon: Palette,
-    color: "text-purple-400",
-  },
-  {
     href: "/admin/products",
     label: "Products Catalog",
     icon: Package,
@@ -64,7 +57,7 @@ const navItems = [
   },
   {
     href: "/admin/homepage-builder",
-    label: "Homepage CMS Builder",
+    label: "Homepage CMS (not in use)",
     icon: Sparkles,
     color: "text-pink-400",
   },
@@ -262,7 +255,11 @@ export default function AdminAuthGuard({
           <nav className="space-y-1.5 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-220px)]">
             {navItems.map((item) => {
               const IconComponent = item.icon;
-              const isActive = pathname === item.href;
+              const isActive =
+                item.href === "/admin"
+                  ? pathname === "/admin"
+                  : pathname === item.href ||
+                    pathname.startsWith(`${item.href}/`);
 
               return (
                 <Link
