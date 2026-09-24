@@ -32,13 +32,9 @@ export default function ProductPurchasePanel({
   onLike: () => void;
 }) {
   const { cart, addToCart, updateQuantity, removeFromCart, setIsCartOpen } = useCart();
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
-
-  useEffect(() => {
-    setIsDescriptionExpanded(false);
-  }, [product.id]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);

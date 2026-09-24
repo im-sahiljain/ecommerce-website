@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "../../context/CartContext";
 import { ShieldCheck, Filter, ArrowUpDown, X, Heart } from "lucide-react";
@@ -9,7 +9,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL } from "../../config/api";
 import OptimisticAddToCart from "../../components/OptimisticAddToCart";
 import CatalogImage from "../../components/CatalogImage";
+import PackCardSlides from "../PackCardSlides";
+import { slidesForPack } from "@/lib/packSlides";
 import { productPath } from "@/lib/site";
+import { publicSlug } from "@/lib/slug";
 
 interface Product {
   id: string;
@@ -23,6 +26,7 @@ interface Product {
   productLineId?: string;
   isNonToxic: boolean;
   image: string;
+  images?: string[];
   description: string;
   inStock: boolean;
   likesCount?: number;
@@ -51,13 +55,26 @@ interface CategoryFacet {
   slug: string;
 }
 
+function productLineIdFromParam(raw: string, lines: ProductLine[]) {
+  if (!raw) return "";
+  const match = lines.find(
+    (line) => line.id === raw || line.slug === raw || publicSlug(line) === raw,
+  );
+  if (match) return match.id;
+  return raw.startsWith("line-") ? raw : "";
+}
+
 function ShopPageContent({ categoryName }: { categoryName?: string }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get("search") || searchParams.get("q") || "";
   const initialTheme = searchParams.get("theme") || "";
   const initialCategory = searchParams.get("category") || categoryName || "";
   const initialAge = searchParams.get("ageGroup") || "";
-  const initialProductLineId = searchParams.get("productLineId") || "";
+  const initialProductLineId = productLineIdFromParam(
+    searchParams.get("productLine") || searchParams.get("productLineId") || "",
+    [],
+  );
   const initialPackId = searchParams.get("packId") || "";
 
   const { addToCart } = useCart();
@@ -118,12 +135,26 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
 
   // Sync state when URL searchParams change (e.g. clicking Shop All or changing category links)
   useEffect(() => {
-    setSelectedProductLineId(searchParams.get("productLineId") || "");
+    const raw =
+      searchParams.get("productLine") || searchParams.get("productLineId") || "";
+    const match = productLines.find(
+      (line) => line.id === raw || line.slug === raw || publicSlug(line) === raw,
+    );
+    setSelectedProductLineId(match?.id || (raw.startsWith("line-") ? raw : ""));
+    if (match) {
+      const slug = publicSlug(match);
+      if (searchParams.get("productLine") !== slug || searchParams.has("productLineId")) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("productLineId");
+        params.set("productLine", slug);
+        router.replace(`/shop?${params.toString()}`, { scroll: false });
+      }
+    }
     setSelectedCategory(searchParams.get("category") || categoryName || "");
     setSelectedTheme(searchParams.get("theme") || "");
     setSelectedAge(searchParams.get("ageGroup") || "");
     setSelectedPackId(searchParams.get("packId") || "");
-  }, [searchParams, categoryName]);
+  }, [searchParams, categoryName, productLines, router]);
 
   const filteredProducts = useMemo(() => {
     // Map packs to product-like format
@@ -555,7 +586,11 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
+              {filteredProducts.map((product) => {
+                const packSlides = product.isPack
+                  ? slidesForPack(product.productIds, products)
+                  : [];
+                return (
                 <div
                   key={product.id}
                   className="bg-white rounded-3xl border border-slate-100 p-4 soft-shadow hover:soft-shadow-hover transition duration-300 flex flex-col justify-between group"
@@ -589,7 +624,30 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                         )}
                       </div>
 
-                      {/* Product Image Container */}
+                      {packSlides.length > 1 ? (
+                        <div className="mb-3">
+                          <PackCardSlides
+                            slides={packSlides}
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="rounded-2xl border border-slate-100"
+                          >
+                            {(product.isSellingFast ||
+                              Boolean(
+                                product.badge?.toLowerCase().includes("selling"),
+                              )) && (
+                              <span className="absolute top-2.5 left-2.5 z-10 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-xs uppercase tracking-wider">
+                                🔥 Selling Fast
+                              </span>
+                            )}
+                            {(product.likesCount || 0) > 0 && (
+                              <div className="absolute bottom-2.5 right-2.5 z-10 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-rose-600 font-extrabold text-[10px] sm:text-xs flex items-center space-x-1 shadow-xs">
+                                <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
+                                <span>{product.likesCount}</span>
+                              </div>
+                            )}
+                          </PackCardSlides>
+                        </div>
+                      ) : (
                       <div className="relative rounded-2xl overflow-hidden mb-3 aspect-square bg-slate-50 border border-slate-100">
                         <CatalogImage
                           src={product.image}
@@ -597,7 +655,6 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           className="group-hover:scale-105 transition duration-500"
                         />
-                        {/* Top-Left Selling Fast Badge inside Image */}
                         {(product.isSellingFast ||
                           Boolean(
                             product.badge?.toLowerCase().includes("selling"),
@@ -606,8 +663,6 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                             🔥 Selling Fast
                           </span>
                         )}
-
-                        {/* Bottom-Right Like Count Badge if > 0 */}
                         {(product.likesCount || 0) > 0 && (
                           <div className="absolute bottom-2.5 right-2.5 z-10 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-rose-600 font-extrabold text-[10px] sm:text-xs flex items-center space-x-1 shadow-xs">
                             <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
@@ -615,6 +670,7 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                           </div>
                         )}
                       </div>
+                      )}
 
                       <span className="text-[10px] font-bold uppercase tracking-wider text-pink-500">
                         {product.theme}
@@ -632,7 +688,8 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                     <OptimisticAddToCart product={product} />
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </main>

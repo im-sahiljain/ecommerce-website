@@ -3,6 +3,7 @@ import { permanentRedirect } from "next/navigation";
 import ProductDetailView from "@/components/product/ProductDetailView";
 import { productImages } from "@/components/product/types";
 import { loadProductPage } from "@/lib/productPage";
+import { shareImageUrl } from "@/lib/shareImage";
 import { siteUrl } from "@/lib/site";
 
 type Props = { params: Promise<{ id: string }> };
@@ -25,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   );
   const path = `/product/${data.canonicalSlug}`;
   const title = data.seoTitle || data.detail.name;
+  const image = shareImageUrl(data.detail.image);
   return {
     title,
     description,
@@ -33,7 +35,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: `${siteUrl()}${path}`,
-      images: data.detail.image ? [{ url: data.detail.image, alt: data.detail.name }] : [],
+      images: image
+        ? [{ url: image, width: 1200, height: 630, alt: data.detail.name }]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image] : [],
     },
   };
 }

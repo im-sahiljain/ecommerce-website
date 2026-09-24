@@ -2,16 +2,17 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContext";
+// import { useAuth } from "../context/AuthContext";
 import {
   Search,
-  User as UserIcon,
   ShoppingBag,
   ChevronDown,
-  LogOut,
+  BookOpen,
+  Home,
   Package,
+  Store,
   Sparkles,
   Menu,
   X,
@@ -20,7 +21,8 @@ import {
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { productPath } from "@/lib/site";
+import { GUIDES } from "@/lib/guides";
+import { productLineShopHref, productPath } from "@/lib/site";
 import Image from "next/image";
 
 interface ProductLine {
@@ -47,16 +49,28 @@ function categoryShopHref(cat: { name: string; slug?: string }) {
     : `/shop?category=${encodeURIComponent(cat.name)}`;
 }
 
+function navItemClass(active: boolean) {
+  return `transition ${active ? "text-pink-500" : "hover:text-pink-500"}`;
+}
+
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname() || "/";
+  const onHome = pathname === "/";
+  const onShopAll = pathname === "/shop";
+  const onProducts =
+    pathname.startsWith("/shop/") || pathname.startsWith("/product/");
+  const onOffers = pathname === "/offers" || pathname.startsWith("/offers/");
+  const onGuides = pathname.startsWith("/guides");
   const { totalCount, setIsCartOpen } = useCart();
-  const { user, openAuth, logout } = useAuth();
+  // const { user, openAuth, logout } = useAuth();
 
   const [productLines, setProductLines] = useState<ProductLine[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [packs, setPacks] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
+  const [isGuidesOpen, setIsGuidesOpen] = useState(false);
 
   // Search Feature State
   const [searchQuery, setSearchQuery] = useState("");
@@ -153,16 +167,35 @@ export default function Navbar() {
   };
 
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const guidesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const closeFlyouts = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    if (guidesTimeoutRef.current) clearTimeout(guidesTimeoutRef.current);
+    setIsProductsOpen(false);
+    setIsGuidesOpen(false);
+  };
 
   const handleMouseEnter = () => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    closeFlyouts();
     setIsProductsOpen(true);
   };
 
   const handleMouseLeave = () => {
     hoverTimeoutRef.current = setTimeout(() => {
       setIsProductsOpen(false);
-    }, 250); // 250ms grace delay
+    }, 250);
+  };
+
+  const openGuides = () => {
+    closeFlyouts();
+    setIsGuidesOpen(true);
+  };
+
+  const closeGuides = () => {
+    guidesTimeoutRef.current = setTimeout(() => {
+      setIsGuidesOpen(false);
+    }, 250);
   };
 
   useEffect(() => {
@@ -242,6 +275,15 @@ export default function Navbar() {
 
         {/* Desktop Navigation with Dynamic Mega-Menu (Mathematically Centered) */}
         <nav className="hidden md:flex items-center space-x-8 font-extrabold text-sm text-[#3C2A21] absolute left-1/2 -translate-x-1/2">
+          <Link
+            href="/"
+            onMouseEnter={closeFlyouts}
+            className={`flex items-center gap-1.5 ${navItemClass(onHome)}`}
+            aria-current={onHome ? "page" : undefined}
+          >
+            <Home className="w-4 h-4" />
+            <span>Home</span>
+          </Link>
           {/* DYNAMIC PRODUCTS MEGA-MENU */}
           <div
             className="relative"
@@ -250,9 +292,10 @@ export default function Navbar() {
           >
             <Link
               href="/shop"
-              className="flex items-center gap-1.5 hover:text-pink-500 py-2 transition"
+              className={`flex items-center gap-1.5 py-2 ${navItemClass(onProducts)}`}
+              aria-current={onProducts ? "page" : undefined}
             >
-              <Package className="w-4 h-4 text-pink-500" />
+              <Package className="w-4 h-4" />
               <span>Products</span>
               <ChevronDown
                 className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
@@ -286,7 +329,7 @@ export default function Navbar() {
                     return (
                       <div key={line.id} className="space-y-3">
                         <Link
-                          href={`/shop?productLineId=${line.id}`}
+                          href={productLineShopHref(line)}
                           onClick={() => setIsProductsOpen(false)}
                           className="flex items-start space-x-3 pb-3 border-b border-slate-100 group/title"
                         >
@@ -307,7 +350,7 @@ export default function Navbar() {
 
                         <div className="space-y-1.5 pl-2">
                           <Link
-                            href={`/shop?productLineId=${line.id}`}
+                            href={productLineShopHref(line)}
                             onClick={() => setIsProductsOpen(false)}
                             className="inline-flex items-center space-x-1 text-xs font-extrabold text-pink-600 hover:text-pink-700 py-1 transition"
                           >
@@ -348,12 +391,12 @@ export default function Navbar() {
                 <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-bold text-slate-500 bg-pink-50/60 -mx-6 -mb-6 p-4 px-6 rounded-b-3xl">
                   <span>Mix & Match any items for bulk savings</span>
                   <Link
-                    href="/bundles"
+                    href="/offers"
                     onClick={() => setIsProductsOpen(false)}
                     className="text-pink-600 hover:text-pink-700 flex items-center space-x-1 font-extrabold shrink-0"
                   >
                     <Sparkles className="w-4 h-4" />
-                    <span>Build Package (10% Off)</span>
+                    <span>Offers</span>
                   </Link>
                 </div>
               </div>
@@ -362,26 +405,72 @@ export default function Navbar() {
 
           <Link
             href="/shop"
-            onMouseEnter={() => {
-              if (hoverTimeoutRef.current)
-                clearTimeout(hoverTimeoutRef.current);
-              setIsProductsOpen(false);
-            }}
-            className="hover:text-pink-500 transition"
+            onMouseEnter={closeFlyouts}
+            className={`flex items-center gap-1.5 ${navItemClass(onShopAll)}`}
+            aria-current={onShopAll ? "page" : undefined}
           >
-            Shop All
+            <Store className="w-4 h-4" />
+            <span>Shop All</span>
           </Link>
+          <div
+            className="relative"
+            onMouseEnter={openGuides}
+            onMouseLeave={closeGuides}
+          >
+            <button
+              type="button"
+              className={`flex items-center gap-1.5 py-2 ${navItemClass(onGuides)}`}
+              aria-expanded={isGuidesOpen}
+              aria-haspopup="true"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Guides</span>
+              <ChevronDown
+                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                  isGuidesOpen ? "rotate-180 text-pink-500" : ""
+                }`}
+              />
+            </button>
+            <div
+              className={`absolute top-full left-0 z-50 w-[22rem] pt-2 transition-all duration-200 ${
+                isGuidesOpen
+                  ? "pointer-events-auto block translate-y-0 opacity-100"
+                  : "pointer-events-none hidden translate-y-2 opacity-0"
+              }`}
+            >
+              <div className="rounded-3xl border border-slate-100 bg-white p-3 shadow-2xl">
+                {GUIDES.map((guide) => {
+                  const href = `/guides/${guide.slug}`;
+                  const current = pathname === href;
+                  return (
+                    <Link
+                      key={guide.slug}
+                      href={href}
+                      onClick={() => setIsGuidesOpen(false)}
+                      aria-current={current ? "page" : undefined}
+                      className={`block rounded-2xl px-3 py-2.5 transition ${
+                        current
+                          ? "bg-pink-50 text-pink-500"
+                          : "text-slate-700 hover:bg-pink-50 hover:text-pink-500"
+                      }`}
+                    >
+                      <span className="block text-sm font-extrabold">
+                        {guide.h1}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
           <Link
-            href="/bundles"
-            onMouseEnter={() => {
-              if (hoverTimeoutRef.current)
-                clearTimeout(hoverTimeoutRef.current);
-              setIsProductsOpen(false);
-            }}
-            className="hover:text-pink-500 transition text-pink-600 flex items-center space-x-1"
+            href="/offers"
+            onMouseEnter={closeFlyouts}
+            className={`${navItemClass(onOffers)} flex items-center space-x-1`}
+            aria-current={onOffers ? "page" : undefined}
           >
             <Sparkles className="w-4 h-4" />
-            <span>Build Package</span>
+            <span>Offers</span>
           </Link>
         </nav>
 
@@ -883,6 +972,15 @@ export default function Navbar() {
             className="md:hidden border-t border-slate-100 bg-white overflow-hidden"
           >
             <div className="px-6 py-4 space-y-4">
+              <Link
+                href="/"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-1.5 py-2 font-bold text-sm transition ${onHome ? "text-pink-500" : "text-slate-800 hover:text-pink-600"}`}
+                aria-current={onHome ? "page" : undefined}
+              >
+                <Home className="w-4 h-4" />
+                <span>Home</span>
+              </Link>
               <div className="space-y-3">
                 <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
                   Product Categories
@@ -897,9 +995,15 @@ export default function Navbar() {
                       className="space-y-1 pl-2 border-l-2 border-pink-200"
                     >
                       <Link
-                        href={`/shop?productLineId=${line.id}`}
+                        href={productLineShopHref(line)}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="font-bold text-sm text-slate-800 flex items-center space-x-2"
+                        className={`font-bold text-sm flex items-center space-x-2 ${
+                          subCats.some(
+                            (cat) => pathname === categoryShopHref(cat),
+                          )
+                            ? "text-pink-500"
+                            : "text-slate-800"
+                        }`}
                       >
                         <span>{line.icon || "📦"}</span>
                         <span>{line.name}</span>
@@ -909,7 +1013,16 @@ export default function Navbar() {
                           key={cat.id}
                           href={categoryShopHref(cat)}
                           onClick={() => setIsMobileMenuOpen(false)}
-                          className="block text-xs font-semibold text-slate-500 pl-6 py-1 hover:text-pink-600 transition"
+                          className={`block text-xs font-semibold pl-6 py-1 transition ${
+                            pathname === categoryShopHref(cat)
+                              ? "text-pink-500"
+                              : "text-slate-500 hover:text-pink-600"
+                          }`}
+                          aria-current={
+                            pathname === categoryShopHref(cat)
+                              ? "page"
+                              : undefined
+                          }
                         >
                           {cat.name}
                         </Link>
@@ -923,17 +1036,43 @@ export default function Navbar() {
                 <Link
                   href="/shop"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="py-2 text-slate-700 hover:text-pink-600 transition"
+                  className={`flex items-center gap-1.5 py-2 transition ${onShopAll ? "text-pink-500" : "text-slate-700 hover:text-pink-600"}`}
+                  aria-current={onShopAll ? "page" : undefined}
                 >
-                  Shop All Products
+                  <Store className="w-4 h-4" />
+                  <span>Shop All Products</span>
                 </Link>
+                <p className="pt-2 text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                  Guides
+                </p>
+                {GUIDES.map((guide) => {
+                  const href = `/guides/${guide.slug}`;
+                  const current = pathname === href;
+                  return (
+                    <Link
+                      key={guide.slug}
+                      href={href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      aria-current={current ? "page" : undefined}
+                      className={`flex items-center gap-1.5 py-2 transition ${
+                        current
+                          ? "text-pink-500"
+                          : "text-slate-700 hover:text-pink-600"
+                      }`}
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      <span>{guide.h1}</span>
+                    </Link>
+                  );
+                })}
                 <Link
-                  href="/bundles"
+                  href="/offers"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="py-2 text-pink-600 flex items-center space-x-1 hover:text-pink-700 transition"
+                  className={`py-2 flex items-center space-x-1 transition ${onOffers ? "text-pink-500" : "text-black hover:text-pink-600"}`}
+                  aria-current={onOffers ? "page" : undefined}
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span>Build Package (10% Off)</span>
+                  <span>Offers</span>
                 </Link>
               </div>
             </div>

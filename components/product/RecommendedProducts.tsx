@@ -10,6 +10,30 @@ import { productPath } from "@/lib/site";
 
 const PAGE_SIZE = 8;
 
+function RecommendedSkeleton() {
+  return (
+    <div
+      className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4"
+      aria-hidden="true"
+    >
+      {Array.from({ length: PAGE_SIZE }, (_, index) => (
+        <div
+          key={index}
+          className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
+        >
+          <div className="aspect-square animate-pulse bg-slate-100" />
+          <div className="space-y-2 p-3">
+            <div className="h-3 w-1/3 animate-pulse rounded-full bg-slate-100" />
+            <div className="h-4 w-3/4 animate-pulse rounded-full bg-slate-100" />
+            <div className="h-4 w-1/4 animate-pulse rounded-full bg-slate-100" />
+            <div className="mt-3 h-9 w-full animate-pulse rounded-full bg-slate-100" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ProductBadges({ item }: { item: ProductDetail }) {
   const sellingFast =
     item.isSellingFast || Boolean(item.badge?.toLowerCase().includes("selling"));
@@ -112,7 +136,7 @@ export default function RecommendedProducts({ product }: { product: ProductDetai
         Recommended products
       </h2>
       {catalog === null ? (
-        <div className="mt-5 h-40" aria-hidden="true" />
+        <RecommendedSkeleton />
       ) : shown.length === 0 ? null : (
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
         {shown.map((item) => (

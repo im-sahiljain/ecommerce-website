@@ -26,28 +26,41 @@ interface Product {
   isNonToxic?: boolean;
 }
 
-interface BundleTier {
+interface OfferTier {
   quantity: number;
   discountType: "percentage" | "flat";
   discountValue: number;
 }
 
-interface BundleRule {
+interface OfferRule {
   id: string;
   name: string;
   description?: string;
   applicableScope: "all" | "productLine" | "category" | "theme";
   scopeValue?: string;
   requirementMode?: "exact" | "min_threshold";
-  tiers: BundleTier[];
+  tiers: OfferTier[];
   isActive: boolean;
 }
 
-export default function BundlesPage() {
+function scopeChip(rule: Pick<OfferRule, "applicableScope" | "scopeValue">) {
+  if (rule.applicableScope === "productLine") {
+    return rule.scopeValue ? `Product line: ${rule.scopeValue}` : "Product line";
+  }
+  if (rule.applicableScope === "category") {
+    return rule.scopeValue ? `Category: ${rule.scopeValue}` : "Category";
+  }
+  if (rule.applicableScope === "theme") {
+    return rule.scopeValue ? `Theme: ${rule.scopeValue}` : "Theme";
+  }
+  return "Theme: All";
+}
+
+export default function OffersPage() {
   const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
-  const [bundleRules, setBundleRules] = useState<BundleRule[]>([]);
-  const [selectedBundleId, setSelectedBundleId] = useState<string>("");
+  const [offerRules, setOfferRules] = useState<OfferRule[]>([]);
+  const [selectedOfferId, setSelectedOfferId] = useState<string>("");
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
 
@@ -57,55 +70,55 @@ export default function BundlesPage() {
     setLoading(true);
     Promise.all([
       fetch('/api/products').then((res) => res.json()),
-      fetch('/api/bundles').then((res) => res.json()),
+      fetch("/api/offers").then((res) => res.json()),
     ])
-      .then(([prodsData, bundlesData]) => {
-        if (Array.isArray(bundlesData)) {
-          const active = bundlesData.filter((r: any) => r.isActive !== false);
-          setBundleRules(active);
-          if (active.length > 0) setSelectedBundleId(active[0].id);
+      .then(([prodsData, offersData]) => {
+        if (Array.isArray(offersData)) {
+          const active = offersData.filter((r: any) => r.isActive !== false);
+          setOfferRules(active);
+          if (active.length > 0) setSelectedOfferId(active[0].id);
         }
         if (Array.isArray(prodsData)) {
           setProducts(prodsData.filter((p: any) => p.isVisible !== false));
         }
       })
-      .catch((err) => console.error("Error loading bundle data:", err))
+      .catch((err) => console.error("Error loading offer data:", err))
       .finally(() => setLoading(false));
   }, []);
 
-  const activeBundle =
-    bundleRules.find((b) => b.id === selectedBundleId) || bundleRules[0];
+  const activeOffer =
+    offerRules.find((b) => b.id === selectedOfferId) || offerRules[0];
   const count = selectedProducts.length;
 
-  // Filter products matching active bundle scope
+  // Filter products matching the active offer scope
   const filteredProducts = products.filter((p) => {
     if (
-      !activeBundle ||
-      !activeBundle.applicableScope ||
-      activeBundle.applicableScope === "all"
+      !activeOffer ||
+      !activeOffer.applicableScope ||
+      activeOffer.applicableScope === "all"
     )
       return true;
-    if (activeBundle.applicableScope === "theme") {
+    if (activeOffer.applicableScope === "theme") {
       return p.theme
         .toLowerCase()
-        .includes((activeBundle.scopeValue || "").toLowerCase());
+        .includes((activeOffer.scopeValue || "").toLowerCase());
     }
-    if (activeBundle.applicableScope === "category") {
+    if (activeOffer.applicableScope === "category") {
       return p.category
         .toLowerCase()
-        .includes((activeBundle.scopeValue || "").toLowerCase());
+        .includes((activeOffer.scopeValue || "").toLowerCase());
     }
-    if (activeBundle.applicableScope === "productLine") {
-      return p.productLineId === activeBundle.scopeValue;
+    if (activeOffer.applicableScope === "productLine") {
+      return p.productLineId === activeOffer.scopeValue;
     }
     return true;
   });
 
   // Calculate discount based on exact mode or min_threshold mode
-  const mode = activeBundle?.requirementMode || "exact";
+  const mode = activeOffer?.requirementMode || "exact";
   const tiers =
-    activeBundle?.tiers && activeBundle.tiers.length > 0
-      ? [...activeBundle.tiers].sort((a, b) => a.quantity - b.quantity)
+    activeOffer?.tiers && activeOffer.tiers.length > 0
+      ? [...activeOffer.tiers].sort((a, b) => a.quantity - b.quantity)
       : [
           {
             quantity: 3,
@@ -119,15 +132,17 @@ export default function BundlesPage() {
           },
         ];
 
+  const tierQty = (tier: OfferTier) => Number(tier.quantity);
+
   const getApplicableDiscount = () => {
-    if (!activeBundle) return 0;
+    if (!activeOffer) return 0;
     if (mode === "exact") {
-      const matchedTier = tiers.find((t) => t.quantity === count);
+      const matchedTier = tiers.find((t) => tierQty(t) === count);
       return matchedTier ? matchedTier.discountValue : 0;
     } else {
       const matchedTier = [...tiers]
-        .sort((a, b) => b.quantity - a.quantity)
-        .find((t) => count >= t.quantity);
+        .sort((a, b) => tierQty(b) - tierQty(a))
+        .find((t) => count >= tierQty(t));
       return matchedTier ? matchedTier.discountValue : 0;
     }
   };
@@ -138,23 +153,34 @@ export default function BundlesPage() {
   const discountAmount = (subtotal * discountPercent) / 100;
   const finalPrice = subtotal - discountAmount;
 
+  const targetQty = tierQty(tiers[0]) || 3;
+  const exactQuantities = tiers
+    .map((tier) => tierQty(tier))
+    .filter((qty) => qty > 0);
+  const exactQuantityLabel = exactQuantities.join(" or ");
+  const maxSelectable =
+    mode === "exact" && exactQuantities.length > 0
+      ? Math.max(...exactQuantities)
+      : Number.POSITIVE_INFINITY;
+  const atMax = count >= maxSelectable;
+
   // Toggle selection (No Plus / Minus)
   const toggleSelectProduct = (product: Product) => {
     const isSelected = selectedProducts.some((p) => p.id === product.id);
     if (isSelected) {
       setSelectedProducts(selectedProducts.filter((p) => p.id !== product.id));
-    } else {
+    } else if (count < maxSelectable) {
       setSelectedProducts([...selectedProducts, product]);
     }
   };
 
-  const handleSelectBundle = (ruleId: string) => {
-    setSelectedBundleId(ruleId);
+  const handleSelectOffer = (ruleId: string) => {
+    setSelectedOfferId(ruleId);
     setSelectedProducts([]);
     setIsCouponModalOpen(false);
   };
 
-  const handleAddBundleToCart = () => {
+  const handleAddOfferToCart = () => {
     selectedProducts.forEach((p) => {
       addToCart(
         {
@@ -169,11 +195,6 @@ export default function BundlesPage() {
     setSelectedProducts([]);
   };
 
-  const targetQty = tiers[0]?.quantity || 3;
-  const isExactMatched =
-    mode === "exact"
-      ? tiers.some((t) => t.quantity === count)
-      : count >= targetQty;
   const isValidToCheckout = count > 0 && discountPercent > 0;
 
   return (
@@ -184,17 +205,25 @@ export default function BundlesPage() {
           <div>
             <div className="inline-flex items-center space-x-1.5 px-4 py-1.5 bg-white/80 backdrop-blur-xs rounded-full text-xs font-extrabold text-pink-600 shadow-xs mb-2">
               <Sparkles className="w-4 h-4" />
-              <span>Custom Package Builder</span>
+              <span>Make your Package</span>
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-800">
-              {activeBundle
-                ? activeBundle.name
-                : "Mix & Match Craft & Candle Bundles"}
-            </h1>
-            <p className="text-xs text-slate-600 font-medium mt-1">
-              {activeBundle?.description ||
-                "Select items to build your custom package and save on bulk orders."}
-            </p>
+            {loading ? (
+              <div className="space-y-2">
+                <div className="h-9 w-72 max-w-full animate-pulse rounded-2xl bg-white/80" />
+                <div className="h-3 w-96 max-w-full animate-pulse rounded-full bg-white/60" />
+              </div>
+            ) : (
+              <>
+                <h1 className="text-3xl font-extrabold text-slate-800">
+                  {activeOffer?.name || "No offers available"}
+                </h1>
+                {activeOffer?.description ? (
+                  <p className="text-xs text-slate-600 font-medium mt-1">
+                    {activeOffer.description}
+                  </p>
+                ) : null}
+              </>
+            )}
           </div>
 
           <button
@@ -202,27 +231,40 @@ export default function BundlesPage() {
             className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-2xl shadow-lg transition flex items-center space-x-2 shrink-0 self-start sm:self-auto"
           >
             <Ticket className="w-4 h-4 text-amber-300" />
-            <span>See Available Bundles ({bundleRules.length})</span>
+            <span>See Available Offers ({offerRules.length})</span>
           </button>
         </div>
 
-        {/* Selected Bundle Details Strip */}
-        {activeBundle && (
+        {/* Selected offer details */}
+        {(loading || activeOffer) && (
           <div className="pt-3 border-t border-slate-200/60 flex flex-wrap items-center gap-3 text-xs font-bold text-slate-700">
-            <span className="px-3 py-1 bg-white rounded-full text-slate-800 shadow-2xs border">
-              Active Offer:{" "}
-              <strong className="text-pink-600">{activeBundle.name}</strong>
-            </span>
-            <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full">
-              Scope: {activeBundle.applicableScope.toUpperCase()}{" "}
-              {activeBundle.scopeValue ? `(${activeBundle.scopeValue})` : ""}
-            </span>
-            <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full">
-              Requirement:{" "}
-              {activeBundle.requirementMode === "exact"
-                ? "EXACT Quantity Match"
-                : "Minimum Item Threshold"}
-            </span>
+            {loading ? (
+              <>
+                <span className="inline-block h-7 w-56 animate-pulse rounded-full bg-white/80" />
+                <span className="inline-block h-7 w-52 animate-pulse rounded-full bg-purple-200/80" />
+                <span className="inline-block h-7 w-48 animate-pulse rounded-full bg-amber-200/80" />
+              </>
+            ) : (
+              activeOffer && (
+                <>
+                  <span className="px-3 py-1 bg-white rounded-full text-slate-800 shadow-2xs border">
+                    Selected Offer:{" "}
+                    <strong className="text-pink-600">
+                      {activeOffer.name}
+                    </strong>
+                  </span>
+                  <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full">
+                    {scopeChip(activeOffer)}
+                  </span>
+                  <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full">
+                    Requirement:{" "}
+                    {activeOffer.requirementMode === "exact"
+                      ? "EXACT Quantity Match"
+                      : "Minimum Item Threshold"}
+                  </span>
+                </>
+              )
+            )}
           </div>
         )}
       </div>
@@ -230,16 +272,28 @@ export default function BundlesPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Product Selection Grid */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-extrabold text-slate-800 flex items-center space-x-2">
-              <span>Select Items for Your Package</span>
-              <span className="text-xs text-slate-400 font-semibold">
+          <div className="space-y-1">
+            <h2 className="text-lg font-extrabold leading-snug text-slate-800">
+              Select Items for Your Package
+            </h2>
+            <div className="flex items-center justify-between gap-3">
+              <span className="min-w-0 truncate text-xs font-semibold text-slate-400">
                 ({filteredProducts.length} Eligible Items)
               </span>
-            </h2>
-            <span className="text-xs font-extrabold text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-100">
-              {count} items selected
-            </span>
+              <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSelectedProducts([])}
+                  disabled={count === 0}
+                  className="text-xs font-bold text-pink-600 underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:text-slate-300 disabled:no-underline"
+                >
+                  Clear all
+                </button>
+                <span className="whitespace-nowrap text-xs font-extrabold text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-100">
+                  {count} items selected
+                </span>
+              </div>
+            </div>
           </div>
 
           {loading ? (
@@ -259,8 +313,8 @@ export default function BundlesPage() {
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="p-8 text-center bg-white rounded-3xl border text-slate-500 font-bold text-xs">
-              No products found matching this bundle scope. Try selecting
-              another bundle from "See Available Bundles".
+              No products found matching this offer. Try selecting another
+              offer from "See Available Offers".
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -268,15 +322,21 @@ export default function BundlesPage() {
                 const isSelected = selectedProducts.some(
                   (p) => p.id === product.id,
                 );
+                const isLocked = !isSelected && atMax;
 
                 return (
                   <div
                     key={product.id}
-                    onClick={() => toggleSelectProduct(product)}
-                    className={`p-4 rounded-3xl border cursor-pointer transition relative flex space-x-3 items-center ${
+                    onClick={() => {
+                      if (!isLocked) toggleSelectProduct(product);
+                    }}
+                    aria-disabled={isLocked}
+                    className={`p-4 rounded-3xl border transition relative flex space-x-3 items-center ${
                       isSelected
-                        ? "border-pink-500 bg-pink-50/70 shadow-md ring-2 ring-pink-300"
-                        : "border-slate-200 hover:border-slate-300 bg-white"
+                        ? "cursor-pointer border-pink-500 bg-pink-50/70 shadow-md ring-2 ring-inset ring-pink-300"
+                        : isLocked
+                          ? "cursor-not-allowed border-slate-200 bg-slate-50 opacity-60"
+                          : "cursor-pointer border-slate-200 hover:border-slate-300 bg-white"
                     }`}
                   >
                     <img
@@ -285,7 +345,7 @@ export default function BundlesPage() {
                       className="w-16 h-16 rounded-2xl object-cover shrink-0 border border-slate-100"
                     />
                     <div className="flex-1 min-w-0">
-                      <span className="text-[10px] font-bold text-pink-500 uppercase tracking-wider">
+                      <span className="block truncate text-[10px] font-bold text-pink-500 uppercase tracking-wider">
                         {product.theme || product.category}
                       </span>
                       <h3 className="font-extrabold text-xs text-slate-800 truncate">
@@ -299,12 +359,18 @@ export default function BundlesPage() {
                     {/* Single Select Button (NO PLUS / MINUS) */}
                     <div className="shrink-0">
                       {isSelected ? (
-                        <div className="px-3 py-1.5 bg-pink-500 text-white font-extrabold text-xs rounded-xl flex items-center space-x-1 shadow-2xs">
+                        <div className="px-3 py-1.5 bg-pink-500 text-white font-extrabold text-xs rounded-xl flex items-center justify-center space-x-1 shadow-2xs">
                           <Check className="w-3.5 h-3.5" />
                           <span>Selected</span>
                         </div>
                       ) : (
-                        <div className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center space-x-1 transition">
+                        <div
+                          className={`px-3 py-1.5 font-bold text-xs rounded-xl flex items-center justify-center space-x-1 transition ${
+                            isLocked
+                              ? "bg-slate-100 text-slate-400"
+                              : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                          }`}
+                        >
                           <Plus className="w-3.5 h-3.5 text-slate-500" />
                           <span>Select</span>
                         </div>
@@ -317,7 +383,7 @@ export default function BundlesPage() {
           )}
         </div>
 
-        {/* Bundle Summary Sidebar */}
+        {/* Offer summary */}
         <div className="bg-white p-6 rounded-3xl border border-slate-100 soft-shadow h-fit space-y-6 sticky top-24">
           <div className="border-b border-slate-100 pb-4">
             <div className="flex justify-between items-center">
@@ -348,9 +414,7 @@ export default function BundlesPage() {
                     <p className="text-xs font-bold text-amber-800 flex items-center space-x-1.5">
                       <Info className="w-4 h-4 text-amber-600 shrink-0" />
                       <span>
-                        {count === 0
-                          ? `Select EXACTLY ${targetQty} items to get discount.`
-                          : `Select ${targetQty - count > 0 ? `${targetQty - count} more item(s)` : "exact tier items"} for this offer.`}
+                        {`Select exactly ${exactQuantityLabel} items to unlock the discount.`}
                       </span>
                     </p>
                   </div>
@@ -380,7 +444,7 @@ export default function BundlesPage() {
           </div>
 
           {/* Selected Items List */}
-          <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
+          <div className="space-y-3 lg:max-h-56 lg:overflow-y-auto lg:pr-1">
             <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
               Selected Items
             </h4>
@@ -413,7 +477,7 @@ export default function BundlesPage() {
             </div>
             {discountPercent > 0 && (
               <div className="flex justify-between text-emerald-600 font-bold">
-                <span>Bundle Discount ({discountPercent}%)</span>
+                <span>Offer Discount ({discountPercent}%)</span>
                 <span>-₹{discountAmount.toFixed(2)}</span>
               </div>
             )}
@@ -424,13 +488,13 @@ export default function BundlesPage() {
           </div>
 
           <button
-            onClick={handleAddBundleToCart}
+            onClick={handleAddOfferToCart}
             disabled={!isValidToCheckout}
             className="w-full py-4 bg-pink-500 hover:bg-pink-600 disabled:bg-slate-200 disabled:text-slate-400 text-white font-extrabold text-xs rounded-2xl shadow transition flex items-center justify-center space-x-2 active:scale-95"
           >
             <ShoppingBag className="w-4 h-4" />
             <span>
-              Add Package to Basket ({count} items) — ₹{finalPrice.toFixed(2)}
+              Add to Cart
             </span>
           </button>
         </div>
@@ -444,7 +508,7 @@ export default function BundlesPage() {
               <div className="flex items-center space-x-2">
                 <Ticket className="w-6 h-6 text-pink-500" />
                 <h3 className="font-extrabold text-lg text-slate-800">
-                  Available Bundle Coupons & Deals
+                  Available Offers
                 </h3>
               </div>
               <button
@@ -456,8 +520,8 @@ export default function BundlesPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {bundleRules.map((rule) => {
-                const isCurrent = rule.id === selectedBundleId;
+              {offerRules.map((rule) => {
+                const isCurrent = rule.id === selectedOfferId;
 
                 return (
                   <div
@@ -480,13 +544,12 @@ export default function BundlesPage() {
                         )}
                       </div>
                       <p className="text-xs text-slate-500 mt-1 font-medium">
-                        {rule.description || "Special category bundle offer."}
+                        {rule.description || "Special category offer."}
                       </p>
 
                       <div className="flex flex-wrap gap-1.5 mt-3 text-[10px] font-extrabold">
                         <span className="px-2.5 py-0.5 bg-purple-100 text-purple-800 rounded-full">
-                          Scope: {rule.applicableScope.toUpperCase()}{" "}
-                          {rule.scopeValue ? `(${rule.scopeValue})` : ""}
+                          {scopeChip(rule)}
                         </span>
                         <span className="px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full">
                           {rule.requirementMode === "exact"
@@ -513,7 +576,7 @@ export default function BundlesPage() {
                     </div>
 
                     <button
-                      onClick={() => handleSelectBundle(rule.id)}
+                      onClick={() => handleSelectOffer(rule.id)}
                       disabled={isCurrent}
                       className={`w-full py-2.5 rounded-xl font-extrabold text-xs transition ${
                         isCurrent
@@ -522,10 +585,10 @@ export default function BundlesPage() {
                       }`}
                     >
                       {isCurrent ? (
-                        "Bundle Selected"
+                        "Offer Selected"
                       ) : (
                         <span className="inline-flex items-center space-x-1.5">
-                          <span>Select This Bundle Offer</span>
+                          <span>Select This Offer</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </span>
                       )}

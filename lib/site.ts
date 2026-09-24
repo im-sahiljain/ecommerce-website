@@ -12,3 +12,11 @@ export function productPath(item: {
 }) {
   return `/product/${publicSlug(item)}`;
 }
+
+export function productLineShopHref(line: {
+  id: string;
+  name?: string | null;
+  slug?: string | null;
+}) {
+  return `/shop?productLine=${publicSlug(line)}`;
+}

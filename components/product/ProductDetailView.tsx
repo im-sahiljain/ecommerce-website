@@ -20,7 +20,7 @@ export default function ProductDetailView({
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl animate-pulse px-4 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+      <div className="mx-auto max-w-7xl animate-pulse px-4 py-4 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="grid grid-cols-1 gap-10 rounded-3xl border border-slate-100 bg-white p-6 sm:p-10 md:grid-cols-2">
           <div className="space-y-4">
             <div className="aspect-square w-full rounded-3xl bg-slate-200" />
@@ -58,7 +58,7 @@ export default function ProductDetailView({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
       <div className="soft-shadow relative grid grid-cols-1 gap-10 rounded-3xl border border-slate-100 bg-white p-6 sm:p-10 md:grid-cols-2">
         <ProductGallery
           product={product}

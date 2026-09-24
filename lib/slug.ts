@@ -22,7 +22,7 @@ export function publicSlug(item: {
 export function isIdSlug(slug: string | null | undefined, id: string): boolean {
   const value = slug?.trim() ?? "";
   if (!value || value === id) return true;
-  return /^(?:prod|pack)-\d+$/.test(value);
+  return /^(?:prod|pack|line)-\d+$/.test(value);
 }
 
 export function uniqueSlug(base: string, id: string, taken: Set<string>): string {

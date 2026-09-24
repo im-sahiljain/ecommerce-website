@@ -156,7 +156,7 @@ export default function ProductGallery({
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="relative space-y-4 md:sticky md:top-28 md:z-10 md:self-start">
         <div
           className="group relative flex aspect-square cursor-pointer select-none items-center justify-center overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-50 shadow-xs touch-pan-y"
           onMouseEnter={() => setIsHovered(true)}
@@ -271,20 +271,20 @@ export default function ProductGallery({
             ))}
           </div>
         )}
-      </div>
 
-      {isHovered && (
-        <div className="animate-fade-in pointer-events-none absolute left-[51.5%] top-10 z-40 hidden aspect-square w-[45%] overflow-hidden rounded-3xl border-2 border-pink-400 bg-white shadow-2xl lg:block">
-          <div
-            className="h-full w-full bg-no-repeat"
-            style={{
-              backgroundImage: `url(${currentImageUrl})`,
-              backgroundSize: "280% 280%",
-              backgroundPosition: `${mousePos.x}% ${mousePos.y}%`,
-            }}
-          />
-        </div>
-      )}
+        {isHovered && (
+          <div className="animate-fade-in pointer-events-none absolute left-[calc(100%+2.5rem)] top-0 z-40 hidden aspect-square w-full overflow-hidden rounded-3xl border-2 border-pink-400 bg-white shadow-2xl lg:block">
+            <div
+              className="h-full w-full bg-no-repeat"
+              style={{
+                backgroundImage: `url(${currentImageUrl})`,
+                backgroundSize: "280% 280%",
+                backgroundPosition: `${mousePos.x}% ${mousePos.y}%`,
+              }}
+            />
+          </div>
+        )}
+      </div>
 
       {isFullscreenModalOpen && (
         <div className="animate-fade-in fixed inset-0 z-[100] flex flex-col justify-between bg-black/95 p-4 text-white backdrop-blur-xl sm:p-8">

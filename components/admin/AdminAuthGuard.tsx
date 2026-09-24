@@ -62,8 +62,8 @@ const navItems = [
     color: "text-pink-400",
   },
   {
-    href: "/admin/bundles",
-    label: "Bundle Rules Engine",
+    href: "/admin/offers",
+    label: "Offer Rules",
     icon: Gift,
     color: "text-amber-400",
   },

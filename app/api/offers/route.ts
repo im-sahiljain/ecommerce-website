@@ -4,11 +4,11 @@ import { revalidatePath } from 'next/cache';
 
 export async function GET(_req: NextRequest) {
   try {
-    const rules = await db.getBundleRules();
+    const rules = await db.getOfferRules();
     return NextResponse.json(rules, { status: 200 });
   } catch (err: any) {
     return NextResponse.json(
-      { error: err.message || 'Failed to fetch bundle rules' },
+      { error: err.message || 'Failed to fetch offer rules' },
       { status: 500 }
     );
   }
@@ -21,12 +21,12 @@ export async function POST(req: NextRequest) {
 
     if (!name || !tiers || !Array.isArray(tiers)) {
       return NextResponse.json(
-        { error: 'Bundle name and discount tiers are required.' },
+        { error: 'Offer name and discount tiers are required.' },
         { status: 400 }
       );
     }
 
-    const newRule = await db.addBundleRule({
+    const newRule = await db.addOfferRule({
       name,
       applicableScope: applicableScope || 'all',
       scopeValue,
@@ -35,12 +35,12 @@ export async function POST(req: NextRequest) {
       priority: Number(priority || 0),
     });
 
-    revalidatePath('/shop');
+    revalidatePath('/offers');
 
     return NextResponse.json(newRule, { status: 201 });
   } catch (err: any) {
     return NextResponse.json(
-      { error: err.message || 'Failed to create bundle rule' },
+      { error: err.message || 'Failed to create offer rule' },
       { status: 500 }
     );
   }

@@ -21,11 +21,11 @@ export default function HomePromo() {
             Build Your Custom Craft Package
           </h3>
           <p className="text-xs sm:text-sm text-slate-700 max-w-xl mx-auto">
-            Build your custom bundle set of plaster figurines and POP painting
+            Build your custom offer of plaster figurines and POP painting
             kits to receive exclusive package discounts at checkout.
           </p>
           <Link
-            href="/bundles"
+            href="/offers"
             className="inline-flex items-center space-x-2 px-8 py-3.5 bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-xs rounded-full shadow transition cursor-pointer"
           >
             <span>Start Building Package</span>

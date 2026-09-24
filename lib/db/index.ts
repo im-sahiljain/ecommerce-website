@@ -10,7 +10,7 @@ import {
   User,
   Order,
   UserAddress,
-  BundleRule,
+  OfferRule,
   StockLog,
   ProductAnalytics,
   SiteSettings,
@@ -1210,14 +1210,14 @@ export class Database {
   }
 
   // ═══════════════════════════════════════════
-  // BUNDLE RULES
+  // OFFER RULES
   // ═══════════════════════════════════════════
 
-  async getBundleRules(): Promise<BundleRule[]> {
+  async getOfferRules(): Promise<OfferRule[]> {
     const pool = this.pgPool;
     if (!pool) return [];
     try {
-      const res = await pool.query(`SELECT * FROM public.bundle_rules ORDER BY priority DESC`);
+      const res = await pool.query(`SELECT * FROM public.offer_rules ORDER BY priority DESC`);
       return res.rows.map((r) => ({
         id: r.id,
         name: r.name,
@@ -1230,19 +1230,19 @@ export class Database {
         priority: r.priority || 0,
       }));
     } catch (err: any) {
-      console.warn('⚠️ PG getBundleRules error:', err.message);
+      console.warn('⚠️ PG getOfferRules error:', err.message);
       return [];
     }
   }
 
-  async addBundleRule(rule: Omit<BundleRule, 'id'>): Promise<BundleRule> {
-    const newRule: BundleRule = { ...rule, id: `rule-${Date.now()}` };
+  async addOfferRule(rule: Omit<OfferRule, 'id'>): Promise<OfferRule> {
+    const newRule: OfferRule = { ...rule, id: `rule-${Date.now()}` };
     const pool = this.pgPool;
     if (pool) {
       try {
         await pool.query(
           `
-          INSERT INTO public.bundle_rules (id, name, description, applicable_scope, scope_value, requirement_mode, tiers, is_active, priority)
+          INSERT INTO public.offer_rules (id, name, description, applicable_scope, scope_value, requirement_mode, tiers, is_active, priority)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT (id) DO NOTHING;
         `,
           [
@@ -1258,20 +1258,20 @@ export class Database {
           ]
         );
       } catch (err: any) {
-        console.warn('⚠️ PG addBundleRule error:', err.message);
+        console.warn('⚠️ PG addOfferRule error:', err.message);
       }
     }
     return newRule;
   }
 
-  async updateBundleRule(id: string, updates: Partial<BundleRule>): Promise<BundleRule | null> {
+  async updateOfferRule(id: string, updates: Partial<OfferRule>): Promise<OfferRule | null> {
     const pool = this.pgPool;
     if (!pool) return null;
     try {
-      const ruleRes = await pool.query(`SELECT * FROM public.bundle_rules WHERE id = $1`, [id]);
+      const ruleRes = await pool.query(`SELECT * FROM public.offer_rules WHERE id = $1`, [id]);
       if (ruleRes.rows.length === 0) return null;
       const r = ruleRes.rows[0];
-      const merged: BundleRule = {
+      const merged: OfferRule = {
         id,
         name: updates.name || r.name,
         description: updates.description !== undefined ? updates.description : r.description,
@@ -1284,7 +1284,7 @@ export class Database {
       };
       await pool.query(
         `
-        UPDATE public.bundle_rules SET name=$1, description=$2, applicable_scope=$3, scope_value=$4, requirement_mode=$5, tiers=$6, is_active=$7, priority=$8 WHERE id=$9
+        UPDATE public.offer_rules SET name=$1, description=$2, applicable_scope=$3, scope_value=$4, requirement_mode=$5, tiers=$6, is_active=$7, priority=$8 WHERE id=$9
       `,
         [
           merged.name,
@@ -1300,19 +1300,19 @@ export class Database {
       );
       return merged;
     } catch (err: any) {
-      console.warn('⚠️ PG updateBundleRule error:', err.message);
+      console.warn('⚠️ PG updateOfferRule error:', err.message);
       return null;
     }
   }
 
-  async deleteBundleRule(id: string): Promise<boolean> {
+  async deleteOfferRule(id: string): Promise<boolean> {
     const pool = this.pgPool;
     if (!pool) return false;
     try {
-      const res = await pool.query(`DELETE FROM public.bundle_rules WHERE id = $1`, [id]);
+      const res = await pool.query(`DELETE FROM public.offer_rules WHERE id = $1`, [id]);
       return (res.rowCount || 0) > 0;
     } catch (err: any) {
-      console.warn('⚠️ PG deleteBundleRule error:', err.message);
+      console.warn('⚠️ PG deleteOfferRule error:', err.message);
       return false;
     }
   }

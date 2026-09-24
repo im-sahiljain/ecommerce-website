@@ -10,17 +10,17 @@ export async function PUT(
     const { id } = await params;
     const body = await req.json();
 
-    const updated = await db.updateBundleRule(id, body);
+    const updated = await db.updateOfferRule(id, body);
     if (!updated) {
-      return NextResponse.json({ error: 'Bundle rule not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Offer rule not found' }, { status: 404 });
     }
 
-    revalidatePath('/shop');
+    revalidatePath('/offers');
 
     return NextResponse.json(updated, { status: 200 });
   } catch (err: any) {
     return NextResponse.json(
-      { error: err.message || 'Failed to update bundle rule' },
+      { error: err.message || 'Failed to update offer rule' },
       { status: 500 }
     );
   }
@@ -32,18 +32,18 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const deleted = await db.deleteBundleRule(id);
+    const deleted = await db.deleteOfferRule(id);
 
     if (!deleted) {
-      return NextResponse.json({ error: 'Bundle rule not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Offer rule not found' }, { status: 404 });
     }
 
-    revalidatePath('/shop');
+    revalidatePath('/offers');
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json(
-      { error: err.message || 'Failed to delete bundle rule' },
+      { error: err.message || 'Failed to delete offer rule' },
       { status: 500 }
     );
   }

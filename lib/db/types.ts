@@ -147,20 +147,20 @@ export interface UserAddress {
   createdAt: string;
 }
 
-export interface BundleTier {
+export interface OfferTier {
   quantity: number;
   discountType: 'percentage' | 'flat';
   discountValue: number;
 }
 
-export interface BundleRule {
+export interface OfferRule {
   id: string;
   name: string;
   description?: string;
   applicableScope: 'all' | 'productLine' | 'category' | 'theme';
   scopeValue?: string;
   requirementMode?: 'exact' | 'min_threshold';
-  tiers: BundleTier[];
+  tiers: OfferTier[];
   startDate?: string;
   endDate?: string;
   isActive: boolean;

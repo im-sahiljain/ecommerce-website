@@ -36,7 +36,7 @@ const heroSlides = [
             >
               Shop Painting Kits
             </Link>
-            <Link
+            {/* <Link
               href="/shop"
               className="hidden md:block px-7 py-3.5 rounded-full font-bold text-center text-base transition hover:bg-sky-100/60 active:scale-95"
               style={{
@@ -45,7 +45,7 @@ const heroSlides = [
               }}
             >
               Explore Themes
-            </Link>
+            </Link> */}
           </div>
         </div>
 
@@ -192,14 +192,14 @@ const heroSlides = [
               Shop Kids' Art Kits
             </Link>
             <Link
-              href="/bundles"
+              href="/offers"
               className="hidden md:block px-7 py-3.5 rounded-full font-bold text-center text-base transition hover:bg-amber-100/60 active:scale-95"
               style={{
                 border: "2px solid #3C2A21",
                 color: "#3C2A21",
               }}
             >
-              Build Custom Bundle
+              See Offers
             </Link>
           </div>
         </div>

@@ -30,7 +30,7 @@ export default function Footer() {
   const [categories, setCategories] = useState<CategoryItem[]>([]);
 
   useEffect(() => {
-    fetch('/api/themes')
+    fetch("/api/themes")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -39,7 +39,7 @@ export default function Footer() {
       })
       .catch(() => {});
 
-    fetch('/api/categories')
+    fetch("/api/categories")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -51,7 +51,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-white pt-16 pb-8 border-t border-gray-100 font-quicksand">
-      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
         <div>
           <h3 className="font-bold text-xl mb-4 text-[#3C2A21]">
             Kits and Craft
@@ -60,24 +60,6 @@ export default function Footer() {
             Sparking joy through painting kits. Safe, fun, and creative plaster
             kits for kids.
           </p>
-          <h4 className="font-bold mb-3 mt-6 text-[#3C2A21]">Guides</h4>
-          <ul className="text-gray-500 text-sm space-y-2">
-            <li>
-              <Link href="/guides/plaster-painting-kits-for-kids" className="hover:text-[#3C2A21] transition">
-                Plaster painting kits for kids
-              </Link>
-            </li>
-            <li>
-              <Link href="/guides/birthday-return-gifts" className="hover:text-[#3C2A21] transition">
-                Birthday return gifts
-              </Link>
-            </li>
-            <li>
-              <Link href="/guides/home-decor-figurines" className="hover:text-[#3C2A21] transition">
-                Home décor figurines
-              </Link>
-            </li>
-          </ul>
         </div>
 
         <div>
@@ -167,6 +149,36 @@ export default function Footer() {
                 </li>
               </>
             )}
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="font-bold mb-4 text-[#3C2A21]">Guides</h4>
+          <ul className="text-gray-500 text-sm space-y-2">
+            <li>
+              <Link
+                href="/guides/plaster-painting-kits-for-kids"
+                className="hover:text-[#3C2A21] transition"
+              >
+                Plaster painting kits for kids
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/guides/birthday-return-gifts"
+                className="hover:text-[#3C2A21] transition"
+              >
+                Birthday return gifts
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/guides/home-decor-figurines"
+                className="hover:text-[#3C2A21] transition"
+              >
+                Home décor figurines
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

@@ -4,29 +4,29 @@ import React, { useState, useEffect } from "react";
 import { Gift, Plus, Edit2, Trash2 } from "lucide-react";
 import { adminFetch } from "@/config/adminAuth";
 
-interface BundleTier {
+interface OfferTier {
   quantity: number;
   discountType: "percentage" | "flat";
   discountValue: number;
 }
 
-interface BundleRule {
+interface OfferRule {
   id: string;
   name: string;
   description?: string;
   applicableScope: "all" | "productLine" | "category" | "theme";
   scopeValue?: string;
   requirementMode?: "exact" | "min_threshold";
-  tiers: BundleTier[];
+  tiers: OfferTier[];
   isActive: boolean;
   priority: number;
 }
 
-export default function BundlesAdminPage() {
-  const [rules, setRules] = useState<BundleRule[]>([]);
+export default function OffersAdminPage() {
+  const [rules, setRules] = useState<OfferRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingRule, setEditingRule] = useState<BundleRule | null>(null);
+  const [editingRule, setEditingRule] = useState<OfferRule | null>(null);
 
   // Form State
   const [name, setName] = useState("");
@@ -49,7 +49,7 @@ export default function BundlesAdminPage() {
   }, []);
 
   const fetchRules = () => {
-    adminFetch("/api/bundles")
+    adminFetch("/api/offers")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setRules(data);
@@ -73,7 +73,7 @@ export default function BundlesAdminPage() {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (rule: BundleRule) => {
+  const openEditModal = (rule: OfferRule) => {
     setEditingRule(rule);
     setName(rule.name);
     setDescription(rule.description || "");
@@ -118,8 +118,8 @@ export default function BundlesAdminPage() {
 
     try {
       const url = editingRule
-        ? `/api/bundles/${editingRule.id}`
-        : "/api/bundles";
+        ? `/api/offers/${editingRule.id}`
+        : "/api/offers";
       const method = editingRule ? "PUT" : "POST";
 
       const res = await adminFetch(url, {
@@ -132,14 +132,14 @@ export default function BundlesAdminPage() {
         fetchRules();
       }
     } catch (err) {
-      console.warn("Save bundle rule failed:", err);
+      console.warn("Save offer rule failed:", err);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this bundle offer?")) return;
+    if (!confirm("Are you sure you want to delete this offer?")) return;
     try {
-      const res = await adminFetch(`/api/bundles/${id}`, {
+      const res = await adminFetch(`/api/offers/${id}`, {
         method: "DELETE",
       });
       if (res.ok) fetchRules();
@@ -153,10 +153,10 @@ export default function BundlesAdminPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-800">
-            Bundle Rules & Coupon Engine
+            Offer Rules
           </h1>
           <p className="text-slate-500 text-xs mt-1">
-            Create exact-quantity or minimum-threshold bundles for storewide,
+            Create exact-quantity or minimum-threshold offers for storewide,
             product lines, categories, or themes.
           </p>
         </div>
@@ -165,13 +165,13 @@ export default function BundlesAdminPage() {
           className="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-1.5"
         >
           <Plus className="w-4 h-4" />
-          <span>Create New Bundle Coupon</span>
+          <span>Create New Offer</span>
         </button>
       </div>
 
       {loading ? (
         <div className="p-8 text-center text-slate-500 font-bold">
-          Loading bundle rules...
+          Loading offer rules...
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -191,7 +191,7 @@ export default function BundlesAdminPage() {
                         {rule.name}
                       </h3>
                       <p className="text-xs text-slate-500 font-medium">
-                        {rule.description || "Special package bundle discount"}
+                        {rule.description || "Special package offer discount"}
                       </p>
                     </div>
                   </div>
@@ -247,7 +247,7 @@ export default function BundlesAdminPage() {
                   className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center space-x-1"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
-                  <span>Edit Bundle</span>
+                  <span>Edit Offer</span>
                 </button>
                 <button
                   onClick={() => handleDelete(rule.id)}
@@ -271,13 +271,13 @@ export default function BundlesAdminPage() {
           >
             <h3 className="font-extrabold text-base text-slate-800 border-b pb-3">
               {editingRule
-                ? `Edit Bundle Coupon: ${editingRule.name}`
-                : "Create New Bundle Coupon"}
+                ? `Edit Offer: ${editingRule.name}`
+                : "Create New Offer"}
             </h3>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Bundle Offer Name
+                Offer Name
               </label>
               <input
                 type="text"
@@ -412,7 +412,7 @@ export default function BundlesAdminPage() {
                   onChange={(e) => setIsActive(e.target.checked)}
                   className="rounded text-pink-500"
                 />
-                <span>Active Bundle Offer</span>
+                <span>Active Offer</span>
               </label>
 
               <div className="flex space-x-2">
@@ -427,7 +427,7 @@ export default function BundlesAdminPage() {
                   type="submit"
                   className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs"
                 >
-                  Save Bundle Offer
+                  Save Offer
                 </button>
               </div>
             </div>
