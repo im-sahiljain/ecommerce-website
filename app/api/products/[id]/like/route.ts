@@ -8,9 +8,14 @@ export async function POST(
   try {
     const { id } = await params;
     const body = await req.json().catch(() => ({}));
-    const { userIdentifier } = body;
+    const active = body.active !== false;
+    const product =
+      (await db.getProductBySlug(id)) ?? (await db.getProductById(id));
+    if (!product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
 
-    const result = await db.likeProduct(id, userIdentifier || 'guest');
+    const result = await db.likeProduct(product.id, active);
     return NextResponse.json(result, { status: 200 });
   } catch (err: any) {
     return NextResponse.json(

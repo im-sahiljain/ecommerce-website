@@ -1,5 +1,6 @@
 export interface ProductDetail {
   id: string;
+  slug?: string;
   sku?: string;
   name: string;
   price: number;
@@ -76,13 +77,3 @@ export function packToProduct(
   };
 }
 
-export function otherCategoryProducts(
-  product: ProductDetail,
-  catalog: ProductDetail[],
-) {
-  const category = product.category?.toLowerCase().trim() || "";
-  return catalog.filter((item) => {
-    if (item.id === product.id || item.isVisible === false || !item.image) return false;
-    return (item.category?.toLowerCase().trim() || "") !== category;
-  });
-}

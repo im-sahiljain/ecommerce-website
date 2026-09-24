@@ -73,13 +73,15 @@ export default function ProductGallery({
 
   const handlePrevImage = (event?: React.MouseEvent) => {
     event?.stopPropagation();
-    const frame = (event?.currentTarget as HTMLElement | undefined)?.parentElement;
+    const frame = (event?.currentTarget as HTMLElement | undefined)
+      ?.parentElement;
     slideImage(-1, frame?.clientWidth);
   };
 
   const handleNextImage = (event?: React.MouseEvent) => {
     event?.stopPropagation();
-    const frame = (event?.currentTarget as HTMLElement | undefined)?.parentElement;
+    const frame = (event?.currentTarget as HTMLElement | undefined)
+      ?.parentElement;
     slideImage(1, frame?.clientWidth);
   };
 
@@ -108,7 +110,10 @@ export default function ProductGallery({
     const touch = event.changedTouches[0];
     const deltaX = touch.clientX - start.x;
     const deltaY = touch.clientY - start.y;
-    if (!imageDragging && (Math.abs(deltaX) < 48 || Math.abs(deltaX) <= Math.abs(deltaY))) {
+    if (
+      !imageDragging &&
+      (Math.abs(deltaX) < 48 || Math.abs(deltaX) <= Math.abs(deltaY))
+    ) {
       setImageDragX(0);
       return;
     }
@@ -118,7 +123,10 @@ export default function ProductGallery({
       return;
     }
     blockImageClick.current = true;
-    slideImage(deltaX < 0 ? 1 : -1, (event.currentTarget as HTMLElement).clientWidth);
+    slideImage(
+      deltaX < 0 ? 1 : -1,
+      (event.currentTarget as HTMLElement).clientWidth,
+    );
   };
 
   const openImageLightbox = () => {
@@ -132,8 +140,14 @@ export default function ProductGallery({
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     setMousePos({
-      x: Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100)),
-      y: Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100)),
+      x: Math.max(
+        0,
+        Math.min(100, ((event.clientX - rect.left) / rect.width) * 100),
+      ),
+      y: Math.max(
+        0,
+        Math.min(100, ((event.clientY - rect.top) / rect.height) * 100),
+      ),
     });
   };
 
@@ -180,7 +194,7 @@ export default function ProductGallery({
             </span>
           </div>
 
-          <div className="absolute right-4 top-4 z-20 flex items-center space-x-2">
+          {/* <div className="absolute right-4 top-4 z-20 flex items-center space-x-2">
             <motion.button
               layout
               onClick={(event) => {
@@ -214,7 +228,7 @@ export default function ProductGallery({
                 )}
               </AnimatePresence>
             </motion.button>
-          </div>
+          </div> */}
 
           {images.length > 1 && (
             <>
@@ -248,7 +262,11 @@ export default function ProductGallery({
                     : "border-slate-200 opacity-70 hover:border-slate-300 hover:opacity-100"
                 }`}
               >
-                <img src={imgUrl} alt="" className="h-full w-full object-cover" />
+                <img
+                  src={imgUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
               </button>
             ))}
           </div>
@@ -256,7 +274,7 @@ export default function ProductGallery({
       </div>
 
       {isHovered && (
-        <div className="animate-fade-in pointer-events-none absolute left-[52%] top-6 z-40 hidden aspect-square w-[45%] overflow-hidden rounded-3xl border-2 border-pink-400 bg-white shadow-2xl lg:block">
+        <div className="animate-fade-in pointer-events-none absolute left-[51.5%] top-10 z-40 hidden aspect-square w-[45%] overflow-hidden rounded-3xl border-2 border-pink-400 bg-white shadow-2xl lg:block">
           <div
             className="h-full w-full bg-no-repeat"
             style={{
@@ -265,10 +283,6 @@ export default function ProductGallery({
               backgroundPosition: `${mousePos.x}% ${mousePos.y}%`,
             }}
           />
-          <div className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-slate-900/85 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm backdrop-blur-md">
-            <ZoomIn className="h-3.5 w-3.5 text-pink-400" />
-            <span>2.8x Zoom View</span>
-          </div>
         </div>
       )}
 
@@ -340,7 +354,11 @@ export default function ProductGallery({
                       : "border-white/20 opacity-60 hover:opacity-100"
                   }`}
                 >
-                  <img src={imgUrl} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={imgUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
                 </button>
               ))}
             </div>

@@ -18,6 +18,13 @@ interface CategoryItem {
   isVisible?: boolean;
 }
 
+function categoryShopHref(cat: { name: string; slug?: string }) {
+  const slug = cat.slug?.trim();
+  return slug
+    ? `/shop/${slug}`
+    : `/shop?category=${encodeURIComponent(cat.name)}`;
+}
+
 export default function Footer() {
   const [themes, setThemes] = useState<ThemeItem[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
@@ -53,6 +60,24 @@ export default function Footer() {
             Sparking joy through painting kits. Safe, fun, and creative plaster
             kits for kids.
           </p>
+          <h4 className="font-bold mb-3 mt-6 text-[#3C2A21]">Guides</h4>
+          <ul className="text-gray-500 text-sm space-y-2">
+            <li>
+              <Link href="/guides/plaster-painting-kits-for-kids" className="hover:text-[#3C2A21] transition">
+                Plaster painting kits for kids
+              </Link>
+            </li>
+            <li>
+              <Link href="/guides/birthday-return-gifts" className="hover:text-[#3C2A21] transition">
+                Birthday return gifts
+              </Link>
+            </li>
+            <li>
+              <Link href="/guides/home-decor-figurines" className="hover:text-[#3C2A21] transition">
+                Home décor figurines
+              </Link>
+            </li>
+          </ul>
         </div>
 
         <div>
@@ -107,7 +132,7 @@ export default function Footer() {
               categories.map((c) => (
                 <li key={c.id}>
                   <Link
-                    href={`/shop?category=${encodeURIComponent(c.name)}`}
+                    href={categoryShopHref(c)}
                     className="hover:text-[#3C2A21] transition"
                   >
                     {c.name}

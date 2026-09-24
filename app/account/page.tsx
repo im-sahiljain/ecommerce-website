@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth, UserAddress } from '../../context/AuthContext';
 import { Package, MapPin, User as UserIcon, LogOut, Save, Mail, Phone, Home, Plus, Trash2, CheckCircle2, Check } from 'lucide-react';
 import { API_BASE_URL } from '../../config/api';
+import { ACCOUNT_AUTH_PAUSED } from '../../lib/accountAuth';
 import Link from 'next/link';
 
 interface OrderItem {
@@ -116,6 +117,22 @@ export default function AccountPage() {
     setNewState('');
     setNewZipCode('');
   };
+
+  if (!user && ACCOUNT_AUTH_PAUSED) {
+    return (
+      <div className="max-w-md mx-auto my-16 p-8 bg-white text-center rounded-3xl border border-slate-100 soft-shadow space-y-4">
+        <UserIcon className="w-12 h-12 text-slate-300 mx-auto" />
+        <h3 className="text-xl font-bold text-slate-800">Accounts are paused</h3>
+        <p className="text-xs text-slate-500">Place an order from checkout with your name, phone, and delivery address.</p>
+        <Link
+          href="/checkout"
+          className="inline-block px-8 py-3 bg-pink-300 hover:bg-pink-400 text-slate-800 font-bold text-xs rounded-full shadow transition"
+        >
+          Go to checkout
+        </Link>
+      </div>
+    );
+  }
 
   if (!user) {
     return (

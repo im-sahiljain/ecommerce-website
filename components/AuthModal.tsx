@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { ACCOUNT_AUTH_PAUSED } from '../lib/accountAuth';
 import { X, User, Lock, PhoneCall, Sparkles } from 'lucide-react';
 
 export default function AuthModal() {
@@ -11,7 +12,7 @@ export default function AuthModal() {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
 
-  if (!isAuthOpen) return null;
+  if (ACCOUNT_AUTH_PAUSED || !isAuthOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

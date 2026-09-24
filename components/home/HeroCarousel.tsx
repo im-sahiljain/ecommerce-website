@@ -88,7 +88,7 @@ const heroSlides = [
             <span>✨ DIY Home Decor Project</span>
           </div> */}
 
-          <h1
+          <h2
             className="font-black leading-tight mb-3 uppercase tracking-tight"
             style={{
               fontSize: "clamp(2rem, 5vw, 3.15rem)",
@@ -100,7 +100,7 @@ const heroSlides = [
             Your Home!
             <br />
             {/* <span className="text-pink-600">Décor Project.</span> */}
-          </h1>
+          </h2>
 
           {/* <div className="inline-block bg-amber-100/90 text-[#3C2A21] px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm mb-5 border border-amber-300/60 shadow-xs">
             🏡 Kids' Art as Charming Home Décor!
@@ -169,7 +169,7 @@ const heroSlides = [
           {/* <span className="inline-block px-3.5 py-1 mb-3 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 tracking-wide uppercase">
             🌟 Screen-Free Family Joy
           </span> */}
-          <h1
+          <h2
             className="font-extrabold leading-tight mb-5"
             style={{
               fontSize: "clamp(2.15rem, 5.5vw, 3.6rem)",
@@ -179,7 +179,7 @@ const heroSlides = [
             Unleash Their
             <br />
             Creative Wonder!
-          </h1>
+          </h2>
           <p className="mb-8 max-w-md mx-auto md:mx-0 text-base sm:text-lg font-medium leading-relaxed text-slate-600">
             Watch young imaginations blossom! Non-toxic, vibrant plaster
             painting kits that bring hours of proud artistic fun.

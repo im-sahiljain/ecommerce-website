@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { publicSlug } from '@/lib/slug';
 import { revalidatePath } from 'next/cache';
 
 export async function GET(_req: NextRequest) {
   try {
     const packs = await db.getPacks();
-    return NextResponse.json(packs, { status: 200 });
+    return NextResponse.json(
+      packs.map((pack) => ({ ...pack, slug: publicSlug(pack) })),
+      { status: 200 },
+    );
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Failed to fetch packs' },

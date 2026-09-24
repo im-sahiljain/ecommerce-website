@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { productPath } from "@/lib/site";
 import Image from "next/image";
 
 interface ProductLine {
@@ -37,6 +38,13 @@ interface Category {
   slug: string;
   productLineId?: string;
   isVisible?: boolean;
+}
+
+function categoryShopHref(cat: { name: string; slug?: string }) {
+  const slug = cat.slug?.trim();
+  return slug
+    ? `/shop/${slug}`
+    : `/shop?category=${encodeURIComponent(cat.name)}`;
 }
 
 export default function Navbar() {
@@ -309,7 +317,7 @@ export default function Navbar() {
                           {subCats.map((cat) => (
                             <Link
                               key={cat.id}
-                              href={`/shop?category=${encodeURIComponent(cat.name)}`}
+                              href={categoryShopHref(cat)}
                               onClick={() => setIsProductsOpen(false)}
                               className="block text-xs font-semibold text-slate-600 hover:text-pink-600 py-1 transition"
                             >
@@ -324,7 +332,7 @@ export default function Navbar() {
                             .map((pack) => (
                               <Link
                                 key={pack.id}
-                                href={`/product/${pack.id}`}
+                                href={productPath(pack)}
                                 onClick={() => setIsProductsOpen(false)}
                                 className="block text-xs font-extrabold text-amber-600 hover:text-amber-700 py-1 transition"
                               >
@@ -496,7 +504,7 @@ export default function Navbar() {
                               {searchResults.products.map((item) => (
                                 <Link
                                   key={item.id}
-                                  href={`/product/${item.id}`}
+                                  href={productPath(item)}
                                   onClick={() => {
                                     setIsSearchOpen(false);
                                     setIsMobileSearchOpen(false);
@@ -564,7 +572,7 @@ export default function Navbar() {
                               {searchResults.categories.map((c) => (
                                 <Link
                                   key={c.id}
-                                  href={`/shop?category=${encodeURIComponent(c.name)}`}
+                                  href={categoryShopHref(c)}
                                   onClick={() => {
                                     setIsSearchOpen(false);
                                     setIsMobileSearchOpen(false);
@@ -749,7 +757,7 @@ export default function Navbar() {
                             {searchResults.products.map((item) => (
                               <Link
                                 key={item.id}
-                                href={`/product/${item.id}`}
+                                href={productPath(item)}
                                 onClick={() => {
                                   setIsSearchOpen(false);
                                   setIsMobileSearchOpen(false);
@@ -817,7 +825,7 @@ export default function Navbar() {
                             {searchResults.categories.map((c) => (
                               <Link
                                 key={c.id}
-                                href={`/shop?category=${encodeURIComponent(c.name)}`}
+                                href={categoryShopHref(c)}
                                 onClick={() => {
                                   setIsSearchOpen(false);
                                   setIsMobileSearchOpen(false);
@@ -899,7 +907,7 @@ export default function Navbar() {
                       {subCats.map((cat) => (
                         <Link
                           key={cat.id}
-                          href={`/shop?category=${encodeURIComponent(cat.name)}`}
+                          href={categoryShopHref(cat)}
                           onClick={() => setIsMobileMenuOpen(false)}
                           className="block text-xs font-semibold text-slate-500 pl-6 py-1 hover:text-pink-600 transition"
                         >

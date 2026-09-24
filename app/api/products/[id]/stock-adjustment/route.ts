@@ -30,6 +30,10 @@ export async function POST(
     }
 
     revalidatePath(`/product/${id}`);
+    const slug = updated.slug?.trim();
+    if (slug && slug !== id) {
+      revalidatePath(`/product/${slug}`);
+    }
     revalidatePath('/shop');
 
     return NextResponse.json(updated, { status: 200 });

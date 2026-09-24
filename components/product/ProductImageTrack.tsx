@@ -1,3 +1,27 @@
+import Image from "next/image";
+
+function SlideImage({
+  src,
+  alt,
+  fit,
+}: {
+  src: string;
+  alt: string;
+  fit: "cover" | "contain";
+}) {
+  return (
+    <Image
+      src={src}
+      alt={`${alt} plaster painting kit`}
+      fill
+      sizes="(max-width: 768px) 100vw, 50vw"
+      className={`pointer-events-none select-none ${
+        fit === "cover" ? "object-cover" : "object-contain"
+      }`}
+    />
+  );
+}
+
 export default function ProductImageTrack({
   images,
   index,
@@ -16,13 +40,9 @@ export default function ProductImageTrack({
   if (images.length === 0) return null;
   if (images.length === 1) {
     return (
-      <img
-        src={images[0]}
-        alt={alt}
-        className={`h-full w-full select-none ${
-          fit === "cover" ? "object-cover" : "object-contain"
-        }`}
-      />
+      <div className="relative h-full w-full">
+        <SlideImage src={images[0]} alt={alt} fit={fit} />
+      </div>
     );
   }
 
@@ -46,17 +66,9 @@ export default function ProductImageTrack({
       {frames.map((src, frameIndex) => (
         <div
           key={`${src}-${frameIndex}`}
-          className="flex h-full w-1/3 shrink-0 items-center justify-center"
+          className="relative flex h-full w-1/3 shrink-0 items-center justify-center"
         >
-          <img
-            src={src}
-            alt={alt}
-            className={`pointer-events-none h-full w-full select-none ${
-              fit === "cover"
-                ? "object-cover"
-                : "max-h-[76vh] max-w-[85vw] object-contain"
-            }`}
-          />
+          <SlideImage src={src} alt={alt} fit={fit} />
         </div>
       ))}
     </div>

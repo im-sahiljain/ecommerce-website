@@ -1,7 +1,14 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import OptimisticAddToCart from "../OptimisticAddToCart";
-import { otherCategoryProducts, type ProductDetail } from "./types";
+import CatalogImage from "../CatalogImage";
+import type { ProductDetail } from "./types";
+import { productPath } from "@/lib/site";
+
+const PAGE_SIZE = 8;
 
 function ProductBadges({ item }: { item: ProductDetail }) {
   const sellingFast =
@@ -42,33 +49,84 @@ function ProductBadges({ item }: { item: ProductDetail }) {
   );
 }
 
-export default function RecommendedProducts({
-  product,
-  catalog,
-}: {
-  product: ProductDetail;
-  catalog: ProductDetail[];
-}) {
-  const recommended = otherCategoryProducts(product, catalog);
-  if (recommended.length === 0) return null;
+export default function RecommendedProducts({ product }: { product: ProductDetail }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const [catalog, setCatalog] = useState<ProductDetail[] | null>(null);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  useEffect(() => {
+    setCatalog(null);
+    setVisibleCount(PAGE_SIZE);
+    const node = sectionRef.current;
+    if (!node) return;
+    let cancelled = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        fetch("/api/products")
+          .then((response) => response.json())
+          .then((data) => {
+            if (!cancelled) setCatalog(Array.isArray(data) ? data : []);
+          })
+          .catch(() => {
+            if (!cancelled) setCatalog([]);
+          });
+      },
+      { rootMargin: "480px" },
+    );
+    observer.observe(node);
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
+  }, [product.id]);
+
+  const recommended =
+    catalog?.filter((item) => item.id !== product.id && item.isVisible !== false) ?? [];
+  const shown = recommended.slice(0, visibleCount);
+  const hasMore = shown.length < recommended.length;
+
+  useEffect(() => {
+    const node = moreRef.current;
+    if (!node || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisibleCount((count) => count + PAGE_SIZE);
+        }
+      },
+      { rootMargin: "240px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMore, shown.length]);
+
+  if (catalog && recommended.length === 0) return null;
 
   return (
-    <section className="mt-10 sm:mt-14">
+    <section ref={sectionRef} className="mt-10 sm:mt-14">
       <h2 className="text-xl font-extrabold text-slate-800 sm:text-2xl">
         Recommended products
       </h2>
+      {catalog === null ? (
+        <div className="mt-5 h-40" aria-hidden="true" />
+      ) : shown.length === 0 ? null : (
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
-        {recommended.map((item) => (
+        {shown.map((item) => (
           <article
             key={item.id}
             className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
           >
-            <Link href={`/product/${item.id}`} className="group flex flex-col">
+            <Link href={productPath(item)} className="group flex flex-col">
               <div className="relative aspect-square overflow-hidden bg-slate-50">
-                <img
+                <CatalogImage
                   src={item.image}
-                  alt={item.name}
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  name={item.name}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="transition duration-500 group-hover:scale-105"
                 />
                 <ProductBadges item={item} />
               </div>
@@ -100,6 +158,8 @@ export default function RecommendedProducts({
           </article>
         ))}
       </div>
+      )}
+      {hasMore && <div ref={moreRef} className="h-8" aria-hidden="true" />}
     </section>
   );
 }

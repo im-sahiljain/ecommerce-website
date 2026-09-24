@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { publicSlug } from '@/lib/slug';
 import { uploadToCloudinary } from '@/lib/utils/cloudinary';
 import { revalidatePath } from 'next/cache';
 
@@ -29,7 +30,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(products, { status: 200 });
+    return NextResponse.json(
+      products.map((product) => ({ ...product, slug: publicSlug(product) })),
+      { status: 200 },
+    );
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Failed to fetch products' },

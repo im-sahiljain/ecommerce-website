@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { publicSlug } from '@/lib/slug';
 import { revalidatePath } from 'next/cache';
 
 export async function GET(
@@ -8,11 +9,11 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const pack = await db.getPackById(id);
+    const pack = (await db.getPackBySlug(id)) ?? (await db.getPackById(id));
     if (!pack) {
       return NextResponse.json({ error: 'Pack not found' }, { status: 404 });
     }
-    return NextResponse.json(pack, { status: 200 });
+    return NextResponse.json({ ...pack, slug: publicSlug(pack) }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Failed to fetch pack' },

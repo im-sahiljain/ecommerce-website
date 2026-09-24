@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { publicSlug } from '@/lib/slug';
 import {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -13,12 +14,16 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const product = await db.getProductById(id);
+    const product =
+      (await db.getProductBySlug(id)) ?? (await db.getProductById(id));
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
-    db.recordProductView(id);
-    return NextResponse.json(product, { status: 200 });
+    db.recordProductView(product.id);
+    return NextResponse.json(
+      { ...product, slug: publicSlug(product) },
+      { status: 200 },
+    );
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Failed to fetch product' },
@@ -88,6 +93,12 @@ export async function PUT(
     }
 
     revalidatePath(`/product/${id}`);
+    for (const slug of [existingProduct.slug, updated.slug]) {
+      const trimmed = slug?.trim();
+      if (trimmed && trimmed !== id) {
+        revalidatePath(`/product/${trimmed}`);
+      }
+    }
     revalidatePath('/shop');
     revalidatePath('/');
 

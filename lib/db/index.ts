@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { isIdSlug, slugify, uniqueSlug } from '../slug';
 import {
   Product,
   ProductLine,
@@ -82,6 +83,8 @@ function mapRowToPack(r: any): Pack {
     categoryId: r.category_id || undefined,
     inStock: r.in_stock !== false,
     featured: Boolean(r.featured),
+    seoTitle: r.seo_title || undefined,
+    seoDescription: r.seo_description || undefined,
     createdAt: r.created_at ? new Date(r.created_at).toISOString() : undefined,
     updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : undefined,
   };
@@ -123,6 +126,8 @@ function mapRowToProduct(r: any): Product {
         : false,
     size: r.size || undefined,
     material: r.material || undefined,
+    seoTitle: r.seo_title || undefined,
+    seoDescription: r.seo_description || undefined,
     isVisible: r.is_visible !== false,
     likesCount: r.likes_count ? Number(r.likes_count) : 0,
     createdAt: r.created_at ? new Date(r.created_at).toISOString() : undefined,
@@ -158,6 +163,17 @@ export class Database {
     return getPool();
   }
 
+  private async productNameSlug(name: string, id: string): Promise<string> {
+    const products = await this.getProducts();
+    const taken = new Set<string>();
+    for (const product of products) {
+      if (product.id === id) continue;
+      const slug = product.slug?.trim();
+      if (slug && !isIdSlug(slug, product.id)) taken.add(slug);
+    }
+    return uniqueSlug(slugify(name), id, taken);
+  }
+
   // ═══════════════════════════════════════════
   // PRODUCTS
   // ═══════════════════════════════════════════
@@ -187,6 +203,22 @@ export class Database {
     }
   }
 
+  async getProductBySlug(slug: string): Promise<Product | undefined> {
+    const pool = this.pgPool;
+    if (!pool) return undefined;
+    try {
+      const res = await pool.query(
+        `SELECT * FROM public.products WHERE slug = $1 LIMIT 1`,
+        [slug]
+      );
+      if (res.rows.length === 0) return undefined;
+      return mapRowToProduct(res.rows[0]);
+    } catch (err: any) {
+      console.warn('⚠️ PG getProductBySlug error:', err.message);
+      return undefined;
+    }
+  }
+
   async addProduct(product: Omit<Product, 'id'>): Promise<Product> {
     const now = new Date().toISOString();
     const imagesList =
@@ -195,9 +227,16 @@ export class Database {
         : [product.image || 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500'];
     const id = `prod-${Date.now()}`;
 
+    const requestedSlug = product.slug?.trim();
+    const slug =
+      requestedSlug && !isIdSlug(requestedSlug, id)
+        ? requestedSlug
+        : await this.productNameSlug(product.name, id);
+
     const newProduct: Product = {
       ...product,
       id,
+      slug,
       image: imagesList[0],
       images: imagesList,
       createdAt: product.createdAt || now,
@@ -257,6 +296,9 @@ export class Database {
       if (!current) return null;
 
       const merged = { ...current, ...updates, updatedAt: new Date().toISOString() };
+      if (isIdSlug(merged.slug, id)) {
+        merged.slug = await this.productNameSlug(merged.name, id);
+      }
       const imagesList = merged.images && merged.images.length > 0 ? merged.images : [merged.image];
 
       await pool.query(
@@ -303,6 +345,19 @@ export class Database {
       console.warn('⚠️ PG updateProduct error:', err.message);
       return null;
     }
+  }
+
+  async backfillProductSlugs(): Promise<Array<{ id: string; name: string; from: string; to: string }>> {
+    const products = await this.getProducts();
+    const changes: Array<{ id: string; name: string; from: string; to: string }> = [];
+    for (const product of products) {
+      if (!isIdSlug(product.slug, product.id)) continue;
+      const from = product.slug || product.id;
+      const updated = await this.updateProduct(product.id, {});
+      if (!updated || updated.slug === from) continue;
+      changes.push({ id: product.id, name: product.name, from, to: updated.slug || product.id });
+    }
+    return changes;
   }
 
   async deleteProduct(id: string): Promise<boolean> {
@@ -1311,23 +1366,27 @@ export class Database {
   recordProductView(_productId: string): void {}
   async likeProduct(
     productId: string,
-    _userIdentifier: string = 'guest'
+    active: boolean
   ): Promise<{ likes: number; isLiked: boolean }> {
+    const delta = active ? 1 : -1;
     const pool = this.pgPool;
     if (pool) {
       try {
         const res = await pool.query(
-          `UPDATE public.products SET likes_count = COALESCE(likes_count, 0) + 1 WHERE id = $1 RETURNING likes_count`,
-          [productId]
+          `UPDATE public.products
+           SET likes_count = GREATEST(COALESCE(likes_count, 0) + $2, 0)
+           WHERE id = $1
+           RETURNING likes_count`,
+          [productId, delta]
         );
         if (res.rows.length > 0) {
-          return { likes: Number(res.rows[0].likes_count), isLiked: true };
+          return { likes: Number(res.rows[0].likes_count), isLiked: active };
         }
       } catch (err: any) {
         console.warn('⚠️ PG likeProduct error:', err.message);
       }
     }
-    return { likes: 1, isLiked: true };
+    return { likes: active ? 1 : 0, isLiked: active };
   }
   getAllAnalytics(): Record<string, ProductAnalytics> {
     return {};
@@ -1624,6 +1683,22 @@ export class Database {
       return mapRowToPack(res.rows[0]);
     } catch (err: any) {
       console.warn('⚠️ PG getPackById error:', err.message);
+      return undefined;
+    }
+  }
+
+  async getPackBySlug(slug: string): Promise<Pack | undefined> {
+    const pool = this.pgPool;
+    if (!pool) return undefined;
+    try {
+      const res = await pool.query(
+        `SELECT * FROM public.packs WHERE slug = $1 LIMIT 1`,
+        [slug]
+      );
+      if (res.rows.length === 0) return undefined;
+      return mapRowToPack(res.rows[0]);
+    } catch (err: any) {
+      console.warn('⚠️ PG getPackBySlug error:', err.message);
       return undefined;
     }
   }

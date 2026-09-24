@@ -1,105 +1,85 @@
-"use client";
+import type { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
+import ProductDetailView from "@/components/product/ProductDetailView";
+import { productImages } from "@/components/product/types";
+import { loadProductPage } from "@/lib/productPage";
+import { siteUrl } from "@/lib/site";
 
-import { useParams } from "next/navigation";
-import ProductGallery from "../../../components/product/ProductGallery";
-import ProductPurchasePanel from "../../../components/product/ProductPurchasePanel";
-import RecommendedProducts from "../../../components/product/RecommendedProducts";
-import { productImages } from "../../../components/product/types";
-import { useProductDetail } from "../../../components/product/useProductDetail";
+type Props = { params: Promise<{ id: string }> };
 
-export default function ProductDetailPage() {
-  const params = useParams();
-  const id = params.id as string;
-  const { product, catalog, settings, loading, likesCount, isLiked, toggleLike } =
-    useProductDetail(id);
+function metaDescription(text: string | undefined, name: string) {
+  const collapsed = (text ?? "").replace(/\s+/g, " ").trim();
+  if (!collapsed) return `${name} plaster painting kit from Kits & Craft.`;
+  return collapsed.slice(0, 160);
+}
 
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-7xl animate-pulse px-4 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
-        <div className="grid grid-cols-1 gap-10 rounded-3xl border border-slate-100 bg-white p-6 sm:p-10 md:grid-cols-2">
-          <div className="space-y-4">
-            <div className="aspect-square w-full rounded-3xl bg-slate-200" />
-            <div className="flex space-x-3">
-              <div className="h-16 w-16 rounded-2xl bg-slate-200" />
-              <div className="h-16 w-16 rounded-2xl bg-slate-200" />
-              <div className="h-16 w-16 rounded-2xl bg-slate-200" />
-            </div>
-          </div>
-          <div className="space-y-6">
-            <div className="h-4 w-32 rounded-full bg-slate-200" />
-            <div className="h-8 w-3/4 rounded-xl bg-slate-200" />
-            <div className="h-10 w-40 rounded-xl bg-slate-200" />
-            <div className="space-y-2 pt-4">
-              <div className="h-4 w-full rounded-lg bg-slate-200" />
-              <div className="h-4 w-5/6 rounded-lg bg-slate-200" />
-              <div className="h-4 w-4/6 rounded-lg bg-slate-200" />
-            </div>
-            <div className="mt-6 h-12 w-full rounded-2xl bg-slate-200" />
-          </div>
-        </div>
-      </div>
-    );
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const data = await loadProductPage(id);
+  if (!data) {
+    return { title: "Product Not Found", robots: { index: false, follow: false } };
   }
-
-  if (!product) {
-    return (
-      <div className="mx-auto my-16 max-w-md rounded-3xl border border-slate-100 bg-white p-8 text-center shadow-sm">
-        <h3 className="text-lg font-bold text-slate-800">Product Not Found</h3>
-        <p className="mt-2 text-xs text-slate-500">
-          The product set you are looking for does not exist or was moved.
-        </p>
-      </div>
-    );
-  }
-
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kitsandcraft.vercel.app/";
-  const images = productImages(product);
-  const productUrl = `${siteUrl}/product/${product.id}`;
-  const jsonLd = {
-    "@context": "https://schema.org/",
-    "@type": "Product",
-    name: product.name,
-    image: images.length > 0 ? images : [product.image],
-    description: product.description,
-    sku: product.sku || product.id,
-    brand: { "@type": "Brand", name: "Kits & Craft" },
-    category: product.category,
-    offers: {
-      "@type": "Offer",
-      url: productUrl,
-      priceCurrency: "INR",
-      price: product.price,
-      itemCondition: "https://schema.org/NewCondition",
-      availability: product.inStock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
+  const description = metaDescription(
+    data.seoDescription || data.detail.description,
+    data.detail.name,
+  );
+  const path = `/product/${data.canonicalSlug}`;
+  const title = data.seoTitle || data.detail.name;
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl()}${path}`,
+      images: data.detail.image ? [{ url: data.detail.image, alt: data.detail.name }] : [],
     },
   };
+}
+
+export default async function ProductDetailPage({ params }: Props) {
+  const { id } = await params;
+  const data = await loadProductPage(id);
+  if (data && data.canonicalSlug !== id) {
+    permanentRedirect(`/product/${data.canonicalSlug}`);
+  }
+
+  const images = data ? productImages(data.detail) : [];
+  const jsonLd = data
+    ? {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        name: data.detail.name,
+        image: images.length > 0 ? images : [data.detail.image],
+        description: data.detail.description,
+        sku: data.detail.sku || data.detail.id,
+        brand: { "@type": "Brand", name: "Kits & Craft" },
+        category: data.detail.category,
+        offers: {
+          "@type": "Offer",
+          url: `${siteUrl()}/product/${data.canonicalSlug}`,
+          priceCurrency: "INR",
+          price: data.detail.price,
+          itemCondition: "https://schema.org/NewCondition",
+          availability: data.detail.inStock
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+        },
+      }
+    : null;
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
-        <div className="soft-shadow relative grid grid-cols-1 gap-10 rounded-3xl border border-slate-100 bg-white p-6 sm:p-10 md:grid-cols-2">
-          <ProductGallery
-            product={product}
-            likesCount={likesCount}
-            isLiked={isLiked}
-            onLike={toggleLike}
-          />
-          <ProductPurchasePanel
-            product={product}
-            settings={settings}
-            likesCount={likesCount}
-            isLiked={isLiked}
-            onLike={toggleLike}
-          />
-        </div>
-        <RecommendedProducts product={product} catalog={catalog} />
-      </div>
+      {jsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+      ) : null}
+      <ProductDetailView key={id} id={id} initialProduct={data?.detail ?? null} />
     </>
   );
 }

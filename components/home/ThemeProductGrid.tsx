@@ -4,18 +4,20 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import OptimisticAddToCart from "../OptimisticAddToCart";
+import CatalogImage from "../CatalogImage";
 import type { Product } from "./homeTypes";
+import { productPath } from "@/lib/site";
 
 function ThemeProductCard({ product }: { product: Product }) {
   return (
     <div className="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-white/60 bg-white text-[#3C2A21] shadow-md">
-      <Link href={`/product/${product.id}`} className="block min-w-0">
+      <Link href={productPath(product)} className="block min-w-0">
         <div className="relative aspect-[5/6] w-full overflow-hidden bg-[#F7F1EA] sm:aspect-square">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <CatalogImage
             src={product.image}
-            alt={product.name}
-            className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-105"
+            name={product.name}
+            sizes="(max-width: 640px) 46vw, 240px"
+            className="object-center transition duration-500 group-hover:scale-105"
           />
           <div className="absolute left-1.5 top-1.5 flex max-w-[70%] flex-wrap gap-1">
             {product.ageGroup && product.ageGroup.trim() !== "" && (

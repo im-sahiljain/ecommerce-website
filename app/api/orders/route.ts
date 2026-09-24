@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { ACCOUNT_AUTH_PAUSED } from '@/lib/accountAuth';
 import { revalidatePath } from 'next/cache';
 
 export async function GET(req: NextRequest) {
@@ -71,7 +72,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (userIdentifier && userIdentifier !== 'guest@littlecreators.com') {
+    const attachAccount =
+      !ACCOUNT_AUTH_PAUSED &&
+      Boolean(userIdentifier) &&
+      userIdentifier !== 'guest@littlecreators.com';
+
+    if (attachAccount) {
       await db.findOrCreateUser(userIdentifier, customerName);
       await db.updateUserProfile(userIdentifier, {
         name: customerName,
@@ -95,7 +101,7 @@ export async function POST(req: NextRequest) {
       status: customStatus || 'Pending',
     });
 
-    if (userIdentifier && userIdentifier !== 'guest@littlecreators.com') {
+    if (attachAccount) {
       const existingAddresses = await db.getUserAddresses(userIdentifier);
       const matchesExisting = existingAddresses.some(
         (a) => a.addressLine.toLowerCase() === shippingAddress.toLowerCase()

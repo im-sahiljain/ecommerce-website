@@ -1,15 +1,13 @@
 import { MetadataRoute } from "next";
+import { siteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://kitsandcraft.vercel.app/";
-
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/admin/", "/checkout/confirmation"],
+      disallow: ["/api/", "/admin/", "/checkout", "/account"],
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${siteUrl()}/sitemap.xml`,
   };
 }

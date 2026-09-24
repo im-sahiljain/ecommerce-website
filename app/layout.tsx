@@ -4,15 +4,14 @@ import StoreProvider from "../store/StoreProvider";
 import { AuthProvider } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
 import StorefrontLayout from "../components/StorefrontLayout";
+import { siteUrl } from "@/lib/site";
 
 const SEO_IMAGE_URL =
   process.env.NEXT_PUBLIC_SEO_IMAGE_URL ||
   "https://res.cloudinary.com/dagkrnoap/image/upload/v1785413297/indian-kids-painting_zcbcf2.jpg";
 
 export const metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://kitsandcraft.vercel.app/",
-  ),
+  metadataBase: new URL(siteUrl()),
   title: {
     default: "Kits & Craft | Plaster Painting Kits for Kids & Home Décor India",
     template: "%s | Kits & Craft",
@@ -37,7 +36,7 @@ export const metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://kitsandcraft.vercel.app/",
+    url: siteUrl(),
     siteName: "Kits & Craft",
     title: "Kits & Craft | Plaster Painting Kits for Kids & Home Décor India",
     description:

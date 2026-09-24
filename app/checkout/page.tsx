@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "../../context/CartContext";
 import { useAuth, UserAddress } from "../../context/AuthContext";
+import { ACCOUNT_AUTH_PAUSED } from "../../lib/accountAuth";
 import {
   CreditCard,
   Lock,
@@ -84,7 +85,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!user || !token) {
+    if (!ACCOUNT_AUTH_PAUSED && (!user || !token)) {
       setError("You must log in to place an order.");
       openAuth();
       return;
@@ -101,7 +102,12 @@ export default function CheckoutPage() {
     setError("");
 
     // If custom new address entered and user checked "Save to account", save address first
-    if (selectedAddressId === "custom" && saveAddressToAccount) {
+    if (
+      !ACCOUNT_AUTH_PAUSED &&
+      user &&
+      selectedAddressId === "custom" &&
+      saveAddressToAccount
+    ) {
       await addAddress({
         label: addressLabel || "Delivery Address",
         fullName: customerName,
@@ -144,7 +150,7 @@ export default function CheckoutPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(orderPayload),
       });
@@ -222,12 +228,13 @@ export default function CheckoutPage() {
           Checkout & Order Placement
         </h1>
         <p className="text-xs text-slate-500 mt-1">
-          Select a saved shipping address or enter delivery details to place
-          your craft order.
+          {ACCOUNT_AUTH_PAUSED
+            ? "Enter delivery details to place your craft order."
+            : "Select a saved shipping address or enter delivery details to place your craft order."}
         </p>
       </div>
 
-      {!user ? (
+      {!ACCOUNT_AUTH_PAUSED && !user ? (
         <div className="bg-white p-8 rounded-3xl border border-slate-100 soft-shadow text-center space-y-4 max-w-lg mx-auto">
           <Lock className="w-12 h-12 text-pink-400 mx-auto" />
           <h3 className="text-lg font-bold text-slate-800">
@@ -408,7 +415,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {selectedAddressId === "custom" && (
+                {!ACCOUNT_AUTH_PAUSED && selectedAddressId === "custom" && (
                   <div className="flex items-center space-x-4 pt-2">
                     <div className="flex-1">
                       <label className="block text-xs font-bold text-slate-700 mb-1">

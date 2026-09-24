@@ -247,6 +247,8 @@ export interface Pack {
   categoryId?: string;
   inStock: boolean;
   featured?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
   createdAt?: string;
   updatedAt?: string;
 }
