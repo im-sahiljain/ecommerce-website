@@ -112,6 +112,26 @@ export default function KitCustomizer({
               </p>
             )}
             {offer.paints.groups.map((group) => {
+              const scopeColors = overall
+                ? offer.paints!.groups.flatMap((item) => item.colors)
+                : group.colors;
+              const selectedInScope = scopeColors.filter((color) =>
+                selection.colorIds.includes(color.id),
+              );
+              const includedInScope = overall
+                ? offer.paints!.includedCount
+                : group.includedCount;
+              const coveredIds = new Set(
+                [...selectedInScope]
+                  .sort(
+                    (a, b) =>
+                      a.price - b.price || a.name.localeCompare(b.name),
+                  )
+                  .slice(0, Math.max(0, includedInScope))
+                  .map((color) => color.id),
+              );
+              const allowanceReached =
+                selectedInScope.length >= includedInScope;
               return (
                 <div key={group.typeId} className="space-y-1.5">
                   <p className="text-sm font-extrabold leading-relaxed text-neutral-700">
@@ -131,6 +151,10 @@ export default function KitCustomizer({
                         !overall &&
                         Boolean(activeTypeId) &&
                         group.typeId !== activeTypeId;
+                      const showPrice =
+                        allowanceReached &&
+                        !coveredIds.has(color.id) &&
+                        color.price > 0;
                       return (
                         <button
                           key={color.id}
@@ -153,7 +177,7 @@ export default function KitCustomizer({
                           {offer.paints?.showVolume && color.volumeMl != null
                             ? ` · ${color.volumeMl} ml`
                             : ""}
-                          {color.price > 0 ? ` · ₹${rupees(color.price)}` : ""}
+                          {showPrice ? ` · ₹${rupees(color.price)}` : ""}
                         </button>
                       );
                     })}
@@ -208,6 +232,14 @@ export default function KitCustomizer({
                 const selected = selection.brushes.some(
                   (item) => item.id === brush.id && item.quantity > 0,
                 );
+                const selectedBrushCount = selection.brushes.filter(
+                  (item) => item.quantity > 0,
+                ).length;
+                const showPrice =
+                  !brush.included &&
+                  brush.price > 0 &&
+                  (offer.brushes!.includedCount <= 0 ||
+                    selectedBrushCount > offer.brushes!.includedCount);
                 return (
                   <button
                     key={brush.id}
@@ -228,7 +260,7 @@ export default function KitCustomizer({
                       : ""}
                     {brush.included
                       ? " · Included"
-                      : brush.price > 0
+                      : showPrice
                         ? ` · ₹${rupees(brush.price)}`
                         : ""}
                   </button>
