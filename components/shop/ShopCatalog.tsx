@@ -174,7 +174,7 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
         ? Number(pack.originalPrice)
         : undefined,
       theme: "General",
-      category: pack.category || "Pack Set",
+      category: pack.category || "Kit",
       ageGroup: "All Ages",
       productLineId: pack.productLineId,
       isNonToxic: true,
@@ -608,7 +608,7 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                         <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2.5 min-h-[22px]">
                           {product.isPack ? (
                             <span className="px-2.5 py-0.5 bg-warning-500 text-white rounded-full text-[10px] font-black shadow-2xs tracking-wider uppercase">
-                              🎁 Pack of {product.productIds?.length || 1}
+                              🎁 Kit of {product.productIds?.length || 1}
                             </span>
                           ) : product.ageGroup &&
                             product.ageGroup.trim() !== "" ? (
@@ -728,7 +728,22 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                     </div>
 
                     <div className="mt-4">
-                      <OptimisticAddToCart product={product} />
+                      {product.isPack ? (
+                        product.inStock === false ? (
+                          <span className="flex w-full items-center justify-center rounded-full bg-neutral-200 px-4 py-2.5 text-xs font-bold text-neutral-500">
+                            Out of Stock
+                          </span>
+                        ) : (
+                          <Link
+                            href={productPath(product)}
+                            className="flex w-full items-center justify-center rounded-full bg-primary/15 px-4 py-2.5 text-xs font-bold text-neutral-800"
+                          >
+                            Buy Now
+                          </Link>
+                        )
+                      ) : (
+                        <OptimisticAddToCart product={product} />
+                      )}
                     </div>
                   </div>
                 );

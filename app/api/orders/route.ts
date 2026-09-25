@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { kitExtraPerPiece, mergeKitOffers, selectionToCustomization, toKitOffer } from '@/lib/kit';
 import { ACCOUNT_AUTH_PAUSED } from '@/lib/accountAuth';
 import { revalidatePath } from 'next/cache';
 
@@ -89,15 +90,25 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const pricedItems = await priceOrderItems(items);
+    const pricedSubtotal = roundMoney(
+      pricedItems.reduce(
+        (sum: number, item: { price: number; quantity: number }) =>
+          sum + Number(item.price) * Number(item.quantity || 1),
+        0,
+      ),
+    );
+    const pricedShipping = Number(shipping || 0);
+
     const newOrder = await db.createOrder({
       userIdentifier,
       customerName,
       shippingAddress,
       phone: phone || '',
-      items,
-      subtotal: Number(subtotal),
-      shipping: Number(shipping || 0),
-      total: Number(total),
+      items: pricedItems,
+      subtotal: pricedSubtotal,
+      shipping: pricedShipping,
+      total: roundMoney(pricedSubtotal + pricedShipping),
       status: customStatus || 'Pending',
     });
 
@@ -134,4 +145,60 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function roundMoney(amount: number) {
+  return Math.round(amount * 100) / 100;
+}
+
+async function priceOrderItems(items: any[]) {
+  const [products, packs, supplies] = await Promise.all([
+    db.getProducts(),
+    db.getPacks(),
+    db.getKitSupplies(),
+  ]);
+  const productsById = new Map(products.map((product) => [product.id, product]));
+  const packsById = new Map(packs.map((pack) => [pack.id, pack]));
+
+  return items.map((item) => {
+    const product = productsById.get(item.productId);
+    const pack = packsById.get(item.productId);
+    const base = product ? Number(product.price) : pack ? Number(pack.price) : null;
+    if (base == null) return item;
+
+    const offer = product
+      ? toKitOffer(product.kitContents, supplies)
+      : mergeKitOffers(
+          (pack?.productIds || []).map((id) =>
+            toKitOffer(productsById.get(id)?.kitContents, supplies),
+          ),
+        );
+    const selection = {
+      colorIds: Array.isArray(item.customization?.colors)
+        ? item.customization.colors
+            .map((color: { id?: string }) => color.id)
+            .filter((id: string | undefined): id is string => Boolean(id))
+        : [],
+      brushes: Array.isArray(item.customization?.brushes)
+        ? item.customization.brushes
+            .filter((brush: { id?: string }) => brush.id)
+            .map((brush: { id: string; quantity?: number }) => ({
+              id: brush.id,
+              quantity: Number(brush.quantity) || 0,
+            }))
+        : [],
+    };
+    const extra = kitExtraPerPiece(offer, selection);
+    const customization = selectionToCustomization(offer, selection);
+
+    return {
+      ...item,
+      price: roundMoney(base + extra),
+      customization: customization
+        ? { ...customization, extraPerPiece: extra }
+        : extra > 0
+          ? { ...(item.customization || {}), extraPerPiece: extra }
+          : item.customization,
+    };
+  });
 }

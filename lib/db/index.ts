@@ -1,5 +1,13 @@
 import { Pool } from 'pg';
 import { normalizeGallery, type ProductGallery } from '@/lib/gallery';
+import {
+  normalizeKit,
+  type PaintBrush,
+  type PaintColor,
+  type PaintColorType,
+  type KitSupplies,
+  type ProductKit,
+} from '@/lib/kit';
 import { isIdSlug, slugify, uniqueSlug } from '../slug';
 import {
   Product,
@@ -91,6 +99,47 @@ function mapRowToPack(r: any): Pack {
   };
 }
 
+function parseKit(value: unknown): ProductKit | undefined {
+  if (!value) return undefined;
+  try {
+    const raw = typeof value === 'string' ? JSON.parse(value) : value;
+    return normalizeKit(raw);
+  } catch {
+    return undefined;
+  }
+}
+
+const KIT_SCHEMA_SQL = `
+CREATE TABLE IF NOT EXISTS public.paint_color_types (
+  id text PRIMARY KEY,
+  name text NOT NULL,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS public.paint_colors (
+  id text PRIMARY KEY,
+  name text NOT NULL,
+  hex text,
+  color_type_id text,
+  volume_ml numeric,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS public.paint_brushes (
+  id text PRIMARY KEY,
+  name text NOT NULL,
+  size text,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS kit_contents jsonb;
+ALTER TABLE public.paint_colors ADD COLUMN IF NOT EXISTS available boolean NOT NULL DEFAULT true;
+ALTER TABLE public.paint_color_types ADD COLUMN IF NOT EXISTS available boolean NOT NULL DEFAULT true;
+ALTER TABLE public.paint_brushes ADD COLUMN IF NOT EXISTS available boolean NOT NULL DEFAULT true;
+`;
+
+let kitSchemaPromise: Promise<void> | null = null;
+
 function parseGallery(value: unknown): ProductGallery | undefined {
   if (!value) return undefined;
   try {
@@ -119,6 +168,7 @@ function mapRowToProduct(r: any): Product {
     image: r.image || images[0] || '',
     images,
     gallery: parseGallery(r.gallery),
+    kitContents: parseKit(r.kit_contents),
     description: r.description || '',
     inStock: r.in_stock !== false,
     stockQuantity: r.stock_quantity ? Number(r.stock_quantity) : 10,
@@ -168,6 +218,26 @@ function getPool(): Pool | null {
     });
   }
   return global._pgPool;
+}
+
+function mapPaintColor(r: {
+  id: string;
+  name: string;
+  hex?: string | null;
+  color_type_id?: string | null;
+  volume_ml?: number | string | null;
+  sort_order?: number | string | null;
+  available?: boolean | null;
+}): PaintColor {
+  return {
+    id: r.id,
+    name: r.name,
+    hex: r.hex || undefined,
+    colorTypeId: r.color_type_id || undefined,
+    volumeMl: r.volume_ml != null ? Number(r.volume_ml) : undefined,
+    available: r.available !== false,
+    sortOrder: Number(r.sort_order) || 0,
+  };
 }
 
 export class Database {
@@ -258,10 +328,11 @@ export class Database {
     const pool = this.pgPool;
     if (pool) {
       try {
+        await this.ensureKitSchema();
         await pool.query(
           `
-          INSERT INTO public.products (id, sku, name, slug, price, original_price, cost_price, theme, category, age_group, product_line_id, is_non_toxic, image, images, description, in_stock, stock_quantity, is_ordering_enabled, badge, size, material, is_visible, is_new_launch, is_selling_fast, created_at, updated_at, gallery)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
+          INSERT INTO public.products (id, sku, name, slug, price, original_price, cost_price, theme, category, age_group, product_line_id, is_non_toxic, image, images, description, in_stock, stock_quantity, is_ordering_enabled, badge, size, material, is_visible, is_new_launch, is_selling_fast, created_at, updated_at, gallery, kit_contents)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)
           ON CONFLICT (id) DO NOTHING;
         `,
           [
@@ -292,6 +363,7 @@ export class Database {
             newProduct.createdAt,
             newProduct.updatedAt,
             newProduct.gallery ? JSON.stringify(newProduct.gallery) : null,
+            newProduct.kitContents ? JSON.stringify(newProduct.kitContents) : null,
           ]
         );
       } catch (err: any) {
@@ -305,6 +377,7 @@ export class Database {
     const pool = this.pgPool;
     if (!pool) return null;
     try {
+      await this.ensureKitSchema();
       const current = await this.getProductById(id);
       if (!current) return null;
 
@@ -322,8 +395,8 @@ export class Database {
           is_non_toxic = $9, image = $10, images = $11, description = $12,
           in_stock = $13, stock_quantity = $14, is_ordering_enabled = $15, updated_at = $16,
           slug = $17, sku = $18, badge = $19, size = $20, material = $21, is_visible = $22,
-          is_new_launch = $23, is_selling_fast = $24, gallery = $25
-        WHERE id = $26
+          is_new_launch = $23, is_selling_fast = $24, gallery = $25, kit_contents = $26
+        WHERE id = $27
       `,
         [
           merged.name,
@@ -351,6 +424,7 @@ export class Database {
           Boolean(merged.isNewLaunch),
           Boolean(merged.isSellingFast),
           merged.gallery ? JSON.stringify(merged.gallery) : null,
+          merged.kitContents ? JSON.stringify(merged.kitContents) : null,
           id,
         ]
       );
@@ -1774,6 +1848,7 @@ export class Database {
       const merged: Pack = {
         ...current,
         ...updates,
+        slug: updates.slug?.trim() || current.slug,
         updatedAt: new Date().toISOString(),
       };
 
@@ -1821,6 +1896,293 @@ export class Database {
       console.warn('⚠️ PG deletePack error:', err.message);
       return false;
     }
+  }
+
+  // ═══════════════════════════════════════════
+  // PAINT COLORS, TYPES & BRUSHES
+  // ═══════════════════════════════════════════
+
+  private async ensureKitSchema(): Promise<void> {
+    const pool = this.pgPool;
+    if (!pool) return;
+    if (!kitSchemaPromise) {
+      kitSchemaPromise = pool.query(KIT_SCHEMA_SQL).then(() => undefined).catch((err) => {
+        kitSchemaPromise = null;
+        throw err;
+      });
+    }
+    await kitSchemaPromise;
+  }
+
+  async getKitSupplies(): Promise<KitSupplies> {
+    const [types, colors, brushes] = await Promise.all([
+      this.getPaintColorTypes(),
+      this.getPaintColors(),
+      this.getPaintBrushes(),
+    ]);
+    return { types, colors, brushes };
+  }
+
+  async getPaintColorTypes(): Promise<PaintColorType[]> {
+    const pool = this.pgPool;
+    if (!pool) return [];
+    try {
+      await this.ensureKitSchema();
+      const res = await pool.query(
+        `SELECT * FROM public.paint_color_types ORDER BY sort_order ASC, name ASC`
+      );
+      return res.rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        available: r.available !== false,
+        sortOrder: Number(r.sort_order) || 0,
+      }));
+    } catch (err: any) {
+      console.warn('⚠️ PG getPaintColorTypes error:', err.message);
+      return [];
+    }
+  }
+
+  async addPaintColorType(name: string): Promise<PaintColorType> {
+    const pool = this.pgPool;
+    const id = `ctype-${Date.now()}`;
+    const trimmed = name.trim();
+    if (!pool) return { id, name: trimmed, available: true, sortOrder: 0 };
+    await this.ensureKitSchema();
+    const existing = await pool.query(
+      `SELECT COALESCE(MAX(sort_order), 0) AS max_sort FROM public.paint_color_types`
+    );
+    const sortOrder = Number(existing.rows[0]?.max_sort || 0) + 1;
+    await pool.query(
+      `INSERT INTO public.paint_color_types (id, name, sort_order, available) VALUES ($1, $2, $3, true)`,
+      [id, trimmed, sortOrder]
+    );
+    return { id, name: trimmed, available: true, sortOrder };
+  }
+
+  async updatePaintColorType(id: string, name: string): Promise<PaintColorType | null> {
+    const pool = this.pgPool;
+    if (!pool) return null;
+    await this.ensureKitSchema();
+    const res = await pool.query(
+      `UPDATE public.paint_color_types SET name = $1 WHERE id = $2 RETURNING *`,
+      [name.trim(), id]
+    );
+    if (!res.rows[0]) return null;
+    return {
+      id: res.rows[0].id,
+      name: res.rows[0].name,
+      available: res.rows[0].available !== false,
+      sortOrder: Number(res.rows[0].sort_order) || 0,
+    };
+  }
+
+  async setPaintColorTypeAvailable(id: string, available: boolean): Promise<PaintColorType | null> {
+    const pool = this.pgPool;
+    if (!pool) return null;
+    await this.ensureKitSchema();
+    const res = await pool.query(
+      `UPDATE public.paint_color_types SET available = $1 WHERE id = $2 RETURNING *`,
+      [available, id],
+    );
+    const row = res.rows[0];
+    if (!row) return null;
+    return {
+      id: row.id,
+      name: row.name,
+      available: row.available !== false,
+      sortOrder: Number(row.sort_order) || 0,
+    };
+  }
+
+  async deletePaintColorType(id: string): Promise<void> {
+    const pool = this.pgPool;
+    if (!pool) return;
+    await this.ensureKitSchema();
+    const used = await pool.query(
+      `SELECT id FROM public.paint_colors WHERE color_type_id = $1 LIMIT 1`,
+      [id]
+    );
+    if (used.rows.length > 0) {
+      throw new Error('Delete or move colors of this type first.');
+    }
+    await pool.query(`DELETE FROM public.paint_color_types WHERE id = $1`, [id]);
+  }
+
+  async getPaintColors(): Promise<PaintColor[]> {
+    const pool = this.pgPool;
+    if (!pool) return [];
+    try {
+      await this.ensureKitSchema();
+      const res = await pool.query(
+        `SELECT * FROM public.paint_colors ORDER BY sort_order ASC, name ASC`
+      );
+      return res.rows.map((r) => mapPaintColor(r));
+    } catch (err: any) {
+      console.warn('⚠️ PG getPaintColors error:', err.message);
+      return [];
+    }
+  }
+
+  async addPaintColor(input: {
+    name: string;
+    hex?: string;
+    colorTypeId?: string;
+    volumeMl?: number;
+  }): Promise<PaintColor> {
+    const pool = this.pgPool;
+    const id = `color-${Date.now()}`;
+    const color: PaintColor = {
+      id,
+      name: input.name.trim(),
+      hex: input.hex || undefined,
+      colorTypeId: input.colorTypeId || undefined,
+      volumeMl: input.volumeMl,
+      available: true,
+      sortOrder: 0,
+    };
+    if (!pool) return color;
+    await this.ensureKitSchema();
+    const existing = await pool.query(
+      `SELECT COALESCE(MAX(sort_order), 0) AS max_sort FROM public.paint_colors`
+    );
+    color.sortOrder = Number(existing.rows[0]?.max_sort || 0) + 1;
+    await pool.query(
+      `INSERT INTO public.paint_colors (id, name, hex, color_type_id, volume_ml, sort_order, available)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [color.id, color.name, color.hex || null, color.colorTypeId || null, color.volumeMl ?? null, color.sortOrder, true]
+    );
+    return color;
+  }
+
+  async updatePaintColor(
+    id: string,
+    input: { name: string; hex?: string; colorTypeId?: string; volumeMl?: number }
+  ): Promise<PaintColor | null> {
+    const pool = this.pgPool;
+    if (!pool) return null;
+    await this.ensureKitSchema();
+    const res = await pool.query(
+      `UPDATE public.paint_colors
+       SET name = $1, hex = $2, color_type_id = $3, volume_ml = $4
+       WHERE id = $5
+       RETURNING *`,
+      [input.name.trim(), input.hex || null, input.colorTypeId || null, input.volumeMl ?? null, id]
+    );
+    const r = res.rows[0];
+    if (!r) return null;
+    return mapPaintColor(r);
+  }
+
+  async setPaintColorAvailable(id: string, available: boolean): Promise<PaintColor | null> {
+    const pool = this.pgPool;
+    if (!pool) return null;
+    await this.ensureKitSchema();
+    const res = await pool.query(
+      `UPDATE public.paint_colors SET available = $1 WHERE id = $2 RETURNING *`,
+      [available, id],
+    );
+    const r = res.rows[0];
+    if (!r) return null;
+    return mapPaintColor(r);
+  }
+
+  async deletePaintColor(id: string): Promise<boolean> {
+    const pool = this.pgPool;
+    if (!pool) return false;
+    await this.ensureKitSchema();
+    const res = await pool.query(`DELETE FROM public.paint_colors WHERE id = $1`, [id]);
+    return (res.rowCount || 0) > 0;
+  }
+
+  async getPaintBrushes(): Promise<PaintBrush[]> {
+    const pool = this.pgPool;
+    if (!pool) return [];
+    try {
+      await this.ensureKitSchema();
+      const res = await pool.query(
+        `SELECT * FROM public.paint_brushes ORDER BY sort_order ASC, name ASC`
+      );
+      return res.rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        size: r.size || undefined,
+        available: r.available !== false,
+        sortOrder: Number(r.sort_order) || 0,
+      }));
+    } catch (err: any) {
+      console.warn('⚠️ PG getPaintBrushes error:', err.message);
+      return [];
+    }
+  }
+
+  async addPaintBrush(input: { name: string; size?: string }): Promise<PaintBrush> {
+    const pool = this.pgPool;
+    const id = `brush-${Date.now()}`;
+    const brush: PaintBrush = {
+      id,
+      name: input.name.trim(),
+      size: input.size?.trim() || undefined,
+      available: true,
+      sortOrder: 0,
+    };
+    if (!pool) return brush;
+    await this.ensureKitSchema();
+    const existing = await pool.query(
+      `SELECT COALESCE(MAX(sort_order), 0) AS max_sort FROM public.paint_brushes`
+    );
+    brush.sortOrder = Number(existing.rows[0]?.max_sort || 0) + 1;
+    await pool.query(
+      `INSERT INTO public.paint_brushes (id, name, size, sort_order, available) VALUES ($1, $2, $3, $4, true)`,
+      [brush.id, brush.name, brush.size || null, brush.sortOrder]
+    );
+    return brush;
+  }
+
+  async updatePaintBrush(id: string, input: { name: string; size?: string }): Promise<PaintBrush | null> {
+    const pool = this.pgPool;
+    if (!pool) return null;
+    await this.ensureKitSchema();
+    const res = await pool.query(
+      `UPDATE public.paint_brushes SET name = $1, size = $2 WHERE id = $3 RETURNING *`,
+      [input.name.trim(), input.size?.trim() || null, id]
+    );
+    const r = res.rows[0];
+    if (!r) return null;
+    return {
+      id: r.id,
+      name: r.name,
+      size: r.size || undefined,
+      available: r.available !== false,
+      sortOrder: Number(r.sort_order) || 0,
+    };
+  }
+
+  async setPaintBrushAvailable(id: string, available: boolean): Promise<PaintBrush | null> {
+    const pool = this.pgPool;
+    if (!pool) return null;
+    await this.ensureKitSchema();
+    const res = await pool.query(
+      `UPDATE public.paint_brushes SET available = $1 WHERE id = $2 RETURNING *`,
+      [available, id],
+    );
+    const row = res.rows[0];
+    if (!row) return null;
+    return {
+      id: row.id,
+      name: row.name,
+      size: row.size || undefined,
+      available: row.available !== false,
+      sortOrder: Number(row.sort_order) || 0,
+    };
+  }
+
+  async deletePaintBrush(id: string): Promise<boolean> {
+    const pool = this.pgPool;
+    if (!pool) return false;
+    await this.ensureKitSchema();
+    const res = await pool.query(`DELETE FROM public.paint_brushes WHERE id = $1`, [id]);
+    return (res.rowCount || 0) > 0;
   }
 
   // ═══════════════════════════════════════════

@@ -1,4 +1,5 @@
 import type { ProductGallery } from '@/lib/gallery';
+import type { ProductKit } from '@/lib/kit';
 
 export interface Product {
   id: string;
@@ -20,6 +21,7 @@ export interface Product {
   image: string;
   images?: string[];
   gallery?: ProductGallery | null;
+  kitContents?: ProductKit | null;
   description: string;
   richDescription?: string;
   inStock: boolean;
@@ -118,6 +120,11 @@ export interface OrderItem {
   price: number;
   quantity: number;
   image: string;
+  customization?: {
+    colors?: { id: string; name: string }[];
+    brushes?: { id: string; name: string; size?: string; quantity: number }[];
+    extraPerPiece?: number;
+  };
 }
 
 export interface Order {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { packSlugError, packSlugFrom } from '@/lib/packSlug';
 import { publicSlug } from '@/lib/slug';
 import { revalidatePath } from 'next/cache';
 
@@ -12,7 +13,7 @@ export async function GET(_req: NextRequest) {
     );
   } catch (err: any) {
     return NextResponse.json(
-      { error: err.message || 'Failed to fetch packs' },
+      { error: err.message || 'Failed to fetch kits' },
       { status: 500 }
     );
   }
@@ -38,14 +39,23 @@ export async function POST(req: NextRequest) {
 
     if (!name || !price || !Array.isArray(productIds)) {
       return NextResponse.json(
-        { error: 'Pack name, price, and selected productIds array are required.' },
+        { error: 'Kit name, price, and selected products are required.' },
         { status: 400 }
       );
     }
 
+    const nextSlug = packSlugFrom(name, slug);
+    if (!nextSlug) {
+      return NextResponse.json({ error: 'Enter a link for this kit.' }, { status: 400 });
+    }
+    const slugError = await packSlugError(nextSlug);
+    if (slugError) {
+      return NextResponse.json({ error: slugError }, { status: 400 });
+    }
+
     const newPack = await db.addPack({
       name,
-      slug: slug || name.toLowerCase().replace(/\s+/g, '-'),
+      slug: nextSlug,
       price: Number(price),
       originalPrice: originalPrice ? Number(originalPrice) : undefined,
       description: description || '',
@@ -64,7 +74,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(newPack, { status: 201 });
   } catch (err: any) {
     return NextResponse.json(
-      { error: err.message || 'Failed to create pack' },
+      { error: err.message || 'Failed to create kit' },
       { status: 500 }
     );
   }

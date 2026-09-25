@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Boxes, Plus, Edit2, Trash2, CheckSquare, Square, Search, Sparkles, Image as ImageIcon } from "lucide-react";
 import { adminFetch } from "@/config/adminAuth";
 import { API_BASE_URL } from "@/config/api";
+import { slugify } from "@/lib/slug";
 
 interface Product {
   id: string;
@@ -52,8 +53,10 @@ export default function PacksAdminPage() {
   const [editingPack, setEditingPack] = useState<Pack | null>(null);
 
   const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
   const [price, setPrice] = useState<number | "">("");
-  const [originalPrice, setOriginalPrice] = useState<number | "">("");
+  const [showOriginalPrice, setShowOriginalPrice] = useState(false);
   const [description, setDescription] = useState("");
   const [image, setImage] = useState("");
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
@@ -96,8 +99,10 @@ export default function PacksAdminPage() {
   const openAddModal = () => {
     setEditingPack(null);
     setName("");
+    setSlug("");
+    setSlugTouched(false);
     setPrice("");
-    setOriginalPrice("");
+    setShowOriginalPrice(false);
     setDescription("");
     setImage("");
     setSelectedProductIds([]);
@@ -112,8 +117,10 @@ export default function PacksAdminPage() {
   const openEditModal = (pack: Pack) => {
     setEditingPack(pack);
     setName(pack.name);
+    setSlug(pack.slug || "");
+    setSlugTouched(true);
     setPrice(pack.price);
-    setOriginalPrice(pack.originalPrice || "");
+    setShowOriginalPrice(Boolean(pack.originalPrice));
     setDescription(pack.description || "");
     setImage(pack.image || "");
     setSelectedProductIds(pack.productIds || []);
@@ -133,17 +140,26 @@ export default function PacksAdminPage() {
     );
   };
 
+  const calculatedOriginalPrice = selectedProductIds.reduce((sum, id) => {
+    const product = products.find((item) => item.id === id);
+    return sum + (product ? Number(product.price) || 0 : 0);
+  }, 0);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !price || selectedProductIds.length === 0) {
-      alert("Please provide a pack title, price, and select at least 1 product.");
+      alert("Please provide a kit title, price, and select at least 1 product.");
       return;
     }
 
     const payload = {
       name,
+      slug: slugify(slug) || slugify(name),
       price: Number(price),
-      originalPrice: originalPrice ? Number(originalPrice) : undefined,
+      originalPrice:
+        showOriginalPrice && calculatedOriginalPrice > 0
+          ? calculatedOriginalPrice
+          : null,
       description,
       image,
       productIds: selectedProductIds,
@@ -168,15 +184,15 @@ export default function PacksAdminPage() {
         fetchData();
       } else {
         const error = await res.json();
-        alert(error.error || "Failed to save pack");
+        alert(error.error || "Failed to save kit");
       }
     } catch (err: any) {
-      alert(err.message || "Failed to save pack");
+      alert(err.message || "Failed to save kit");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this pack?")) return;
+    if (!confirm("Are you sure you want to delete this kit?")) return;
     try {
       const res = await adminFetch(`/api/packs/${id}`, { method: "DELETE" });
       if (res.ok) {
@@ -201,11 +217,11 @@ export default function PacksAdminPage() {
           <div className="flex items-center space-x-2">
             <Boxes className="w-6 h-6 text-warning-500" />
             <h1 className="text-xl sm:text-2xl font-extrabold text-neutral-900">
-              Packs Builder
+              Kits
             </h1>
           </div>
           <p className="text-neutral-500 text-xs mt-1">
-            Group existing catalog products into curated packs (e.g., Pack of 4, Pack of 10) with special pricing. No duplicate uploads required!
+            Group existing catalog products into kits (for example, a kit of 4 or a kit of 10) with special pricing. No duplicate uploads required!
           </p>
         </div>
         <button
@@ -213,7 +229,7 @@ export default function PacksAdminPage() {
           className="px-5 py-3 bg-warning-500 hover:bg-warning-600 text-white font-extrabold text-xs rounded-2xl shadow-md transition flex items-center justify-center space-x-2 shrink-0"
         >
           <Plus className="w-4 h-4" />
-          <span>+ Create New Pack</span>
+          <span>+ Create New Kit</span>
         </button>
       </div>
 
@@ -222,23 +238,23 @@ export default function PacksAdminPage() {
         <div className="bg-white p-12 rounded-3xl border border-neutral-200 text-center">
           <div className="w-8 h-8 border-4 border-warning-500/30 border-t-warning-500 rounded-full animate-spin mx-auto mb-3" />
           <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
-            Loading Packs Catalog...
+            Loading kits...
           </p>
         </div>
       ) : packs.length === 0 ? (
         <div className="bg-white p-12 rounded-3xl border border-dashed border-neutral-300 text-center space-y-3">
           <Boxes className="w-12 h-12 text-neutral-300 mx-auto" />
           <h3 className="font-extrabold text-neutral-700 text-base">
-            No Packs Created Yet
+            No kits yet
           </h3>
           <p className="text-xs text-neutral-400 max-w-sm mx-auto">
-            Click "+ Create New Pack" to group existing products into a Pack of 4, Pack of 10, or curated combo.
+            Click "+ Create New Kit" to group existing products into a kit.
           </p>
           <button
             onClick={openAddModal}
             className="px-4 py-2 bg-warning-500 text-white text-xs font-extrabold rounded-xl hover:bg-warning-600 transition"
           >
-            Create Your First Pack
+            Create your first kit
           </button>
         </div>
       ) : (
@@ -256,11 +272,16 @@ export default function PacksAdminPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <span className="inline-block px-2.5 py-1 bg-warning-50 text-warning-600 font-extrabold text-[10px] uppercase tracking-wider rounded-lg mb-1">
-                        {pack.productIds.length} Items Pack
+                        Kit of {pack.productIds.length}
                       </span>
                       <h3 className="font-extrabold text-neutral-800 text-base leading-snug">
                         {pack.name}
                       </h3>
+                      {pack.slug && (
+                        <p className="mt-0.5 text-[11px] font-semibold text-neutral-400">
+                          /product/{pack.slug}
+                        </p>
+                      )}
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-black text-neutral-900">
@@ -343,13 +364,13 @@ export default function PacksAdminPage() {
 
       {/* CREATE / EDIT MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/60 p-4 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-neutral-100 my-8">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-950/60 p-4 backdrop-blur-xs">
+          <div className="mx-auto my-8 w-full max-w-2xl space-y-6 rounded-3xl border border-neutral-100 bg-white p-6 shadow-2xl sm:p-8">
             <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
               <div className="flex items-center space-x-2">
                 <Boxes className="w-6 h-6 text-warning-500" />
                 <h2 className="text-lg font-extrabold text-neutral-800">
-                  {editingPack ? "Edit Pack Details" : "Build New Pack"}
+                  {editingPack ? "Edit kit" : "New kit"}
                 </h2>
               </div>
               <button
@@ -365,22 +386,50 @@ export default function PacksAdminPage() {
                 {/* Pack Name */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
-                    Pack Title *
+                    Kit title *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Space Figurines - Pack of 5"
+                    placeholder="e.g. Space Figurines - Kit of 5"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      setName(next);
+                      if (!slugTouched) setSlug(slugify(next));
+                    }}
                     className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
                   />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
+                    Page link
+                  </label>
+                  <div className="flex items-center rounded-xl border border-neutral-200 bg-neutral-50 focus-within:border-warning-500 focus-within:bg-white">
+                    <span className="shrink-0 pl-4 text-sm font-semibold text-neutral-400">/product/</span>
+                    <input
+                      type="text"
+                      required
+                      placeholder="kit-of-5"
+                      value={slug}
+                      onChange={(e) => {
+                        setSlugTouched(true);
+                        setSlug(e.target.value.toLowerCase());
+                      }}
+                      onBlur={() => setSlug((value) => slugify(value))}
+                      className="w-full bg-transparent px-1 py-2.5 text-sm font-semibold text-neutral-800 focus:outline-hidden"
+                    />
+                  </div>
+                  <p className="mt-1 text-[10px] font-semibold text-neutral-400">
+                    This is the kit URL. Changing it replaces the old link.
+                  </p>
                 </div>
 
                 {/* Price */}
                 <div>
                   <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
-                    Pack Price (₹) *
+                    Kit price (₹) *
                   </label>
                   <input
                     type="number"
@@ -396,20 +445,29 @@ export default function PacksAdminPage() {
 
                 {/* Original Price */}
                 <div>
-                  <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
-                    Original Price (₹) (Optional)
-                  </label>
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider">
+                      Original Price (₹)
+                    </label>
+                    <label className="flex cursor-pointer items-center gap-1.5 text-[11px] font-bold normal-case tracking-normal text-neutral-600">
+                      <input
+                        type="checkbox"
+                        checked={showOriginalPrice}
+                        onChange={(e) => setShowOriginalPrice(e.target.checked)}
+                        className="rounded-sm text-warning-500"
+                      />
+                      Show
+                    </label>
+                  </div>
                   <input
                     type="number"
-                    placeholder="999"
-                    value={originalPrice}
-                    onChange={(e) =>
-                      setOriginalPrice(
-                        e.target.value === "" ? "" : Number(e.target.value),
-                      )
-                    }
-                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
+                    readOnly
+                    value={calculatedOriginalPrice}
+                    className="w-full px-4 py-2.5 bg-neutral-100 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-700"
                   />
+                  <p className="mt-1 text-[10px] font-semibold text-neutral-400">
+                    Sum of selected product prices
+                  </p>
                 </div>
 
                 {/* Product Line */}
@@ -457,7 +515,7 @@ export default function PacksAdminPage() {
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="Short summary of what's inside this pack..."
+                    placeholder="Short summary of what's inside this kit..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
@@ -467,7 +525,7 @@ export default function PacksAdminPage() {
                 {/* Image URL */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
-                    Cover Image URL (Optional - uses 1st selected product photo if empty)
+                    Cover image URL
                   </label>
                   <input
                     type="text"
@@ -476,18 +534,22 @@ export default function PacksAdminPage() {
                     onChange={(e) => setImage(e.target.value)}
                     className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
                   />
+                  <p className="mt-1 text-[10px] font-semibold text-neutral-400">
+                    Optional. Uses the first selected product photo when empty.
+                  </p>
                 </div>
               </div>
 
               {/* PRODUCT SELECTION CHECKLIST */}
               <div className="space-y-3 border-t border-neutral-100 pt-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <label className="block text-xs font-extrabold text-neutral-800 uppercase tracking-wider">
-                      Select Products for this Pack *
+                      Select products for this kit *
                     </label>
                     <p className="text-[11px] font-semibold text-warning-600">
-                      {selectedProductIds.length} products selected
+                      {selectedProductIds.length} products selected · Total ₹
+                      {calculatedOriginalPrice}
                     </p>
                   </div>
 
@@ -560,7 +622,7 @@ export default function PacksAdminPage() {
                   type="submit"
                   className="px-6 py-2.5 bg-warning-500 hover:bg-warning-600 text-white font-extrabold text-xs rounded-xl shadow-md transition"
                 >
-                  {editingPack ? "Update Pack" : "Save & Publish Pack"}
+                  {editingPack ? "Update kit" : "Save kit"}
                 </button>
               </div>
             </form>

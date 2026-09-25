@@ -12,14 +12,20 @@ export default function ProductGallery({
   likesCount,
   isLiked,
   onLike,
+  focusImageUrl,
+  onImageChange,
 }: {
   product: ProductDetail;
   likesCount: number;
   isLiked: boolean;
   onLike: () => void;
+  focusImageUrl?: string | null;
+  onImageChange?: (image: string) => void;
 }) {
   const images = productImages(product);
   const [selectedImgIndex, setSelectedImgIndex] = useState(0);
+  const selectedImgIndexRef = useRef(0);
+  selectedImgIndexRef.current = selectedImgIndex;
   const selectedCaption = imageCaption(product.gallery, selectedImgIndex);
   const [imageDragX, setImageDragX] = useState(0);
   const [imageDragging, setImageDragging] = useState(false);
@@ -37,6 +43,21 @@ export default function ProductGallery({
     setImageDragging(false);
     setIsFullscreenModalOpen(false);
   }, [product.id]);
+
+  useEffect(() => {
+    if (!focusImageUrl) return;
+    const index = images.indexOf(focusImageUrl);
+    if (index < 0 || index === selectedImgIndexRef.current) return;
+    setImageDragging(false);
+    setImageDragX(0);
+    setImageSlideInstant(true);
+    setSelectedImgIndex(index);
+  }, [focusImageUrl, images]);
+
+  useEffect(() => {
+    const image = images[selectedImgIndex];
+    if (image) onImageChange?.(image);
+  }, [images, selectedImgIndex, onImageChange]);
 
   const slideImage = (direction: 1 | -1, frameWidth?: number) => {
     if (images.length < 2 || imageSlideLock.current) return;

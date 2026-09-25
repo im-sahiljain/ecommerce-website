@@ -15,6 +15,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL } from "../config/api";
 import WhatsappOrderModal from "./WhatsappOrderModal";
+import { formatCustomization, formatExtraCharge } from "@/lib/kit";
 
 interface SiteSettings {
   isGlobalOrderingEnabled: boolean;
@@ -137,7 +138,7 @@ export default function CartDrawer() {
                 ) : (
                   cart.map((item) => (
                     <div
-                      key={item.id}
+                      key={item.lineId || item.id}
                       className="flex items-center space-x-4 bg-neutral-50 p-3 rounded-2xl border border-neutral-100"
                     >
                       <img
@@ -152,9 +153,19 @@ export default function CartDrawer() {
                         <p className="text-xs text-primary font-bold mt-0.5">
                           ₹{item.price.toFixed(2)}
                         </p>
+                        {formatCustomization(item.customization) && (
+                          <p className="text-[10px] font-semibold text-neutral-500 mt-0.5">
+                            {formatCustomization(item.customization)}
+                          </p>
+                        )}
+                        {formatExtraCharge(item.customization) && (
+                          <p className="text-[10px] font-bold text-neutral-700 mt-0.5">
+                            {formatExtraCharge(item.customization)}
+                          </p>
+                        )}
                         <div className="flex items-center space-x-2 mt-2">
                           <button
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() => updateQuantity(item.lineId || item.id, -1)}
                             className="w-6 h-6 bg-white rounded-full border border-neutral-200 flex items-center justify-center text-neutral-600 hover:bg-neutral-100"
                           >
                             <Minus className="w-3 h-3" />
@@ -163,7 +174,7 @@ export default function CartDrawer() {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() => updateQuantity(item.lineId || item.id, 1)}
                             className="w-6 h-6 bg-white rounded-full border border-neutral-200 flex items-center justify-center text-neutral-600 hover:bg-neutral-100"
                           >
                             <Plus className="w-3 h-3" />
@@ -171,7 +182,7 @@ export default function CartDrawer() {
                         </div>
                       </div>
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item.lineId || item.id)}
                         className="text-neutral-400 hover:text-red-500 p-1"
                       >
                         <Trash2 className="w-4 h-4" />

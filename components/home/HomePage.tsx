@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAppSelector } from "../../store/hooks";
 import type { RootState } from "../../store/store";
 import HeroCarousel from "./HeroCarousel";
+import HomeKits, { type HomeKit } from "./HomeKits";
 import HomePromo from "./HomePromo";
 import ThemeSections from "./ThemeSections";
 import WhatWeSell from "./WhatWeSell";
@@ -20,7 +21,9 @@ export default function HomePage() {
     (state: RootState) => state.products.items,
   ) as Product[];
   const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
+  const [kits, setKits] = useState<HomeKit[]>([]);
   const [productsFetchSettled, setProductsFetchSettled] = useState(false);
+  const [kitsFetchSettled, setKitsFetchSettled] = useState(false);
 
   const products = reduxProducts.length > 0 ? reduxProducts : fetchedProducts;
   const productsLoading =
@@ -36,6 +39,13 @@ export default function HomePage() {
       })
       .catch(() => {})
       .finally(() => setProductsFetchSettled(true));
+    fetch("/api/packs")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setKits(data);
+      })
+      .catch(() => {})
+      .finally(() => setKitsFetchSettled(true));
   }, []);
 
   const activeThemeSections = useMemo(
@@ -62,6 +72,11 @@ export default function HomePage() {
   return (
     <div style={{ fontFamily: "'Quicksand', sans-serif", color: "#333" }}>
       <HeroCarousel />
+      <HomeKits
+        kits={kits}
+        products={products}
+        loading={!kitsFetchSettled || productsLoading}
+      />
       <WhatWeSell />
       {/* <WhySection /> */}
       <ThemeSections

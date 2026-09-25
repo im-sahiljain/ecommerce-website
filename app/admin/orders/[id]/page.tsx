@@ -239,6 +239,29 @@ export default function OrderDetailsPage() {
                       ) : null}
                       <span className="font-bold text-neutral-800">
                         {item.productName}
+                        {item.customization?.colors?.length || item.customization?.brushes?.length ? (
+                          <span className="mt-0.5 block text-[10px] font-semibold normal-case tracking-normal text-neutral-500">
+                            {[
+                              item.customization.colors?.length
+                                ? `Colors: ${item.customization.colors.map((color) => color.name).join(", ")}`
+                                : "",
+                              item.customization.brushes?.length
+                                ? `Brushes: ${item.customization.brushes
+                                    .map((brush) => `${brush.name}${brush.size ? ` ${brush.size}` : ""} ×${brush.quantity}`)
+                                    .join(", ")}`
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
+                            {item.customization?.extraPerPiece
+                              ? ` · Extra charge ₹${Number(item.customization.extraPerPiece).toFixed(2)}`
+                              : ""}
+                          </span>
+                        ) : item.customization?.extraPerPiece ? (
+                          <span className="mt-0.5 block text-[10px] font-semibold normal-case tracking-normal text-neutral-500">
+                            Extra charge ₹{Number(item.customization.extraPerPiece).toFixed(2)}
+                          </span>
+                        ) : null}
                       </span>
                     </div>
                   </td>

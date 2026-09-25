@@ -283,7 +283,7 @@ export default function OffersAdminPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Space Explorer 3-Pack Deal"
+                placeholder="Space Explorer 3-kit deal"
                 required
                 className="w-full px-3 py-2 bg-neutral-50 border rounded-xl text-xs font-semibold"
               />

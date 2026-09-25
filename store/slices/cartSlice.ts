@@ -1,11 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { CartCustomization } from '@/lib/kit';
 
 export interface CartItem {
   id: string;
+  lineId?: string;
   name: string;
   price: number;
+  basePrice?: number;
   image: string;
   quantity: number;
+  customization?: CartCustomization;
+}
+
+export function cartItemKey(item: { id: string; lineId?: string }) {
+  return item.lineId || item.id;
 }
 
 interface CartState {
@@ -22,29 +30,52 @@ export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<{ id: string; name: string; price: number; image: string }>) => {
-      const existingIndex = state.items.findIndex((item) => item.id === action.payload.id);
-      if (existingIndex > -1) {
-        state.items[existingIndex].quantity += 1;
+    addToCart: (state, action: PayloadAction<{
+      id: string;
+      lineId?: string;
+      name: string;
+      price: number;
+      basePrice?: number;
+      image: string;
+      customization?: CartCustomization;
+    }>) => {
+      const lineId = action.payload.lineId || action.payload.id;
+      const existing = state.items.find((item) => cartItemKey(item) === lineId);
+      if (existing) {
+        existing.quantity += 1;
+        existing.price = action.payload.price;
+        existing.customization = action.payload.customization;
       } else {
-        state.items.push({ ...action.payload, quantity: 1 });
+        state.items.push({
+          id: action.payload.id,
+          lineId,
+          name: action.payload.name,
+          price: action.payload.price,
+          basePrice: action.payload.basePrice,
+          image: action.payload.image,
+          customization: action.payload.customization,
+          quantity: 1,
+        });
       }
     },
     removeFromCart: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter((item) => item.id !== action.payload);
+      state.items = state.items.filter((item) => cartItemKey(item) !== action.payload);
     },
     updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
-      const item = state.items.find((item) => item.id === action.payload.id);
+      const item = state.items.find((entry) => cartItemKey(entry) === action.payload.id);
       if (item) {
         if (action.payload.quantity <= 0) {
-          state.items = state.items.filter((i) => i.id !== action.payload.id);
+          state.items = state.items.filter((entry) => cartItemKey(entry) !== action.payload.id);
         } else {
           item.quantity = action.payload.quantity;
         }
       }
     },
     setCartItems: (state, action: PayloadAction<CartItem[]>) => {
-      state.items = action.payload;
+      state.items = action.payload.map((item) => ({
+        ...item,
+        lineId: item.lineId || item.id,
+      }));
     },
     clearCart: (state) => {
       state.items = [];

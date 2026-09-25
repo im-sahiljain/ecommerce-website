@@ -30,7 +30,7 @@ export const GUIDES: GuideDefinition[] = [
     h1: "Birthday return gift craft kits",
     paragraphs: [
       "A plaster painting kit works as a birthday return gift because every child leaves with something to make. The figurine, not a sweet, is the gift.",
-      "Party packs group several pieces so you can hand out matching kits. Single figurines work when you want each guest to pick a different animal or flower.",
+      "Party kits group several pieces so you can hand out matching kits. Single figurines work when you want each guest to pick a different animal or flower.",
     ],
     shopHref: "/shop",
     shopLabel: "Shop return gift kits",

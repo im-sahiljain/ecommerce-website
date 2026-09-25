@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
+import type { CartCustomization } from '@/lib/kit';
 import {
   CartItem,
   addToCart as reduxAddToCart,
@@ -14,7 +15,20 @@ import {
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: { id: string; name: string; price: number; image: string; theme?: string }, quantity?: number, openCart?: boolean) => void;
+  addToCart: (
+    product: {
+      id: string;
+      name: string;
+      price: number;
+      image: string;
+      theme?: string;
+      lineId?: string;
+      basePrice?: number;
+      customization?: CartCustomization;
+    },
+    quantity?: number,
+    openCart?: boolean,
+  ) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, delta: number) => void;
   clearCart: () => void;
@@ -59,7 +73,20 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [cart]);
 
-  const addToCart = (product: { id: string; name: string; price: number; image: string; theme?: string }, qty = 1, openCart = false) => {
+  const addToCart = (
+    product: {
+      id: string;
+      name: string;
+      price: number;
+      image: string;
+      theme?: string;
+      lineId?: string;
+      basePrice?: number;
+      customization?: CartCustomization;
+    },
+    qty = 1,
+    openCart = false,
+  ) => {
     for (let i = 0; i < qty; i++) {
       dispatch(reduxAddToCart(product));
     }
@@ -73,7 +100,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateQuantity = (id: string, delta: number) => {
-    const existing = cart.find((item) => item.id === id);
+    const existing = cart.find((item) => (item.lineId || item.id) === id);
     if (existing) {
       dispatch(reduxUpdateQuantity({ id, quantity: existing.quantity + delta }));
     }

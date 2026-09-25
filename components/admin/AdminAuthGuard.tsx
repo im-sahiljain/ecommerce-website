@@ -21,6 +21,7 @@ import {
   Menu,
   X,
   Boxes,
+  Palette,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
@@ -50,8 +51,14 @@ const navItems = [
     color: "text-success-400",
   },
   {
+    href: "/admin/supplies",
+    label: "Colors & Brushes",
+    icon: Palette,
+    color: "text-primary/70",
+  },
+  {
     href: "/admin/packs",
-    label: "Packs Builder",
+    label: "Kits",
     icon: Boxes,
     color: "text-warning-400",
   },

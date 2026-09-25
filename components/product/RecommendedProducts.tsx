@@ -47,7 +47,7 @@ function ProductBadges({ item }: { item: ProductDetail }) {
       <div className="absolute left-1.5 top-1.5 flex max-w-[70%] flex-wrap gap-1">
         {item.isPack ? (
           <span className="whitespace-nowrap rounded-full bg-warning-500 px-2 py-0.5 text-[10px] font-bold text-white">
-            {item.category || "Pack"}
+            {item.category || "Kit"}
           </span>
         ) : item.ageGroup?.trim() ? (
           <span className="whitespace-nowrap rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-bold text-info-800">

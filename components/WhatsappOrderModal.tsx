@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { X, Send, MapPin, Phone, User, ShoppingBag } from "lucide-react";
 import { API_BASE_URL } from "../config/api";
+import { formatCustomization, formatExtraCharge, type CartCustomization } from "@/lib/kit";
 
 interface CartItem {
   id: string;
@@ -10,6 +11,7 @@ interface CartItem {
   price: number;
   quantity: number;
   image: string;
+  customization?: CartCustomization;
 }
 
 interface WhatsappOrderModalProps {
@@ -53,12 +55,13 @@ export default function WhatsappOrderModal({
 
     // Format item lines
     const itemLines = items
-      .map(
-        (item, idx) =>
-          `${idx + 1}. *${item.name}* (Qty: ${item.quantity}) - ₹${
-            item.price * item.quantity
-          }`,
-      )
+      .map((item, idx) => {
+        const detail = formatCustomization(item.customization);
+        const extra = formatExtraCharge(item.customization);
+        return `${idx + 1}. *${item.name}* (Qty: ${item.quantity}) - ₹${
+          item.price * item.quantity
+        }${detail ? `\n   ${detail}` : ""}${extra ? `\n   ${extra}` : ""}`;
+      })
       .join("\n");
 
     const fullAddress = `${addressLine}, ${city} - ${zipCode}`.trim();
@@ -97,6 +100,7 @@ Thank you! Please confirm my order and shipping fee.`;
             price: i.price,
             quantity: i.quantity,
             image: i.image,
+            customization: i.customization,
           })),
           subtotal,
           shipping: 0,

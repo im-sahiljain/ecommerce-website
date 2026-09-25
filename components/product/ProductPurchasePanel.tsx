@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Award,
   Boxes,
+  ChevronDown,
+  ExternalLink,
   Heart,
   Minus,
   Plus,
@@ -16,7 +19,16 @@ import {
   Truck,
 } from "lucide-react";
 import { useCart } from "../../context/CartContext";
+import {
+  cartLineId,
+  emptyKitSelection,
+  kitExtraPerPiece,
+  selectionToCustomization,
+  type KitSelection,
+} from "@/lib/kit";
+import KitCustomizer from "./KitCustomizer";
 import type { ProductDetail, SiteSettings } from "./types";
+import { productPath } from "@/lib/site";
 
 export default function ProductPurchasePanel({
   product,
@@ -24,18 +36,47 @@ export default function ProductPurchasePanel({
   likesCount,
   isLiked,
   onLike,
+  onIncludedFocus,
+  focusImageUrl,
 }: {
   product: ProductDetail;
   settings: SiteSettings | null;
   likesCount: number;
   isLiked: boolean;
   onLike: () => void;
+  onIncludedFocus?: (image: string) => void;
+  focusImageUrl?: string | null;
 }) {
   const { cart, addToCart, updateQuantity, removeFromCart, setIsCartOpen } =
     useCart();
+  const [kitSelection, setKitSelection] =
+    useState<KitSelection>(emptyKitSelection());
+  const kitExtra = kitExtraPerPiece(product.kitOffer, kitSelection);
+  const unitPrice = product.price + kitExtra;
+  const lineId = cartLineId(product.id, kitSelection);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(true);
+  const [openIncludedId, setOpenIncludedId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
+
+  useEffect(() => {
+    setKitSelection(emptyKitSelection());
+    setOpenIncludedId(null);
+  }, [product.id]);
+
+  useEffect(() => {
+    const pieces = product.includedProducts;
+    if (!product.isPack || !pieces?.length || !focusImageUrl) return;
+    const match = pieces.find((piece) => piece.image === focusImageUrl);
+    if (match) setOpenIncludedId(match.id);
+  }, [product.isPack, product.includedProducts, focusImageUrl]);
+
+  useEffect(() => {
+    const pieces = product.includedProducts;
+    if (!product.isPack || !pieces?.length) return;
+    const open = pieces.find((piece) => piece.id === openIncludedId);
+    if (open?.image) onIncludedFocus?.(open.image);
+  }, [product.id, product.isPack, product.includedProducts, openIncludedId, onIncludedFocus]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -71,14 +112,34 @@ export default function ProductPurchasePanel({
     (product.isOrderingEnabled ?? true) &&
     ((settings?.isGlobalOrderingEnabled ?? true) ||
       (settings?.isWhatsappOrderingEnabled ?? true));
-  const cartItem = cart.find((item) => item.id === product.id);
+  const cartItem = cart.find((item) => (item.lineId || item.id) === lineId);
+
+  const addConfigured = (quantity: number) => {
+    const customization = selectionToCustomization(
+      product.kitOffer,
+      kitSelection,
+    );
+    addToCart(
+      {
+        id: product.id,
+        name: product.name,
+        price: unitPrice,
+        image: product.image,
+        lineId,
+        basePrice: product.price,
+        customization,
+      },
+      quantity,
+      false,
+    );
+  };
   const inCartQty = cartItem ? cartItem.quantity : 0;
   const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const descriptionIsLong = (product.description?.length || 0) > 130;
 
   return (
-    <div className="flex h-full flex-col justify-between space-y-6">
-      <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex flex-col space-y-6">
+      <div className="flex flex-col">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-primary">
             <Sparkles className="h-4 w-4" />
@@ -151,7 +212,7 @@ export default function ProductPurchasePanel({
 
         <div className="mt-3 flex items-baseline space-x-3">
           <span className="text-3xl font-extrabold text-neutral-900">
-            ₹{product.price.toFixed(2)}
+            ₹{unitPrice.toFixed(2)}
           </span>
           {product.originalPrice && (
             <span className="text-lg font-medium text-neutral-400 line-through">
@@ -189,17 +250,127 @@ export default function ProductPurchasePanel({
           {descriptionIsLong && (
             <button
               onClick={() => setIsDescriptionExpanded((open) => !open)}
-              className="mt-2 flex items-center space-x-1 text-xs font-extrabold text-primary transition hover:text-primary focus:outline-hidden active:scale-95"
+              className="mt-2 flex items-center space-x-1 text-xs font-extrabold text-primary transition  focus:outline-hidden active:scale-95 cursor-pointer border border-primary/20 rounded-full px-2 py-1 hover:bg-primary hover:text-white"
             >
               <span>
-                {isDescriptionExpanded ? "Show Less ▲" : "Read More... ▼"}
+                {isDescriptionExpanded ? "Show Less ▲" : "Read More ▼"}
               </span>
             </button>
           )}
         </div>
       </div>
 
-      <div className="mt-auto space-y-4 pt-2">
+      <div className="space-y-4">
+        {product.isPack &&
+          product.includedProducts &&
+          product.includedProducts.length > 0 && (
+            <div className="space-y-3 rounded-3xl border border-warning-200/80 bg-warning-50/70 p-3 sm:p-5">
+              <h4 className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-warning-900">
+                <Boxes className="h-4 w-4 shrink-0 text-warning-600" />
+                <span>
+                  Included Products in this Kit (
+                  {product.includedProducts.length})
+                </span>
+              </h4>
+              <div className="space-y-2">
+                {product.includedProducts.map((item) => {
+                  const pieces = product.includedProducts ?? [];
+                  const openId =
+                    openIncludedId === ""
+                      ? undefined
+                      : pieces.some((piece) => piece.id === openIncludedId)
+                        ? openIncludedId
+                        : pieces[0]?.id;
+                  const isOpen = item.id === openId;
+                  return (
+                    <div
+                      key={item.id}
+                      className="relative rounded-2xl border border-warning-100/80 bg-white shadow-2xs"
+                    >
+                      <button
+                        type="button"
+                        aria-expanded={isOpen}
+                        aria-label={`${isOpen ? "Hide" : "Show"} ${item.name} details`}
+                        onClick={() =>
+                          setOpenIncludedId(isOpen ? "" : item.id)
+                        }
+                        className="absolute inset-0 rounded-2xl"
+                      />
+                      <div className="pointer-events-none relative flex items-center gap-2.5 p-3">
+                        <img
+                          src={item.image}
+                          alt=""
+                          className="h-10 w-10 shrink-0 rounded-xl border border-neutral-100 object-cover"
+                        />
+                        <Link
+                          href={productPath(item)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="pointer-events-auto inline-flex max-w-[calc(100%-4.5rem)] items-center gap-1.5 text-sm font-extrabold leading-tight text-neutral-800 transition-colors hover:text-primary"
+                        >
+                          <span className="truncate">{item.name}</span>
+                          <ExternalLink
+                            className="h-3.5 w-3.5 shrink-0 text-primary sm:hidden"
+                            aria-hidden="true"
+                          />
+                          <span className="sr-only">Opens in a new tab</span>
+                        </Link>
+                        <ChevronDown
+                          className={`ml-auto h-4 w-4 shrink-0 text-neutral-400 transition-transform duration-300 ease-out ${
+                            isOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </div>
+                      {(item.size || item.material) && (
+                        <motion.div
+                          initial={false}
+                          animate={{
+                            height: isOpen ? "auto" : 0,
+                            opacity: isOpen ? 1 : 0,
+                          }}
+                          transition={{
+                            duration: 0.32,
+                            ease: [0.22, 1, 0.36, 1],
+                          }}
+                          className="pointer-events-none overflow-hidden"
+                        >
+                          <div className="space-y-2 border-t border-neutral-100 px-3 pb-3 pt-2">
+                            {item.size && (
+                              <div>
+                                <span className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400">
+                                  Dimensions / Size (L x W x H)
+                                </span>
+                                <span className="text-xs font-extrabold leading-snug text-neutral-800">
+                                  {item.size}
+                                </span>
+                              </div>
+                            )}
+                            {item.material && (
+                              <div>
+                                <span className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400">
+                                  Material Finish
+                                </span>
+                                <span className="text-xs font-extrabold leading-snug text-neutral-800">
+                                  {item.material}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}{" "}
+        {product.kitOffer && (
+          <KitCustomizer
+            offer={product.kitOffer}
+            selection={kitSelection}
+            onChange={setKitSelection}
+          />
+        )}
         {(product.size || product.material) && (
           <div className="grid grid-cols-1 gap-3 rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4 sm:grid-cols-2">
             {product.size && (
@@ -224,55 +395,13 @@ export default function ProductPurchasePanel({
             )}
           </div>
         )}
-
-        {product.isPack &&
-          product.includedProducts &&
-          product.includedProducts.length > 0 && (
-            <div className="mt-6 space-y-3 rounded-3xl border border-warning-200/80 bg-warning-50/70 p-5">
-              <div className="flex items-center justify-between">
-                <h4 className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-warning-900">
-                  <Boxes className="h-4 w-4 text-warning-600" />
-                  <span>
-                    Included Products in this Pack (
-                    {product.includedProducts.length})
-                  </span>
-                </h4>
-                <span className="rounded-full bg-warning-100 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-warning-700">
-                  Bundled Set
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {product.includedProducts.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center space-x-2.5 rounded-2xl border border-warning-100/80 bg-white p-2.5 shadow-2xs transition hover:shadow-2xs"
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="h-10 w-10 shrink-0 rounded-xl border border-neutral-100 object-cover"
-                    />
-                    <div className="overflow-hidden">
-                      <p className="truncate text-xs font-extrabold leading-tight text-neutral-800">
-                        {item.name}
-                      </p>
-                      <span className="mt-0.5 block truncate text-[10px] font-semibold text-neutral-400">
-                        {item.category}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
         <div className="my-3 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
           {inCartQty > 0 ? (
             <div className="flex h-11 w-full items-center justify-between rounded-full bg-primary px-4 text-white shadow-2xs transition hover:bg-primary/90">
               <button
                 onClick={() => {
-                  if (inCartQty === 1) removeFromCart(product.id);
-                  else updateQuantity(product.id, -1);
+                  if (inCartQty === 1) removeFromCart(lineId);
+                  else updateQuantity(lineId, -1);
                 }}
                 className="rounded-full p-1 transition hover:bg-white/20 active:scale-90"
                 title="Decrease Quantity"
@@ -283,7 +412,7 @@ export default function ProductPurchasePanel({
                 {inCartQty}
               </span>
               <button
-                onClick={() => addToCart(product, 1, false)}
+                onClick={() => addConfigured(1)}
                 className="rounded-full p-1 transition hover:bg-white/20 active:scale-90"
                 title="Increase Quantity"
               >
@@ -292,7 +421,7 @@ export default function ProductPurchasePanel({
             </div>
           ) : (
             <button
-              onClick={() => addToCart(product, 1, false)}
+              onClick={() => addConfigured(1)}
               disabled={!isOrderingAllowed}
               className={`flex h-11 w-full items-center justify-center space-x-1.5 rounded-full text-xs font-bold shadow-2xs transition active:scale-98 ${
                 isOrderingAllowed
@@ -303,7 +432,7 @@ export default function ProductPurchasePanel({
               <ShoppingBag className="h-3.5 w-3.5" />
               <span>
                 {isOrderingAllowed
-                  ? `Add to Basket — ₹${product.price.toFixed(2)}`
+                  ? `Add to Basket — ₹${unitPrice.toFixed(2)}`
                   : "Ordering Disabled"}
               </span>
             </button>
@@ -316,7 +445,6 @@ export default function ProductPurchasePanel({
             <span>View Basket ({totalCartItems})</span>
           </button>
         </div>
-
         <div className="mt-6 grid grid-cols-3 gap-2 border-t border-neutral-100 pt-6 text-center text-[11px] font-bold text-neutral-600">
           <div className="flex flex-col items-center justify-center rounded-2xl bg-neutral-50 p-2">
             <Truck className="mb-1 h-4 w-4 text-info-500" />

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "../../context/CartContext";
 import { useAuth, UserAddress } from "../../context/AuthContext";
 import { ACCOUNT_AUTH_PAUSED } from "../../lib/accountAuth";
+import { formatCustomization, formatExtraCharge } from "@/lib/kit";
 import {
   CreditCard,
   Lock,
@@ -139,6 +140,7 @@ export default function CheckoutPage() {
         price: item.price,
         quantity: item.quantity,
         image: item.image,
+        customization: item.customization,
       })),
       subtotal: totalPrice,
       shipping: shippingFee,
@@ -473,7 +475,7 @@ export default function CheckoutPage() {
             <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
               {cart.map((item) => (
                 <div
-                  key={item.id}
+                  key={item.lineId || item.id}
                   className="flex items-center justify-between text-xs pb-2 border-b border-neutral-50"
                 >
                   <div className="flex items-center space-x-3">
@@ -487,6 +489,16 @@ export default function CheckoutPage() {
                         {item.name}
                       </p>
                       <p className="text-neutral-400">Qty: {item.quantity}</p>
+                      {formatCustomization(item.customization) && (
+                        <p className="text-[10px] font-semibold text-neutral-500">
+                          {formatCustomization(item.customization)}
+                        </p>
+                      )}
+                      {formatExtraCharge(item.customization) && (
+                        <p className="text-[10px] font-bold text-neutral-700">
+                          {formatExtraCharge(item.customization)}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <span className="font-bold text-neutral-800">

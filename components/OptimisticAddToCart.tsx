@@ -27,7 +27,7 @@ export default function OptimisticAddToCart({
   const { cart, addToCart, updateQuantity } = useCart();
   const [isPending, startTransition] = useTransition();
 
-  const cartItem = cart.find((item) => item.id === product.id);
+  const cartItem = cart.find((item) => (item.lineId || item.id) === product.id);
   const quantity = cartItem ? cartItem.quantity : 0;
 
   const handleAdd = (e: React.MouseEvent) => {

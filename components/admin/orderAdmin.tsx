@@ -8,6 +8,11 @@ export interface OrderItem {
   price: number;
   quantity: number;
   image: string;
+  customization?: {
+    colors?: { id?: string; name: string }[];
+    brushes?: { id?: string; name: string; size?: string; quantity: number }[];
+    extraPerPiece?: number;
+  };
 }
 
 export type OrderStatus =

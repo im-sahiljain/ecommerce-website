@@ -34,7 +34,7 @@ const fallbackThemes: FooterLink[] = [
 
 const fallbackCategories: FooterLink[] = [
   { key: "single-pieces", href: "/shop", label: "Single Pieces" },
-  { key: "party-packs", href: "/shop", label: "Party Packs" },
+  { key: "party-packs", href: "/shop", label: "Party Kits" },
   { key: "all-kits", href: "/shop", label: "All Kits" },
 ];
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { normalizeKit } from '@/lib/kit';
 import { db } from '@/lib/db';
 import { publicSlug } from '@/lib/slug';
 import { uploadToCloudinary } from '@/lib/utils/cloudinary';
@@ -64,6 +65,7 @@ export async function POST(req: NextRequest) {
       size,
       material,
       isVisible,
+      kitContents,
     } = body;
 
     if (!name || !price || !theme || !category || !ageGroup) {
@@ -119,6 +121,7 @@ export async function POST(req: NextRequest) {
       size: size || undefined,
       material: material || undefined,
       isVisible: isVisible !== undefined ? Boolean(isVisible) : true,
+      kitContents: normalizeKit(kitContents) || null,
     });
 
     revalidatePath('/shop');

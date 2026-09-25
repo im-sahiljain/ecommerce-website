@@ -15,6 +15,8 @@ import {
 import imageCompression from "browser-image-compression";
 import { adminFetch } from "@/config/adminAuth";
 import { normalizeGallery, type ProductGallery } from "@/lib/gallery";
+import { emptyProductKit, normalizeKit, type ProductKit } from "@/lib/kit";
+import ProductKitPicker from "@/components/admin/ProductKitPicker";
 import { DEFAULT_HOMEPAGE_SECTIONS } from "@/components/home/homepageSections";
 
 interface Product {
@@ -41,6 +43,7 @@ interface Product {
   size?: string;
   material?: string;
   isVisible?: boolean;
+  kitContents?: ProductKit | null;
 }
 
 interface ProductLine {
@@ -74,6 +77,7 @@ export default function ProductListingForm({
   const [sku, setSku] = useState("");
   const [price, setPrice] = useState("");
   const [originalPrice, setOriginalPrice] = useState("");
+  const [showOriginalPrice, setShowOriginalPrice] = useState(false);
   const [costPrice, setCostPrice] = useState("");
   const [productLineId, setProductLineId] = useState("");
   const [category, setCategory] = useState("");
@@ -97,6 +101,7 @@ export default function ProductListingForm({
   const [newImageUrl, setNewImageUrl] = useState("");
   const [description, setDescription] = useState("");
   const [stockQuantity, setStockQuantity] = useState(25);
+  const [kit, setKit] = useState<ProductKit>(emptyProductKit());
 
   useEffect(() => {
     let cancelled = false;
@@ -165,6 +170,7 @@ export default function ProductListingForm({
     );
     setPrice(String(p.price));
     setOriginalPrice(p.originalPrice ? String(p.originalPrice) : "");
+    setShowOriginalPrice(Boolean(p.originalPrice));
     setCostPrice(p.costPrice ? String(p.costPrice) : "");
     setProductLineId(p.productLineId || "line-1");
     setCategory(p.category);
@@ -197,6 +203,7 @@ export default function ProductListingForm({
     setIncludedLabel(p.gallery?.includedLabel || "");
     setExampleLabel(p.gallery?.exampleLabel || "");
     setDescription(p.description || "");
+    setKit(normalizeKit(p.kitContents) || emptyProductKit());
     setStockQuantity(p.stockQuantity !== undefined ? p.stockQuantity : 10);
   };
 
@@ -351,7 +358,8 @@ export default function ProductListingForm({
       sku,
       name,
       price: Number(price),
-      originalPrice: originalPrice ? Number(originalPrice) : undefined,
+      originalPrice:
+        showOriginalPrice && originalPrice ? Number(originalPrice) : null,
       costPrice: costPrice ? Number(costPrice) : undefined,
       productLineId,
       category,
@@ -376,6 +384,7 @@ export default function ProductListingForm({
           ),
         }) || null,
       description,
+      kitContents: normalizeKit(kit) || null,
       stockQuantity: Number(stockQuantity),
       inStock: Number(stockQuantity) > 0,
     };
@@ -533,9 +542,20 @@ export default function ProductListingForm({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-bold text-neutral-700">
-              Original Price (₹)
-            </label>
+            <div className="mb-1 flex items-center justify-between gap-2">
+              <label className="block text-xs font-bold text-neutral-700">
+                Original Price (₹)
+              </label>
+              <label className="flex cursor-pointer items-center gap-1.5 text-[11px] font-bold text-neutral-600">
+                <input
+                  type="checkbox"
+                  checked={showOriginalPrice}
+                  onChange={(e) => setShowOriginalPrice(e.target.checked)}
+                  className="rounded-sm text-primary"
+                />
+                Show
+              </label>
+            </div>
             <input
               type="number"
               step="0.01"
@@ -834,6 +854,8 @@ export default function ProductListingForm({
             </div>
           </div>
         </div>
+
+        <ProductKitPicker value={kit} onChange={setKit} />
 
         <div>
           <label className="mb-1 block text-xs font-bold text-neutral-700">

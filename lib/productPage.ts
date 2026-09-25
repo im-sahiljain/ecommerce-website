@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { db, type Product } from "@/lib/db";
 import { packToProduct, type ProductDetail } from "@/components/product/types";
+import { toKitOffer, type KitSupplies } from "@/lib/kit";
 
 export type ProductPageData = {
   detail: ProductDetail;
@@ -9,7 +10,7 @@ export type ProductPageData = {
   seoDescription?: string;
 };
 
-function productToDetail(product: Product): ProductDetail {
+function productToDetail(product: Product, supplies: KitSupplies): ProductDetail {
   return {
     id: product.id,
     slug: product.slug,
@@ -35,13 +36,15 @@ function productToDetail(product: Product): ProductDetail {
     size: product.size,
     material: product.material,
     attributes: product.attributes,
+    kitOffer: toKitOffer(product.kitContents, supplies),
     likesCount: product.likesCount,
   };
 }
 
-function includedProduct(product: Product): ProductDetail {
+function includedProduct(product: Product, supplies: KitSupplies): ProductDetail {
   return {
     id: product.id,
+    slug: product.slug,
     name: product.name,
     price: product.price,
     image: product.image,
@@ -51,15 +54,19 @@ function includedProduct(product: Product): ProductDetail {
     category: product.category,
     ageGroup: product.ageGroup,
     isNonToxic: product.isNonToxic,
+    size: product.size,
+    material: product.material,
+    kitOffer: toKitOffer(product.kitContents, supplies),
   };
 }
 
 export const loadProductPage = cache(async (param: string): Promise<ProductPageData | null> => {
+  const supplies = await db.getKitSupplies();
   const product = (await db.getProductBySlug(param)) ?? (await db.getProductById(param));
   if (product) {
     if (product.isVisible === false) return null;
     return {
-      detail: productToDetail(product),
+      detail: productToDetail(product, supplies),
       canonicalSlug: product.slug || product.id,
       seoTitle: product.seoTitle,
       seoDescription: product.seoDescription,
@@ -72,7 +79,7 @@ export const loadProductPage = cache(async (param: string): Promise<ProductPageD
   const catalog = await db.getProducts();
   const included = catalog
     .filter((item) => pack.productIds.includes(item.id))
-    .map(includedProduct);
+    .map((item) => includedProduct(item, supplies));
 
   return {
     detail: packToProduct(pack, included),

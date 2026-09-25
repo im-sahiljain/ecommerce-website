@@ -14,6 +14,11 @@ interface OrderItem {
   price: number;
   quantity: number;
   image: string;
+  customization?: {
+    colors?: { name: string }[];
+    brushes?: { name: string; size?: string; quantity: number }[];
+    extraPerPiece?: number;
+  };
 }
 
 interface Order {
@@ -566,6 +571,16 @@ export default function AccountPage() {
                             <div>
                               <p className="font-bold text-neutral-800 line-clamp-1">{item.productName}</p>
                               <p className="text-neutral-500">{item.quantity} x ₹{item.price.toFixed(2)}</p>
+                              {(item.customization?.colors?.length || item.customization?.brushes?.length) ? (
+                                <p className="text-[10px] font-semibold text-neutral-400">
+                                  {item.customization?.colors?.map((color) => color.name).join(", ")}
+                                </p>
+                              ) : null}
+                              {item.customization?.extraPerPiece ? (
+                                <p className="text-[10px] font-bold text-neutral-600">
+                                  Extra charge ₹{Number(item.customization.extraPerPiece).toFixed(2)}
+                                </p>
+                              ) : null}
                             </div>
                           </div>
                         ))}

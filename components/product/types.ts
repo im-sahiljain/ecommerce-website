@@ -1,3 +1,5 @@
+import { mergeKitOffers } from "@/lib/kit";
+
 export interface ProductDetail {
   id: string;
   slug?: string;
@@ -23,6 +25,7 @@ export interface ProductDetail {
   size?: string;
   material?: string;
   attributes?: Record<string, string>;
+  kitOffer?: import("@/lib/kit").KitOffer;
   isPack?: boolean;
   includedProducts?: ProductDetail[];
   likesCount?: number;
@@ -62,8 +65,8 @@ export function packToProduct(
     name: pack.name,
     price: Number(pack.price),
     originalPrice: pack.originalPrice ? Number(pack.originalPrice) : undefined,
-    theme: "Curated Pack Set",
-    category: `Pack of ${pack.productIds?.length || 1}`,
+    theme: "Curated Kit",
+    category: `Kit of ${pack.productIds?.length || 1}`,
     ageGroup: "All Ages",
     isNonToxic: true,
     image:
@@ -75,6 +78,7 @@ export function packToProduct(
     isOrderingEnabled: true,
     isPack: true,
     includedProducts: included,
+    kitOffer: mergeKitOffers(included.map((item) => item.kitOffer)),
   };
 }
 
