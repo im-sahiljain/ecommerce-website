@@ -1,7 +1,12 @@
 "use client";
 
 import type { KitOffer, KitPaintGroup, KitSelection } from "@/lib/kit";
-import { kitExtraPerPiece, paintCharge } from "@/lib/kit";
+import {
+  brushCharge,
+  kitExtraPerPiece,
+  paintCharge,
+  selectedPaintTypeId,
+} from "@/lib/kit";
 
 export default function KitCustomizer({
   offer,
@@ -13,21 +18,16 @@ export default function KitCustomizer({
   onChange: (selection: KitSelection) => void;
 }) {
   const extra = kitExtraPerPiece(offer, selection);
-  const charge = offer.paints
-    ? paintCharge(offer.paints.groups, selection)
+  const charge = offer.paints ? paintCharge(offer.paints, selection) : null;
+  const brushesCharged = offer.brushes
+    ? brushCharge(offer.brushes, selection)
     : null;
-  const brushCount = offer.brushes
-    ? selection.brushes.reduce((sum, item) => {
-        return offer.brushes?.items.some((brush) => brush.id === item.id)
-          ? sum + item.quantity
-          : sum;
-      }, 0)
-    : 0;
 
-  const chosenIn = (group: KitPaintGroup) =>
-    selection.colorIds.filter((id) =>
-      group.colors.some((color) => color.id === id),
-    ).length;
+  const overall = offer.paints?.limitMode === "overall";
+  const activeTypeId =
+    !overall && offer.paints
+      ? selectedPaintTypeId(offer.paints, selection)
+      : null;
 
   const toggleColor = (group: KitPaintGroup, colorId: string) => {
     if (selection.colorIds.includes(colorId)) {
@@ -37,153 +37,230 @@ export default function KitCustomizer({
       });
       return;
     }
-    if (chosenIn(group) >= group.maxCount) return;
-    onChange({ ...selection, colorIds: [...selection.colorIds, colorId] });
+    if (!overall && activeTypeId && group.typeId !== activeTypeId) return;
+    const colorIds =
+      !overall && offer.paints
+        ? selection.colorIds.filter((id) =>
+            group.colors.some((color) => color.id === id),
+          )
+        : selection.colorIds;
+    onChange({ ...selection, colorIds: [...colorIds, colorId] });
   };
 
-  const setBrushQty = (brushId: string, quantity: number) => {
-    if (!offer.brushes) return;
-    const current =
-      selection.brushes.find((item) => item.id === brushId)?.quantity || 0;
-    const nextTotal = brushCount - current + quantity;
-    if (quantity < 0 || nextTotal > offer.brushes.maxCount) return;
+  const clearColors = () => onChange({ ...selection, colorIds: [] });
+
+  const clearBrushes = () => {
+    const included = new Set(
+      offer.brushes?.items
+        .filter((brush) => brush.included)
+        .map((brush) => brush.id) ?? [],
+    );
+    onChange({
+      ...selection,
+      brushes: selection.brushes.filter((item) => included.has(item.id)),
+    });
+  };
+
+  const addedBrush =
+    offer.brushes?.items.some(
+      (brush) =>
+        !brush.included &&
+        selection.brushes.some(
+          (item) => item.id === brush.id && item.quantity > 0,
+        ),
+    ) ?? false;
+
+  const toggleBrush = (brushId: string) => {
+    if (
+      offer.brushes?.items.some(
+        (brush) => brush.id === brushId && brush.included,
+      )
+    )
+      return;
+    const selected = selection.brushes.some(
+      (item) => item.id === brushId && item.quantity > 0,
+    );
     const brushes = selection.brushes.filter((item) => item.id !== brushId);
-    if (quantity > 0) brushes.push({ id: brushId, quantity });
+    if (!selected) brushes.push({ id: brushId, quantity: 1 });
     onChange({ ...selection, brushes });
   };
 
   return (
-    <div className="space-y-4 rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4">
-      {offer.paints && (
-        <div className="space-y-5">
-          <h3 className="text-xs font-extrabold uppercase tracking-wider text-neutral-500">
-            Choose colors
-          </h3>
-          {offer.paints.groups.map((group) => {
-            const chosen = chosenIn(group);
-            const limit = group.includedCount || group.maxCount;
-            return (
-              <div key={group.typeId} className="space-y-1.5">
-                <p className="text-[11px] font-extrabold leading-relaxed text-neutral-700">
-                  {group.typeName} -{" "}
-                  <span className="text-primary">
-                    {" "}
-                    Choose max {limit} {limit === 1 ? "color" : "colors"}. Rs{" "}
-                    {rupees(group.extraPerColor)} for extra color
-                  </span>
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {group.colors.map((color) => {
-                    const selected = selection.colorIds.includes(color.id);
-                    const blocked = !selected && chosen >= group.maxCount;
-                    return (
-                      <button
-                        key={color.id}
-                        type="button"
-                        disabled={blocked}
-                        onClick={() => toggleColor(group, color.id)}
-                        className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold cursor-pointer transition-colors${
-                          selected
-                            ? "border-primary bg-primary text-white"
-                            : "border-neutral-200 bg-white text-neutral-700 disabled:opacity-40 hover:bg-primary hover:text-white"
-                        }`}
-                      >
-                        <span
-                          className="h-3.5 w-3.5 rounded-full border border-white/40"
-                          style={{ background: color.hex || "#ddd" }}
-                        />
-                        {color.name}
-                        {offer.paints?.showVolume && color.volumeMl != null
-                          ? ` · ${color.volumeMl} ml`
-                          : ""}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-          {charge && charge.lines.length > 0 && (
-            <div className="space-y-0.5">
-              {charge.lines.map((line) => (
-                <p
-                  key={line.typeId}
-                  className="text-[11px] font-bold text-primary"
+    <>
+      <div className="space-y-4 rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4">
+        {offer.paints && (
+          <div className="space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-extrabold uppercase tracking-wider text-neutral-500">
+                Choose colors
+              </h3>
+              {selection.colorIds.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearColors}
+                  className="cursor-pointer text-sm font-bold text-primary"
                 >
-                  {line.count} extra {line.typeName.toLowerCase()} · ₹
-                  {line.amount.toFixed(2)}
-                </p>
-              ))}
+                  Clear all
+                </button>
+              )}
             </div>
-          )}
-        </div>
-      )}
-
-      {offer.brushes && (
-        <div className="space-y-2">
-          <div className="flex items-baseline justify-between gap-3">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-neutral-500">
-              Brushes
-            </h3>
-            <span className="text-[11px] font-bold text-neutral-500">
-              {brushCount} / {offer.brushes.maxCount}
-            </span>
-          </div>
-          <p className="text-[11px] font-semibold leading-relaxed text-neutral-500">
-            {offer.brushes.includedCount} included in the price.
-            {offer.brushes.extraPerBrush > 0
-              ? ` Each extra brush is ₹${offer.brushes.extraPerBrush.toFixed(2)} per piece.`
-              : ""}
-          </p>
-          <div className="space-y-2">
-            {offer.brushes.items.map((brush) => {
-              const quantity =
-                selection.brushes.find((item) => item.id === brush.id)
-                  ?.quantity || 0;
+            {overall && offer.paints && (
+              <p className="text-sm font-extrabold leading-relaxed text-primary">
+                {offer.paints.includedCount}{" "}
+                {offer.paints.includedCount === 1 ? "color is" : "colors are"}{" "}
+                included. Any other color is charged at its price.
+              </p>
+            )}
+            {offer.paints.groups.map((group) => {
               return (
-                <div
-                  key={brush.id}
-                  className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-2"
-                >
-                  <span className="text-xs font-bold text-neutral-800">
-                    {brush.name}
-                    {offer.brushes?.showSizes && brush.size
-                      ? ` · ${brush.size}`
-                      : ""}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setBrushQty(brush.id, quantity - 1)}
-                      className="h-7 w-7 rounded-full border border-neutral-200 text-sm font-bold"
-                    >
-                      −
-                    </button>
-                    <span className="w-4 text-center text-xs font-extrabold">
-                      {quantity}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setBrushQty(brush.id, quantity + 1)}
-                      disabled={brushCount >= offer.brushes!.maxCount}
-                      className="h-7 w-7 rounded-full border border-neutral-200 text-sm font-bold disabled:opacity-40"
-                    >
-                      +
-                    </button>
+                <div key={group.typeId} className="space-y-1.5">
+                  <p className="text-sm font-extrabold leading-relaxed text-neutral-700">
+                    {group.typeName}
+                    {!overall && (
+                      <span className="text-primary">
+                        {" "}
+                        - {group.includedCount} included. Each extra color is
+                        charged at its own price.
+                      </span>
+                    )}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.colors.map((color) => {
+                      const selected = selection.colorIds.includes(color.id);
+                      const locked =
+                        !overall &&
+                        Boolean(activeTypeId) &&
+                        group.typeId !== activeTypeId;
+                      return (
+                        <button
+                          key={color.id}
+                          type="button"
+                          disabled={locked}
+                          onClick={() => toggleColor(group, color.id)}
+                          className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-bold transition-colors ${
+                            selected
+                              ? "border-primary bg-primary text-white"
+                              : locked
+                                ? "cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400"
+                                : "cursor-pointer border-neutral-200 bg-white text-neutral-700 hover:bg-primary hover:text-white"
+                          }`}
+                        >
+                          <span
+                            className="h-4 w-4 rounded-full border border-white/40"
+                            style={{ background: color.hex || "#ddd" }}
+                          />
+                          {color.name}
+                          {offer.paints?.showVolume && color.volumeMl != null
+                            ? ` · ${color.volumeMl} ml`
+                            : ""}
+                          {color.price > 0 ? ` · ₹${rupees(color.price)}` : ""}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               );
             })}
+            {charge && charge.lines.length > 0 && (
+              <div className="space-y-0.5">
+                {charge.lines.map((line) => (
+                  <p
+                    key={line.typeId}
+                    className="text-sm font-bold text-primary"
+                  >
+                    {line.count > 1
+                      ? `${line.typeName} ×${line.count}`
+                      : line.typeName}{" "}
+                    · ₹{line.amount.toFixed(2)}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      )}
-
-      {extra > 0 && (
-        <p className="text-xs font-extrabold text-neutral-800">
-          Extra charge: ₹{extra.toFixed(2)}
-        </p>
-      )}
-    </div>
+        )}
+      </div>
+      <div className="space-y-4 rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4">
+        {offer.brushes && (
+          <div className="space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-extrabold uppercase tracking-wider text-neutral-500">
+                Choose Brushes
+              </h3>
+              {addedBrush && (
+                <button
+                  type="button"
+                  onClick={clearBrushes}
+                  className="cursor-pointer text-sm font-bold text-primary"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+            <p className="text-sm font-semibold leading-relaxed text-primary">
+              {offer.brushes.includedCount > 0
+                ? `${offer.brushes.includedCount} ${offer.brushes.includedCount === 1 ? "brush is" : "brushes are"}
+                included. Any other brush is charged at its price.`
+                : `${offer.brushes.items.length} ${offer.brushes.items.length === 1 ? "brush is" : "brushes are"}
+                included. Any other brush is charged at its price.`}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {offer.brushes.items.map((brush) => {
+                const selected = selection.brushes.some(
+                  (item) => item.id === brush.id && item.quantity > 0,
+                );
+                return (
+                  <button
+                    key={brush.id}
+                    type="button"
+                    disabled={brush.included}
+                    onClick={() => toggleBrush(brush.id)}
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-bold transition-colors ${
+                      brush.included
+                        ? "cursor-not-allowed border-primary bg-primary text-white disabled:opacity-100"
+                        : selected
+                          ? "cursor-pointer border-primary bg-primary text-white"
+                          : "cursor-pointer border-neutral-200 bg-white text-neutral-700 hover:bg-primary hover:text-white"
+                    }`}
+                  >
+                    {brush.name}
+                    {offer.brushes?.showSizes && brush.size
+                      ? ` · Size ${brush.size}`
+                      : ""}
+                    {brush.included
+                      ? " · Included"
+                      : brush.price > 0
+                        ? ` · ₹${rupees(brush.price)}`
+                        : ""}
+                  </button>
+                );
+              })}
+            </div>
+            {brushesCharged && brushesCharged.lines.length > 0 && (
+              <div className="space-y-0.5">
+                {brushesCharged.lines.map((line) => (
+                  <p
+                    key={line.typeId}
+                    className="text-sm font-bold text-primary"
+                  >
+                    {line.count > 1
+                      ? `${line.typeName} ×${line.count}`
+                      : line.typeName}{" "}
+                    · ₹{line.amount.toFixed(2)}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>{" "}
+      <div className="space-y-4 rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4">
+        {
+          <p className="text-sm font-extrabold text-neutral-800">
+            Extra charge: ₹{extra.toFixed(2)}
+          </p>
+        }
+      </div>
+    </>
   );
 }
 

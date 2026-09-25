@@ -1,11 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import type { CartCustomization } from '@/lib/kit';
 import {
   CartItem,
   addToCart as reduxAddToCart,
+  updateCartItem as reduxUpdateCartItem,
   removeFromCart as reduxRemoveFromCart,
   updateQuantity as reduxUpdateQuantity,
   clearCart as reduxClearCart,
@@ -31,9 +32,16 @@ interface CartContextType {
   ) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, delta: number) => void;
+  updateCartItem: (item: {
+    id: string;
+    price: number;
+    basePrice?: number;
+    customization?: CartCustomization;
+  }) => void;
   clearCart: () => void;
   totalPrice: number;
   totalCount: number;
+  isCartReady: boolean;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
 }
@@ -45,6 +53,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const cart = useAppSelector((state) => state.cart.items);
   const isCartOpen = useAppSelector((state) => state.cart.isCartOpen);
   const isLoadedRef = useRef(false);
+  const [isCartReady, setIsCartReady] = useState(false);
 
   // 1. Load cart from localStorage on mount
   useEffect(() => {
@@ -60,6 +69,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       console.warn('Failed to load cart from localStorage', e);
     } finally {
       isLoadedRef.current = true;
+      setIsCartReady(true);
     }
   }, [dispatch]);
 
@@ -100,10 +110,19 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateQuantity = (id: string, delta: number) => {
-    const existing = cart.find((item) => (item.lineId || item.id) === id);
-    if (existing) {
-      dispatch(reduxUpdateQuantity({ id, quantity: existing.quantity + delta }));
-    }
+    const matches = cart.filter((item) => item.id === id || (item.lineId || item.id) === id);
+    if (matches.length === 0) return;
+    const quantity = matches.reduce((sum, item) => sum + item.quantity, 0);
+    dispatch(reduxUpdateQuantity({ id: matches[0].id, quantity: quantity + delta }));
+  };
+
+  const updateCartItem = (item: {
+    id: string;
+    price: number;
+    basePrice?: number;
+    customization?: CartCustomization;
+  }) => {
+    dispatch(reduxUpdateCartItem(item));
   };
 
   const clearCart = () => dispatch(reduxClearCart());
@@ -119,9 +138,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         addToCart,
         removeFromCart,
         updateQuantity,
+        updateCartItem,
         clearCart,
         totalPrice,
         totalCount,
+        isCartReady,
         isCartOpen,
         setIsCartOpen,
       }}

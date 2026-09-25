@@ -1,4 +1,4 @@
-import { mergeKitOffers } from "@/lib/kit";
+import type { KitOffer } from "@/lib/kit";
 
 export interface ProductDetail {
   id: string;
@@ -25,7 +25,7 @@ export interface ProductDetail {
   size?: string;
   material?: string;
   attributes?: Record<string, string>;
-  kitOffer?: import("@/lib/kit").KitOffer;
+  kitOffer?: KitOffer;
   isPack?: boolean;
   includedProducts?: ProductDetail[];
   likesCount?: number;
@@ -53,6 +53,7 @@ export function packToProduct(
     description?: string;
     inStock?: boolean;
     productIds?: string[];
+    kitOffer?: KitOffer;
   },
   included: ProductDetail[],
 ): ProductDetail {
@@ -77,8 +78,8 @@ export function packToProduct(
     inStock: pack.inStock !== false,
     isOrderingEnabled: true,
     isPack: true,
-    includedProducts: included,
-    kitOffer: mergeKitOffers(included.map((item) => item.kitOffer)),
+    includedProducts: included.map((item) => ({ ...item, kitOffer: undefined })),
+    kitOffer: pack.kitOffer,
   };
 }
 

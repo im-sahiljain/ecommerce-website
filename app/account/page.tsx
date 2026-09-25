@@ -490,7 +490,7 @@ export default function AccountPage() {
               <p className="font-bold text-neutral-700">You haven't placed any orders yet!</p>
               <p className="text-xs text-neutral-400">Ready-to-paint craft kits are waiting for your artistic touch.</p>
               <Link
-                href="/shop"
+                href="/#catalog"
                 className="inline-block mt-2 px-6 py-2.5 bg-primary/25 text-neutral-800 font-bold text-xs rounded-full"
               >
                 Shop Painting Kits

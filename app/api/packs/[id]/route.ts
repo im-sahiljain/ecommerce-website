@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import type { Pack } from '@/lib/db/types';
+import { normalizeKit, toKitOffer } from '@/lib/kit';
 import { packSlugError, packSlugFrom } from '@/lib/packSlug';
 import { publicSlug } from '@/lib/slug';
 import { revalidatePath } from 'next/cache';
+
+async function presentPack(pack: Pack) {
+  const supplies = await db.getKitSupplies();
+  return {
+    ...pack,
+    slug: publicSlug(pack),
+    kitOffer: toKitOffer(pack.kitContents, supplies),
+  };
+}
 
 export async function GET(
   _req: NextRequest,
@@ -14,7 +25,7 @@ export async function GET(
     if (!pack) {
       return NextResponse.json({ error: 'Kit not found' }, { status: 404 });
     }
-    return NextResponse.json({ ...pack, slug: publicSlug(pack) }, { status: 200 });
+    return NextResponse.json(await presentPack(pack), { status: 200 });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Failed to fetch kit' },
@@ -47,7 +58,10 @@ export async function PUT(
       return NextResponse.json({ error: slugError }, { status: 400 });
     }
 
-    const updated = await db.updatePack(current.id, { ...body, slug: nextSlug });
+    const updates = { ...body, slug: nextSlug };
+    if ('kitContents' in body) updates.kitContents = normalizeKit(body.kitContents) || null;
+    delete updates.kitOffer;
+    const updated = await db.updatePack(current.id, updates);
     if (!updated) {
       return NextResponse.json({ error: 'Kit not found' }, { status: 404 });
     }
@@ -57,7 +71,7 @@ export async function PUT(
     revalidatePath(`/product/${current.slug || current.id}`);
     revalidatePath(`/product/${nextSlug}`);
 
-    return NextResponse.json(updated, { status: 200 });
+    return NextResponse.json(await presentPack(updated), { status: 200 });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Failed to update kit' },

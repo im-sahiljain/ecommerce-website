@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Boxes, Plus, Edit2, Trash2, CheckSquare, Square, Search, Sparkles, Image as ImageIcon } from "lucide-react";
 import { adminFetch } from "@/config/adminAuth";
 import { API_BASE_URL } from "@/config/api";
+import ProductKitPicker from "@/components/admin/ProductKitPicker";
+import { emptyProductKit, normalizeKit, type ProductKit } from "@/lib/kit";
 import { slugify } from "@/lib/slug";
 
 interface Product {
@@ -28,6 +30,7 @@ interface Pack {
   categoryId?: string;
   inStock: boolean;
   featured?: boolean;
+  kitContents?: ProductKit | null;
 }
 
 interface ProductLine {
@@ -64,6 +67,8 @@ export default function PacksAdminPage() {
   const [categoryId, setCategoryId] = useState("");
   const [inStock, setInStock] = useState(true);
   const [featured, setFeatured] = useState(false);
+  const [kit, setKit] = useState<ProductKit>(emptyProductKit());
+  const [colorTypes, setColorTypes] = useState<{ id: string; name: string }[]>([]);
 
   const [productSearch, setProductSearch] = useState("");
 
@@ -73,22 +78,25 @@ export default function PacksAdminPage() {
 
   const fetchData = async () => {
     try {
-      const [packsRes, prodsRes, linesRes, catsRes] = await Promise.all([
+      const [packsRes, prodsRes, linesRes, catsRes, typesRes] = await Promise.all([
         adminFetch("/api/packs"),
         adminFetch("/api/products"),
         adminFetch("/api/product-lines"),
         adminFetch("/api/categories"),
+        adminFetch("/api/paint-color-types"),
       ]);
 
       const packsData = await packsRes.json();
       const prodsData = await prodsRes.json();
       const linesData = await linesRes.json();
       const catsData = await catsRes.json();
+      const typesData = await typesRes.json();
 
       if (Array.isArray(packsData)) setPacks(packsData);
       if (Array.isArray(prodsData)) setProducts(prodsData);
       if (Array.isArray(linesData)) setProductLines(linesData);
       if (Array.isArray(catsData)) setCategories(catsData);
+      if (Array.isArray(typesData)) setColorTypes(typesData);
     } catch (err) {
       console.error("Error loading data:", err);
     } finally {
@@ -110,6 +118,7 @@ export default function PacksAdminPage() {
     setCategoryId("");
     setInStock(true);
     setFeatured(false);
+    setKit(emptyProductKit());
     setProductSearch("");
     setIsModalOpen(true);
   };
@@ -128,6 +137,7 @@ export default function PacksAdminPage() {
     setCategoryId(pack.categoryId || "");
     setInStock(pack.inStock !== false);
     setFeatured(Boolean(pack.featured));
+    setKit(normalizeKit(pack.kitContents) || emptyProductKit());
     setProductSearch("");
     setIsModalOpen(true);
   };
@@ -167,6 +177,7 @@ export default function PacksAdminPage() {
       categoryId: categoryId || undefined,
       inStock,
       featured,
+      kitContents: normalizeKit(kit) || null,
     };
 
     try {
@@ -301,6 +312,10 @@ export default function PacksAdminPage() {
                     </p>
                   )}
 
+                  <p className="text-[11px] font-semibold leading-relaxed text-neutral-500">
+                    {kitLimitSummary(pack.kitContents, colorTypes)}
+                  </p>
+
                   {/* Included Items Thumbnails */}
                   <div>
                     <p className="text-[10px] font-extrabold text-neutral-400 uppercase tracking-wider mb-2">
@@ -365,7 +380,7 @@ export default function PacksAdminPage() {
       {/* CREATE / EDIT MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-950/60 p-4 backdrop-blur-xs">
-          <div className="mx-auto my-8 w-full max-w-2xl space-y-6 rounded-3xl border border-neutral-100 bg-white p-6 shadow-2xl sm:p-8">
+          <div className="mx-auto my-8 w-full max-w-3xl space-y-6 rounded-3xl border border-neutral-100 bg-white p-6 shadow-2xl sm:p-8">
             <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
               <div className="flex items-center space-x-2">
                 <Boxes className="w-6 h-6 text-warning-500" />
@@ -609,6 +624,13 @@ export default function PacksAdminPage() {
                 </div>
               </div>
 
+              <ProductKitPicker
+                value={kit}
+                onChange={setKit}
+                heading="Kit color and brush limits"
+                description="These limits belong to this kit. Each product keeps its own limits, and the kit page shows only the limits saved here."
+              />
+
               {/* Form Buttons */}
               <div className="flex items-center justify-end space-x-3 pt-4 border-t border-neutral-100">
                 <button
@@ -631,4 +653,31 @@ export default function PacksAdminPage() {
       )}
     </div>
   );
+}
+
+function kitLimitSummary(
+  kit: ProductKit | null | undefined,
+  colorTypes: { id: string; name: string }[],
+) {
+  const limits = normalizeKit(kit);
+  if (!limits) return "No color or brush limits";
+  const parts: string[] = [];
+  if (limits.paints.included) {
+    if (limits.paints.limitMode === "overall") {
+      parts.push(
+        `${limits.paints.includedCount} ${limits.paints.includedCount === 1 ? "color" : "colors"} included`,
+      );
+    } else {
+      for (const rule of limits.paints.typeRules) {
+        const name = colorTypes.find((type) => type.id === rule.typeId)?.name || "Colors";
+        parts.push(`${name}: ${rule.includedCount} included`);
+      }
+    }
+  }
+  if (limits.brushes.included) {
+    parts.push(
+      `Brushes: ${limits.brushes.includedCount} included`,
+    );
+  }
+  return parts.join(" · ") || "No color or brush limits";
 }

@@ -43,13 +43,13 @@ const heroSlides = [
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
             <Link
-              href="/shop"
+              href="/#catalog"
               className="px-7 py-3.5 text-white rounded-full font-bold shadow-lg text-center text-base transition hover:opacity-90 active:scale-95 bg-secondary"
             >
               Shop Painting Kits
             </Link>
             {/* <Link
-              href="/shop"
+              href="/#catalog"
               className="hidden md:block px-7 py-3.5 rounded-full font-bold text-center text-base transition hover:bg-info-100/60 active:scale-95"
               style={{
                 border: "2px solid var(--color-secondary)",
@@ -142,7 +142,7 @@ const heroSlides = [
 
           <div className="flex justify-center md:justify-start">
             <Link
-              href="/shop"
+              href="/#catalog"
               className="px-7 py-3.5 text-white rounded-full font-black uppercase tracking-wider shadow-xl text-center text-base transition hover:opacity-95 active:scale-95 bg-primary hover:bg-primary/90"
             >
               Start Your Decor Project!
@@ -251,7 +251,7 @@ const heroSlides = [
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
             <Link
-              href="/shop"
+              href="/#catalog"
               className="px-7 py-3.5 text-white rounded-full font-bold shadow-lg text-center text-base transition hover:opacity-90 active:scale-95 bg-warning-600 hover:bg-warning-700"
             >
               Shop Kids' Art Kits

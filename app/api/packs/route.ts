@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import type { Pack } from '@/lib/db/types';
+import { normalizeKit, toKitOffer } from '@/lib/kit';
 import { packSlugError, packSlugFrom } from '@/lib/packSlug';
 import { publicSlug } from '@/lib/slug';
 import { revalidatePath } from 'next/cache';
 
+async function presentPacks(packs: Pack[]) {
+  const supplies = await db.getKitSupplies();
+  return packs.map((pack) => ({
+    ...pack,
+    slug: publicSlug(pack),
+    kitOffer: toKitOffer(pack.kitContents, supplies),
+  }));
+}
+
 export async function GET(_req: NextRequest) {
   try {
     const packs = await db.getPacks();
-    return NextResponse.json(
-      packs.map((pack) => ({ ...pack, slug: publicSlug(pack) })),
-      { status: 200 },
-    );
+    return NextResponse.json(await presentPacks(packs), { status: 200 });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Failed to fetch kits' },
@@ -35,6 +43,7 @@ export async function POST(req: NextRequest) {
       categoryId,
       inStock,
       featured,
+      kitContents,
     } = body;
 
     if (!name || !price || !Array.isArray(productIds)) {
@@ -66,6 +75,7 @@ export async function POST(req: NextRequest) {
       categoryId: categoryId || undefined,
       inStock: inStock !== undefined ? Boolean(inStock) : true,
       featured: Boolean(featured),
+      kitContents: normalizeKit(kitContents) || null,
     });
 
     revalidatePath('/shop');

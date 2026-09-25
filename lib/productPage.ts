@@ -41,7 +41,7 @@ function productToDetail(product: Product, supplies: KitSupplies): ProductDetail
   };
 }
 
-function includedProduct(product: Product, supplies: KitSupplies): ProductDetail {
+function includedProduct(product: Product): ProductDetail {
   return {
     id: product.id,
     slug: product.slug,
@@ -56,7 +56,6 @@ function includedProduct(product: Product, supplies: KitSupplies): ProductDetail
     isNonToxic: product.isNonToxic,
     size: product.size,
     material: product.material,
-    kitOffer: toKitOffer(product.kitContents, supplies),
   };
 }
 
@@ -79,10 +78,13 @@ export const loadProductPage = cache(async (param: string): Promise<ProductPageD
   const catalog = await db.getProducts();
   const included = catalog
     .filter((item) => pack.productIds.includes(item.id))
-    .map((item) => includedProduct(item, supplies));
+    .map((item) => includedProduct(item));
 
   return {
-    detail: packToProduct(pack, included),
+    detail: packToProduct(
+      { ...pack, kitOffer: toKitOffer(pack.kitContents, supplies) },
+      included,
+    ),
     canonicalSlug: pack.slug || pack.id,
     seoTitle: pack.seoTitle,
     seoDescription: pack.seoDescription,

@@ -40,5 +40,5 @@ export function productLineShopHref(line: {
   name?: string | null;
   slug?: string | null;
 }) {
-  return `/shop?productLine=${publicSlug(line)}`;
+  return `/?productLine=${publicSlug(line)}#catalog`;
 }

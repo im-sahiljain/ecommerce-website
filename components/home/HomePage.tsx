@@ -1,89 +1,68 @@
-"use client";
-
-import { useEffect, useMemo, useState } from "react";
-import { useAppSelector } from "../../store/hooks";
-import type { RootState } from "../../store/store";
+import { Suspense } from "react";
+import ShopCatalog, {
+  ShopCatalogSkeleton,
+} from "@/components/shop/ShopCatalog";
+import { loadShopCatalog } from "@/lib/shopCatalog";
 import HeroCarousel from "./HeroCarousel";
-import HomeKits, { type HomeKit } from "./HomeKits";
 import HomePromo from "./HomePromo";
-import ThemeSections from "./ThemeSections";
-import WhatWeSell from "./WhatWeSell";
-import WhySection from "./WhySection";
-import {
-  DEFAULT_HOMEPAGE_SECTIONS,
-  HOMEPAGE_SECTION_ORDER,
-} from "./homepageSections";
-import { productsForTheme } from "./themeProducts";
-import type { Product } from "./homeTypes";
 
-export default function HomePage() {
-  const reduxProducts = useAppSelector(
-    (state: RootState) => state.products.items,
-  ) as Product[];
-  const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
-  const [kits, setKits] = useState<HomeKit[]>([]);
-  const [productsFetchSettled, setProductsFetchSettled] = useState(false);
-  const [kitsFetchSettled, setKitsFetchSettled] = useState(false);
+type CatalogSearchParams = { [key: string]: string | string[] | undefined };
 
-  const products = reduxProducts.length > 0 ? reduxProducts : fetchedProducts;
-  const productsLoading =
-    reduxProducts.length === 0 &&
-    fetchedProducts.length === 0 &&
-    !productsFetchSettled;
+const CATALOG_QUERY_KEYS = [
+  "search",
+  "q",
+  "theme",
+  "category",
+  "ageGroup",
+  "productLine",
+  "productLineId",
+  "packId",
+] as const;
 
-  useEffect(() => {
-    fetch("/api/products")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setFetchedProducts(data);
-      })
-      .catch(() => {})
-      .finally(() => setProductsFetchSettled(true));
-    fetch("/api/packs")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setKits(data);
-      })
-      .catch(() => {})
-      .finally(() => setKitsFetchSettled(true));
-  }, []);
+function catalogQueryString(params: CatalogSearchParams) {
+  const next = new URLSearchParams();
+  for (const key of CATALOG_QUERY_KEYS) {
+    const value = params[key];
+    if (typeof value !== "string" || !value) continue;
+    next.set(key === "q" ? "search" : key, value);
+  }
+  return next.toString();
+}
 
-  const activeThemeSections = useMemo(
-    () =>
-      HOMEPAGE_SECTION_ORDER.map((id) =>
-        DEFAULT_HOMEPAGE_SECTIONS.find((section) => section.id === id),
-      )
-        .filter((section) => section != null)
-        .map((sectionConfig) => ({
-          sectionConfig: {
-            ...sectionConfig,
-            displayTitle: sectionConfig.title,
-            displayDescription: sectionConfig.subtitle,
-          },
-          themeProducts: productsForTheme(
-            products,
-            sectionConfig.themeKeyword,
-            sectionConfig.productLineId,
-          ),
-        })),
-    [products],
-  );
-
+export default function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<CatalogSearchParams>;
+}) {
   return (
     <div style={{ fontFamily: "'Quicksand', sans-serif", color: "#333" }}>
       <HeroCarousel />
-      <HomeKits
-        kits={kits}
-        products={products}
-        loading={!kitsFetchSettled || productsLoading}
-      />
-      <WhatWeSell />
-      {/* <WhySection /> */}
-      <ThemeSections
-        sections={activeThemeSections}
-        productsLoading={productsLoading}
-      />
+      <div id="catalog">
+        <Suspense fallback={<ShopCatalogSkeleton />}>
+          <HomeShopCatalog searchParams={searchParams} />
+        </Suspense>
+      </div>
       <HomePromo />
     </div>
+  );
+}
+
+async function HomeShopCatalog({
+  searchParams,
+}: {
+  searchParams: Promise<CatalogSearchParams>;
+}) {
+  const [catalog, params] = await Promise.all([
+    loadShopCatalog(),
+    searchParams,
+  ]);
+  return (
+    <ShopCatalog
+      syncUrl={false}
+      searchParamsString={catalogQueryString(params)}
+      initialProducts={catalog.products}
+      initialPacks={catalog.packs}
+      initialProductLines={catalog.productLines}
+    />
   );
 }

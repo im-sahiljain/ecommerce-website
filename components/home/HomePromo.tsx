@@ -6,7 +6,7 @@ export default function HomePromo() {
     <>
       <div className="flex justify-center py-10 relative z-20">
         <Link
-          href="/shop"
+          href="/#catalog"
           className="text-white rounded-full font-extrabold shadow-xl uppercase tracking-wider inline-flex items-center space-x-2 px-8 py-3.5 text-xs sm:text-sm bg-linear-to-r from-indigo-500 via-primary to-warning-500 hover:opacity-95 transition transform hover:scale-105 active:scale-95 cursor-pointer border border-white/20"
         >
           <span>Explore All Themes</span>

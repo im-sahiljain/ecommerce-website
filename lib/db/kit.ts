@@ -1,6 +1,6 @@
 import type { KitSupplies, PaintBrush, PaintColor, PaintColorType } from '@/lib/kit';
 import type { Db } from './pool';
-import { mapPaintColor } from './rows';
+import { mapPaintBrush, mapPaintColor } from './rows';
 
 const KIT_SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS public.paint_color_types (
@@ -26,9 +26,12 @@ CREATE TABLE IF NOT EXISTS public.paint_brushes (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS kit_contents jsonb;
+ALTER TABLE public.packs ADD COLUMN IF NOT EXISTS kit_contents jsonb;
 ALTER TABLE public.paint_colors ADD COLUMN IF NOT EXISTS available boolean NOT NULL DEFAULT true;
 ALTER TABLE public.paint_color_types ADD COLUMN IF NOT EXISTS available boolean NOT NULL DEFAULT true;
 ALTER TABLE public.paint_brushes ADD COLUMN IF NOT EXISTS available boolean NOT NULL DEFAULT true;
+ALTER TABLE public.paint_colors ADD COLUMN IF NOT EXISTS price numeric NOT NULL DEFAULT 0;
+ALTER TABLE public.paint_brushes ADD COLUMN IF NOT EXISTS price numeric NOT NULL DEFAULT 0;
 `;
 
 let kitSchemaPromise: Promise<void> | null = null;
@@ -43,6 +46,10 @@ export async function ensureKitSchema(db: Db): Promise<void> {
     });
   }
   await kitSchemaPromise;
+  await pool.query(`
+    ALTER TABLE public.paint_colors ADD COLUMN IF NOT EXISTS price numeric NOT NULL DEFAULT 0;
+    ALTER TABLE public.paint_brushes ADD COLUMN IF NOT EXISTS price numeric NOT NULL DEFAULT 0;
+  `);
 }
 
 export async function getKitSupplies(db: Db): Promise<KitSupplies> {
@@ -160,6 +167,7 @@ export async function addPaintColor(db: Db, input: {
   hex?: string;
   colorTypeId?: string;
   volumeMl?: number;
+  price?: number;
 }): Promise<PaintColor> {
   const pool = db.pgPool;
   const id = `color-${Date.now()}`;
@@ -169,6 +177,7 @@ export async function addPaintColor(db: Db, input: {
     hex: input.hex || undefined,
     colorTypeId: input.colorTypeId || undefined,
     volumeMl: input.volumeMl,
+    price: Number(input.price) || 0,
     available: true,
     sortOrder: 0,
   };
@@ -179,26 +188,26 @@ export async function addPaintColor(db: Db, input: {
   );
   color.sortOrder = Number(existing.rows[0]?.max_sort || 0) + 1;
   await pool.query(
-    `INSERT INTO public.paint_colors (id, name, hex, color_type_id, volume_ml, sort_order, available)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-    [color.id, color.name, color.hex || null, color.colorTypeId || null, color.volumeMl ?? null, color.sortOrder, true]
+    `INSERT INTO public.paint_colors (id, name, hex, color_type_id, volume_ml, price, sort_order, available)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, true)`,
+    [color.id, color.name, color.hex || null, color.colorTypeId || null, color.volumeMl ?? null, color.price, color.sortOrder]
   );
   return color;
 }
 
 export async function updatePaintColor(db: Db, 
   id: string,
-  input: { name: string; hex?: string; colorTypeId?: string; volumeMl?: number }
+  input: { name: string; hex?: string; colorTypeId?: string; volumeMl?: number; price?: number }
 ): Promise<PaintColor | null> {
   const pool = db.pgPool;
   if (!pool) return null;
   await ensureKitSchema(db);
   const res = await pool.query(
     `UPDATE public.paint_colors
-     SET name = $1, hex = $2, color_type_id = $3, volume_ml = $4
-     WHERE id = $5
+     SET name = $1, hex = $2, color_type_id = $3, volume_ml = $4, price = $5
+     WHERE id = $6
      RETURNING *`,
-    [input.name.trim(), input.hex || null, input.colorTypeId || null, input.volumeMl ?? null, id]
+    [input.name.trim(), input.hex || null, input.colorTypeId || null, input.volumeMl ?? null, Number(input.price) || 0, id]
   );
   const r = res.rows[0];
   if (!r) return null;
@@ -234,26 +243,21 @@ export async function getPaintBrushes(db: Db): Promise<PaintBrush[]> {
     const res = await pool.query(
       `SELECT * FROM public.paint_brushes ORDER BY sort_order ASC, name ASC`
     );
-    return res.rows.map((r) => ({
-      id: r.id,
-      name: r.name,
-      size: r.size || undefined,
-      available: r.available !== false,
-      sortOrder: Number(r.sort_order) || 0,
-    }));
+    return res.rows.map((r) => mapPaintBrush(r));
   } catch (err: any) {
     console.warn('⚠️ PG getPaintBrushes error:', err.message);
     return [];
   }
 }
 
-export async function addPaintBrush(db: Db, input: { name: string; size?: string }): Promise<PaintBrush> {
+export async function addPaintBrush(db: Db, input: { name: string; size?: string; price?: number }): Promise<PaintBrush> {
   const pool = db.pgPool;
   const id = `brush-${Date.now()}`;
   const brush: PaintBrush = {
     id,
     name: input.name.trim(),
     size: input.size?.trim() || undefined,
+    price: Number(input.price) || 0,
     available: true,
     sortOrder: 0,
   };
@@ -264,29 +268,23 @@ export async function addPaintBrush(db: Db, input: { name: string; size?: string
   );
   brush.sortOrder = Number(existing.rows[0]?.max_sort || 0) + 1;
   await pool.query(
-    `INSERT INTO public.paint_brushes (id, name, size, sort_order, available) VALUES ($1, $2, $3, $4, true)`,
-    [brush.id, brush.name, brush.size || null, brush.sortOrder]
+    `INSERT INTO public.paint_brushes (id, name, size, price, sort_order, available) VALUES ($1, $2, $3, $4, $5, true)`,
+    [brush.id, brush.name, brush.size || null, brush.price, brush.sortOrder]
   );
   return brush;
 }
 
-export async function updatePaintBrush(db: Db, id: string, input: { name: string; size?: string }): Promise<PaintBrush | null> {
+export async function updatePaintBrush(db: Db, id: string, input: { name: string; size?: string; price?: number }): Promise<PaintBrush | null> {
   const pool = db.pgPool;
   if (!pool) return null;
   await ensureKitSchema(db);
   const res = await pool.query(
-    `UPDATE public.paint_brushes SET name = $1, size = $2 WHERE id = $3 RETURNING *`,
-    [input.name.trim(), input.size?.trim() || null, id]
+    `UPDATE public.paint_brushes SET name = $1, size = $2, price = $3 WHERE id = $4 RETURNING *`,
+    [input.name.trim(), input.size?.trim() || null, Number(input.price) || 0, id]
   );
   const r = res.rows[0];
   if (!r) return null;
-  return {
-    id: r.id,
-    name: r.name,
-    size: r.size || undefined,
-    available: r.available !== false,
-    sortOrder: Number(r.sort_order) || 0,
-  };
+  return mapPaintBrush(r);
 }
 
 export async function setPaintBrushAvailable(db: Db, id: string, available: boolean): Promise<PaintBrush | null> {
@@ -299,13 +297,7 @@ export async function setPaintBrushAvailable(db: Db, id: string, available: bool
   );
   const row = res.rows[0];
   if (!row) return null;
-  return {
-    id: row.id,
-    name: row.name,
-    size: row.size || undefined,
-    available: row.available !== false,
-    sortOrder: Number(row.sort_order) || 0,
-  };
+  return mapPaintBrush(row);
 }
 
 export async function deletePaintBrush(db: Db, id: string): Promise<boolean> {

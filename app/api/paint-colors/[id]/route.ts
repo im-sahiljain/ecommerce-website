@@ -21,11 +21,13 @@ export async function PUT(
       );
     }
     const volumeMl = body.volumeMl === '' || body.volumeMl == null ? undefined : Number(body.volumeMl);
+    const price = Number(body.price);
     const updated = await db.updatePaintColor(id, {
       name,
       hex: typeof body.hex === 'string' ? body.hex : undefined,
       colorTypeId: body.colorTypeId,
       volumeMl: Number.isFinite(volumeMl) ? volumeMl : undefined,
+      price: Number.isFinite(price) && price > 0 ? Math.round(price * 100) / 100 : 0,
     });
     if (!updated) return NextResponse.json({ error: 'Color not found' }, { status: 404 });
     return NextResponse.json(updated);

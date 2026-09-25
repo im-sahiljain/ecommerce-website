@@ -21,10 +21,12 @@ export default function SuppliesAdminPage() {
   const [colorHex, setColorHex] = useState("#e11d48");
   const [colorTypeId, setColorTypeId] = useState("");
   const [colorMl, setColorMl] = useState("");
+  const [colorPrice, setColorPrice] = useState("");
   const [editingColorId, setEditingColorId] = useState<string | null>(null);
 
   const [brushName, setBrushName] = useState("");
   const [brushSize, setBrushSize] = useState("");
+  const [brushPrice, setBrushPrice] = useState("");
   const [editingBrushId, setEditingBrushId] = useState<string | null>(null);
 
   const load = async () => {
@@ -73,6 +75,7 @@ export default function SuppliesAdminPage() {
       hex: colorHex,
       colorTypeId,
       volumeMl: colorMl,
+      price: colorPrice,
     };
     const res = await adminFetch(
       editingColorId ? `/api/paint-colors/${editingColorId}` : "/api/paint-colors",
@@ -88,6 +91,7 @@ export default function SuppliesAdminPage() {
     }
     setColorName("");
     setColorMl("");
+    setColorPrice("");
     setEditingColorId(null);
     await load();
   };
@@ -99,7 +103,7 @@ export default function SuppliesAdminPage() {
       editingBrushId ? `/api/paint-brushes/${editingBrushId}` : "/api/paint-brushes",
       {
         method: editingBrushId ? "PUT" : "POST",
-        body: JSON.stringify({ name: brushName, size: brushSize }),
+        body: JSON.stringify({ name: brushName, size: brushSize, price: brushPrice }),
       },
     );
     const data = await res.json();
@@ -109,6 +113,7 @@ export default function SuppliesAdminPage() {
     }
     setBrushName("");
     setBrushSize("");
+    setBrushPrice("");
     setEditingBrushId(null);
     await load();
   };
@@ -123,8 +128,7 @@ export default function SuppliesAdminPage() {
           <h1 className="text-2xl font-extrabold text-neutral-800">Colors & Brushes</h1>
         </div>
         <p className="mt-1 text-xs text-neutral-500">
-          Manage color types such as watercolor and oil, then the colors and brushes products can offer.
-          On a product, click the ones that belong in that kit.
+          Manage color types, then each color and brush with its own price. Extra colors and brushes on a product or kit are charged at these prices.
         </p>
       </div>
 
@@ -236,7 +240,16 @@ export default function SuppliesAdminPage() {
               placeholder="ml per pot"
               className={fieldClass}
             />
-            <label className="col-span-2 flex items-center gap-2 text-xs font-bold text-neutral-600">
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={colorPrice}
+              onChange={(e) => setColorPrice(e.target.value)}
+              placeholder="Price (₹)"
+              className={fieldClass}
+            />
+            <label className="flex items-center gap-2 text-xs font-bold text-neutral-600">
               <input type="color" value={colorHex} onChange={(e) => setColorHex(e.target.value)} className="h-8 w-10 rounded-md border" />
               Swatch
             </label>
@@ -259,6 +272,7 @@ export default function SuppliesAdminPage() {
                     setColorHex(color.hex || "#e11d48");
                     setColorTypeId(color.colorTypeId || "");
                     setColorMl(color.volumeMl != null ? String(color.volumeMl) : "");
+                    setColorPrice(color.price ? String(color.price) : "");
                   }}
                   className="flex items-center gap-2 text-left"
                 >
@@ -268,6 +282,7 @@ export default function SuppliesAdminPage() {
                     <span className="block text-[10px] text-neutral-400">
                       {typeNameFor(color.colorTypeId)}
                       {color.volumeMl != null ? ` · ${color.volumeMl} ml` : ""}
+                      {` · ₹${Number(color.price) || 0}`}
                     </span>
                   </span>
                 </button>
@@ -322,6 +337,15 @@ export default function SuppliesAdminPage() {
               placeholder="Size, e.g. 2"
               className={fieldClass}
             />
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={brushPrice}
+              onChange={(e) => setBrushPrice(e.target.value)}
+              placeholder="Price (₹)"
+              className={`${fieldClass} col-span-2`}
+            />
             <button type="submit" className="col-span-2 flex items-center justify-center gap-1 rounded-xl bg-primary py-2.5 text-xs font-extrabold text-white">
               <Plus className="h-3.5 w-3.5" />
               {editingBrushId ? "Save brush" : "Add brush"}
@@ -339,11 +363,15 @@ export default function SuppliesAdminPage() {
                     setEditingBrushId(brush.id);
                     setBrushName(brush.name);
                     setBrushSize(brush.size || "");
+                    setBrushPrice(brush.price ? String(brush.price) : "");
                   }}
                   className="text-left"
                 >
                   <span className="block text-xs font-bold text-neutral-800">{brush.name}</span>
-                  <span className="block text-[10px] text-neutral-400">{brush.size ? `Size ${brush.size}` : "No size"}</span>
+                  <span className="block text-[10px] text-neutral-400">
+                    {brush.size ? `Size ${brush.size}` : "No size"}
+                    {` · ₹${Number(brush.price) || 0}`}
+                  </span>
                 </button>
                 <div className="flex items-center gap-2">
                   <AvailabilitySwitch

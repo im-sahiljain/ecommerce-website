@@ -257,6 +257,7 @@ export interface Pack {
   categoryId?: string;
   inStock: boolean;
   featured?: boolean;
+  kitContents?: ProductKit | null;
   seoTitle?: string;
   seoDescription?: string;
   createdAt?: string;

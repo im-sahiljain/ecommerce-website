@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -21,14 +21,51 @@ import {
 import { useCart } from "../../context/CartContext";
 import {
   cartLineId,
+  customizationToSelection,
   emptyKitSelection,
   kitExtraPerPiece,
   selectionToCustomization,
+  type KitOffer,
   type KitSelection,
 } from "@/lib/kit";
 import KitCustomizer from "./KitCustomizer";
 import type { ProductDetail, SiteSettings } from "./types";
 import { productPath } from "@/lib/site";
+
+function selectionStorageKey(productId: string) {
+  return `kitsandcraft_kit_selection:${productId}`;
+}
+
+function includedBrushSelection(offer?: KitOffer): KitSelection {
+  return {
+    colorIds: [],
+    brushes: (offer?.brushes?.items ?? [])
+      .filter((brush) => brush.included)
+      .map((brush) => ({ id: brush.id, quantity: 1 })),
+  };
+}
+
+function readStoredSelection(productId: string): KitSelection | null {
+  try {
+    const raw = sessionStorage.getItem(selectionStorageKey(productId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as KitSelection;
+    if (!parsed || !Array.isArray(parsed.colorIds) || !Array.isArray(parsed.brushes)) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredSelection(productId: string, selection: KitSelection) {
+  try {
+    sessionStorage.setItem(selectionStorageKey(productId), JSON.stringify(selection));
+  } catch {
+    // Private browsing can block session storage.
+  }
+}
 
 export default function ProductPurchasePanel({
   product,
@@ -47,23 +84,37 @@ export default function ProductPurchasePanel({
   onIncludedFocus?: (image: string) => void;
   focusImageUrl?: string | null;
 }) {
-  const { cart, addToCart, updateQuantity, removeFromCart, setIsCartOpen } =
+  const { cart, addToCart, updateQuantity, updateCartItem, removeFromCart, setIsCartOpen, isCartReady } =
     useCart();
   const [kitSelection, setKitSelection] =
     useState<KitSelection>(emptyKitSelection());
+  const cartRef = useRef(cart);
+  cartRef.current = cart;
+  const offerRef = useRef(product.kitOffer);
+  offerRef.current = product.kitOffer;
   const kitExtra = kitExtraPerPiece(product.kitOffer, kitSelection);
   const unitPrice = product.price + kitExtra;
-  const lineId = cartLineId(product.id, kitSelection);
+  const lineId = cartLineId(product.id);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [openIncludedId, setOpenIncludedId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
 
   useEffect(() => {
-    setKitSelection(emptyKitSelection());
     setOpenIncludedId(null);
     setIsDescriptionExpanded(false);
   }, [product.id]);
+
+  useEffect(() => {
+    if (!isCartReady) return;
+    const offer = offerRef.current;
+    const saved = cartRef.current.find((item) => item.id === product.id);
+    const next = saved
+      ? customizationToSelection(saved.customization, offer)
+      : readStoredSelection(product.id) ?? includedBrushSelection(offer);
+    setKitSelection(next);
+    writeStoredSelection(product.id, next);
+  }, [product.id, isCartReady]);
 
   useEffect(() => {
     const pieces = product.includedProducts;
@@ -119,7 +170,23 @@ export default function ProductPurchasePanel({
     (product.isOrderingEnabled ?? true) &&
     ((settings?.isGlobalOrderingEnabled ?? true) ||
       (settings?.isWhatsappOrderingEnabled ?? true));
-  const cartItem = cart.find((item) => (item.lineId || item.id) === lineId);
+  const inCartQty = cart
+    .filter((item) => item.id === product.id)
+    .reduce((sum, item) => sum + item.quantity, 0);
+
+  const changeSelection = (next: KitSelection) => {
+    setKitSelection(next);
+    writeStoredSelection(product.id, next);
+    if (!cartRef.current.some((item) => item.id === product.id)) return;
+    const customization = selectionToCustomization(product.kitOffer, next);
+    const price = product.price + kitExtraPerPiece(product.kitOffer, next);
+    updateCartItem({
+      id: product.id,
+      price,
+      basePrice: product.price,
+      customization,
+    });
+  };
 
   const addConfigured = (quantity: number) => {
     const customization = selectionToCustomization(
@@ -140,7 +207,6 @@ export default function ProductPurchasePanel({
       false,
     );
   };
-  const inCartQty = cartItem ? cartItem.quantity : 0;
   const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const descriptionIsLong = (product.description?.length || 0) > 130;
 
@@ -315,7 +381,7 @@ export default function ProductPurchasePanel({
                         >
                           <span className="truncate">{item.name}</span>
                           <ExternalLink
-                            className="h-3.5 w-3.5 shrink-0 text-primary sm:hidden"
+                            className="h-3.5 w-3.5 shrink-0 text-primary"
                             aria-hidden="true"
                           />
                           <span className="sr-only">Opens in a new tab</span>
@@ -373,7 +439,7 @@ export default function ProductPurchasePanel({
           <KitCustomizer
             offer={product.kitOffer}
             selection={kitSelection}
-            onChange={setKitSelection}
+            onChange={changeSelection}
           />
         )}
         {(product.size || product.material) && (

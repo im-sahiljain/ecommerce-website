@@ -1,11 +1,13 @@
 import type { Pack } from './types';
 import type { Db } from './pool';
+import { ensureKitSchema } from './kit';
 import { mapRowToPack } from './rows';
 
 export async function getPacks(db: Db): Promise<Pack[]> {
   const pool = db.pgPool;
   if (!pool) return [];
   try {
+    await ensureKitSchema(db);
     const res = await pool.query(`SELECT * FROM public.packs ORDER BY created_at DESC`);
     return res.rows.map(mapRowToPack);
   } catch (err: any) {
@@ -18,6 +20,7 @@ export async function getPackById(db: Db, id: string): Promise<Pack | undefined>
   const pool = db.pgPool;
   if (!pool) return undefined;
   try {
+    await ensureKitSchema(db);
     const res = await pool.query(`SELECT * FROM public.packs WHERE id = $1`, [id]);
     if (res.rows.length === 0) return undefined;
     return mapRowToPack(res.rows[0]);
@@ -31,6 +34,7 @@ export async function getPackBySlug(db: Db, slug: string): Promise<Pack | undefi
   const pool = db.pgPool;
   if (!pool) return undefined;
   try {
+    await ensureKitSchema(db);
     const res = await pool.query(
       `SELECT * FROM public.packs WHERE slug = $1 LIMIT 1`,
       [slug]
@@ -59,10 +63,11 @@ export async function addPack(db: Db, packData: Omit<Pack, 'id'>): Promise<Pack>
   const pool = db.pgPool;
   if (pool) {
     try {
+      await ensureKitSchema(db);
       await pool.query(
         `
-        INSERT INTO public.packs (id, name, slug, price, original_price, description, image, images, product_ids, product_line_id, category_id, in_stock, featured, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        INSERT INTO public.packs (id, name, slug, price, original_price, description, image, images, product_ids, product_line_id, category_id, in_stock, featured, kit_contents, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
         ON CONFLICT (id) DO NOTHING;
       `,
         [
@@ -79,6 +84,7 @@ export async function addPack(db: Db, packData: Omit<Pack, 'id'>): Promise<Pack>
           newPack.categoryId || null,
           newPack.inStock,
           newPack.featured,
+          newPack.kitContents ? JSON.stringify(newPack.kitContents) : null,
           newPack.createdAt,
           newPack.updatedAt,
         ]
@@ -110,8 +116,8 @@ export async function updatePack(db: Db, id: string, updates: Partial<Pack>): Pr
         name = $1, slug = $2, price = $3, original_price = $4,
         description = $5, image = $6, images = $7, product_ids = $8,
         product_line_id = $9, category_id = $10, in_stock = $11,
-        featured = $12, updated_at = $13
-      WHERE id = $14
+        featured = $12, kit_contents = $13, updated_at = $14
+      WHERE id = $15
     `,
       [
         merged.name,
@@ -126,6 +132,7 @@ export async function updatePack(db: Db, id: string, updates: Partial<Pack>): Pr
         merged.categoryId || null,
         merged.inStock,
         merged.featured,
+        merged.kitContents ? JSON.stringify(merged.kitContents) : null,
         merged.updatedAt,
         id,
       ]

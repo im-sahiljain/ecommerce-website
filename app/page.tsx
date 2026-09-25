@@ -5,7 +5,13 @@ import { siteLogoUrl, siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-export default function Page() {
+type HomeSearchParams = { [key: string]: string | string[] | undefined };
+
+export default function Page({
+  searchParams,
+}: {
+  searchParams: Promise<HomeSearchParams>;
+}) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -39,7 +45,7 @@ export default function Page() {
           __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <HomePage />
+      <HomePage searchParams={searchParams} />
     </>
   );
 }

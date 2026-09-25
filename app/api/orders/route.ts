@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { kitExtraPerPiece, mergeKitOffers, selectionToCustomization, toKitOffer } from '@/lib/kit';
+import { kitExtraPerPiece, selectionToCustomization, toKitOffer } from '@/lib/kit';
 import { ACCOUNT_AUTH_PAUSED } from '@/lib/accountAuth';
 import { revalidatePath } from 'next/cache';
 
@@ -168,11 +168,7 @@ async function priceOrderItems(items: any[]) {
 
     const offer = product
       ? toKitOffer(product.kitContents, supplies)
-      : mergeKitOffers(
-          (pack?.productIds || []).map((id) =>
-            toKitOffer(productsById.get(id)?.kitContents, supplies),
-          ),
-        );
+      : toKitOffer(pack?.kitContents, supplies);
     const selection = {
       colorIds: Array.isArray(item.customization?.colors)
         ? item.customization.colors

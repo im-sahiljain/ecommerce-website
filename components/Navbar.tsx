@@ -9,10 +9,7 @@ import {
   Search,
   ShoppingBag,
   ChevronDown,
-  BookOpen,
   Home,
-  Package,
-  Store,
   Sparkles,
   Menu,
   X,
@@ -21,33 +18,8 @@ import {
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { GUIDES } from "@/lib/guides";
-import { productLineShopHref, productPath } from "@/lib/site";
+import { productPath } from "@/lib/site";
 import Image from "next/image";
-
-interface ProductLine {
-  id: string;
-  name: string;
-  slug: string;
-  icon?: string;
-  description?: string;
-  isVisible?: boolean;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  productLineId?: string;
-  isVisible?: boolean;
-}
-
-function categoryShopHref(cat: { name: string; slug?: string }) {
-  const slug = cat.slug?.trim();
-  return slug
-    ? `/shop/${slug}`
-    : `/shop?category=${encodeURIComponent(cat.name)}`;
-}
 
 function navItemClass(active: boolean) {
   return `transition ${active ? "text-primary" : "hover:text-primary"}`;
@@ -57,20 +29,11 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname() || "/";
   const onHome = pathname === "/";
-  const onShopAll = pathname === "/shop";
-  const onProducts =
-    pathname.startsWith("/shop/") || pathname.startsWith("/product/");
   const onOffers = pathname === "/offers" || pathname.startsWith("/offers/");
-  const onGuides = pathname.startsWith("/guides");
   const { totalCount, setIsCartOpen } = useCart();
   // const { user, openAuth, logout } = useAuth();
 
-  const [productLines, setProductLines] = useState<ProductLine[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [packs, setPacks] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProductsOpen, setIsProductsOpen] = useState(false);
-  const [isGuidesOpen, setIsGuidesOpen] = useState(false);
 
   // Search Feature State
   const [searchQuery, setSearchQuery] = useState("");
@@ -162,87 +125,12 @@ export default function Navbar() {
     if (searchQuery.trim()) {
       setIsSearchOpen(false);
       setIsMobileSearchOpen(false);
-      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/?search=${encodeURIComponent(searchQuery.trim())}#catalog`);
     }
   };
 
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const guidesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const closeFlyouts = () => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    if (guidesTimeoutRef.current) clearTimeout(guidesTimeoutRef.current);
-    setIsProductsOpen(false);
-    setIsGuidesOpen(false);
-  };
-
-  const handleMouseEnter = () => {
-    closeFlyouts();
-    setIsProductsOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsProductsOpen(false);
-    }, 250);
-  };
-
-  const openGuides = () => {
-    closeFlyouts();
-    setIsGuidesOpen(true);
-  };
-
-  const closeGuides = () => {
-    guidesTimeoutRef.current = setTimeout(() => {
-      setIsGuidesOpen(false);
-    }, 250);
-  };
-
-  useEffect(() => {
-    fetch("/api/product-lines")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data))
-          setProductLines(data.filter((l) => l.isVisible !== false));
-      })
-      .catch(() => {});
-
-    fetch("/api/categories")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data))
-          setCategories(data.filter((c) => c.isVisible !== false));
-      })
-      .catch(() => {});
-
-    fetch("/api/packs")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setPacks(data);
-      })
-      .catch(() => {});
-  }, []);
-
-  const [isBannerVisible, setIsBannerVisible] = useState(true);
-
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-xs font-quicksand">
-      {isBannerVisible && (
-        <div className="bg-linear-to-r from-yellow-100 via-primary/15 to-info-100 py-2 px-4 text-center text-xs font-bold text-secondary relative flex items-center justify-center">
-          <span>
-            🎉 Launching{" "}
-            <span className="font-extrabold text-primary">Kits & Craft</span>
-          </span>
-          <button
-            onClick={() => setIsBannerVisible(false)}
-            aria-label="Close announcement banner"
-            className="absolute right-3 p-1 rounded-full text-neutral-500 hover:text-neutral-800 hover:bg-black/5 transition cursor-pointer"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
-
       {/* Main Header Container */}
       <div className="container mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between relative">
         <div className="flex items-center space-x-3">
@@ -277,195 +165,14 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center space-x-8 font-extrabold text-sm text-secondary absolute left-1/2 -translate-x-1/2">
           <Link
             href="/"
-            onMouseEnter={closeFlyouts}
             className={`flex items-center gap-1.5 ${navItemClass(onHome)}`}
             aria-current={onHome ? "page" : undefined}
           >
             <Home className="w-4 h-4" />
             <span>Home</span>
           </Link>
-          {/* DYNAMIC PRODUCTS MEGA-MENU */}
-          <div
-            className="relative"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            <Link
-              href="/shop"
-              className={`flex items-center gap-1.5 py-2 ${navItemClass(onProducts)}`}
-              aria-current={onProducts ? "page" : undefined}
-            >
-              <Package className="w-4 h-4" />
-              <span>Products</span>
-              <ChevronDown
-                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-                  isProductsOpen ? "rotate-180 text-primary" : ""
-                }`}
-              />
-            </Link>
-
-            {/* Mega-Menu Dropdown Panel with hover bridge & smooth transition */}
-            <div
-              className={`absolute top-full -left-4 pt-2 transition-all duration-200 z-50 ${
-                productLines.length <= 1 ? "w-[360px]" : "w-[640px]"
-              } max-w-[90vw] ${
-                isProductsOpen
-                  ? "opacity-100 translate-y-0 pointer-events-auto block"
-                  : "opacity-0 translate-y-2 pointer-events-none hidden"
-              }`}
-            >
-              <div className="bg-white rounded-3xl shadow-2xl border border-neutral-100 p-6">
-                <div
-                  className={`grid ${
-                    productLines.length <= 1
-                      ? "grid-cols-1 gap-4"
-                      : "grid-cols-2 gap-6"
-                  }`}
-                >
-                  {productLines.map((line) => {
-                    const subCats = categories.filter(
-                      (c) => c.productLineId === line.id,
-                    );
-                    return (
-                      <div key={line.id} className="space-y-3">
-                        <Link
-                          href={productLineShopHref(line)}
-                          onClick={() => setIsProductsOpen(false)}
-                          className="flex items-start space-x-3 pb-3 border-b border-neutral-100 group/title"
-                        >
-                          <span className="text-2xl p-1.5 bg-primary/10 rounded-xl shrink-0">
-                            {line.icon || "📦"}
-                          </span>
-                          <div>
-                            <h4 className="font-extrabold text-sm text-neutral-800 group-hover/title:text-primary transition">
-                              {line.name}
-                            </h4>
-                            {line.description && (
-                              <p className="text-xs font-medium text-neutral-400 mt-0.5 leading-snug">
-                                {line.description}
-                              </p>
-                            )}
-                          </div>
-                        </Link>
-
-                        <div className="space-y-1.5 pl-2">
-                          <Link
-                            href={productLineShopHref(line)}
-                            onClick={() => setIsProductsOpen(false)}
-                            className="inline-flex items-center space-x-1 text-xs font-extrabold text-primary hover:text-primary py-1 transition"
-                          >
-                            <span>View All {line.name}</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </Link>
-                          {subCats.map((cat) => (
-                            <Link
-                              key={cat.id}
-                              href={categoryShopHref(cat)}
-                              onClick={() => setIsProductsOpen(false)}
-                              className="block text-xs font-semibold text-neutral-600 hover:text-primary py-1 transition"
-                            >
-                              {cat.name}
-                            </Link>
-                          ))}
-                          {packs
-                            .filter(
-                              (p) =>
-                                !p.productLineId || p.productLineId === line.id,
-                            )
-                            .map((pack) => (
-                              <Link
-                                key={pack.id}
-                                href={productPath(pack)}
-                                onClick={() => setIsProductsOpen(false)}
-                                className="block text-xs font-extrabold text-warning-600 hover:text-warning-700 py-1 transition"
-                              >
-                                🎁 {pack.name}
-                              </Link>
-                            ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-5 pt-4 border-t border-neutral-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-bold text-neutral-500 bg-primary/5 -mx-6 -mb-6 p-4 px-6 rounded-b-3xl">
-                  <span>Mix & Match any items for bulk savings</span>
-                  <Link
-                    href="/offers"
-                    onClick={() => setIsProductsOpen(false)}
-                    className="text-primary hover:text-primary flex items-center space-x-1 font-extrabold shrink-0"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    <span>Offers</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <Link
-            href="/shop"
-            onMouseEnter={closeFlyouts}
-            className={`flex items-center gap-1.5 ${navItemClass(onShopAll)}`}
-            aria-current={onShopAll ? "page" : undefined}
-          >
-            <Store className="w-4 h-4" />
-            <span>Shop All</span>
-          </Link>
-          <div
-            className="relative"
-            onMouseEnter={openGuides}
-            onMouseLeave={closeGuides}
-          >
-            <button
-              type="button"
-              className={`flex items-center gap-1.5 py-2 ${navItemClass(onGuides)}`}
-              aria-expanded={isGuidesOpen}
-              aria-haspopup="true"
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>Guides</span>
-              <ChevronDown
-                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-                  isGuidesOpen ? "rotate-180 text-primary" : ""
-                }`}
-              />
-            </button>
-            <div
-              className={`absolute top-full left-0 z-50 w-88 pt-2 transition-all duration-200 ${
-                isGuidesOpen
-                  ? "pointer-events-auto block translate-y-0 opacity-100"
-                  : "pointer-events-none hidden translate-y-2 opacity-0"
-              }`}
-            >
-              <div className="rounded-3xl border border-neutral-100 bg-white p-3 shadow-2xl">
-                {GUIDES.map((guide) => {
-                  const href = `/guides/${guide.slug}`;
-                  const current = pathname === href;
-                  return (
-                    <Link
-                      key={guide.slug}
-                      href={href}
-                      onClick={() => setIsGuidesOpen(false)}
-                      aria-current={current ? "page" : undefined}
-                      className={`block rounded-2xl px-3 py-2.5 transition ${
-                        current
-                          ? "bg-primary/10 text-primary"
-                          : "text-neutral-700 hover:bg-primary/10 hover:text-primary"
-                      }`}
-                    >
-                      <span className="block text-sm font-extrabold">
-                        {guide.h1}
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
           <Link
             href="/offers"
-            onMouseEnter={closeFlyouts}
             className={`${navItemClass(onOffers)} flex items-center space-x-1`}
             aria-current={onOffers ? "page" : undefined}
           >
@@ -646,7 +353,7 @@ export default function Navbar() {
                               {searchResults.themes.map((t) => (
                                 <Link
                                   key={t.id}
-                                  href={`/shop?theme=${encodeURIComponent(t.name)}`}
+                                  href={`/?theme=${encodeURIComponent(t.name)}#catalog`}
                                   onClick={() => {
                                     setIsSearchOpen(false);
                                     setIsMobileSearchOpen(false);
@@ -661,7 +368,7 @@ export default function Navbar() {
                               {searchResults.categories.map((c) => (
                                 <Link
                                   key={c.id}
-                                  href={categoryShopHref(c)}
+                                  href={`/?category=${encodeURIComponent(c.name)}#catalog`}
                                   onClick={() => {
                                     setIsSearchOpen(false);
                                     setIsMobileSearchOpen(false);
@@ -899,7 +606,7 @@ export default function Navbar() {
                             {searchResults.themes.map((t) => (
                               <Link
                                 key={t.id}
-                                href={`/shop?theme=${encodeURIComponent(t.name)}`}
+                                href={`/?theme=${encodeURIComponent(t.name)}#catalog`}
                                 onClick={() => {
                                   setIsSearchOpen(false);
                                   setIsMobileSearchOpen(false);
@@ -914,7 +621,7 @@ export default function Navbar() {
                             {searchResults.categories.map((c) => (
                               <Link
                                 key={c.id}
-                                href={categoryShopHref(c)}
+                                href={`/?category=${encodeURIComponent(c.name)}#catalog`}
                                 onClick={() => {
                                   setIsSearchOpen(false);
                                   setIsMobileSearchOpen(false);
@@ -981,90 +688,7 @@ export default function Navbar() {
                 <Home className="w-4 h-4" />
                 <span>Home</span>
               </Link>
-              <div className="space-y-3">
-                <p className="text-xs font-extrabold text-neutral-400 uppercase tracking-wider">
-                  Product Categories
-                </p>
-                {productLines.map((line) => {
-                  const subCats = categories.filter(
-                    (c) => c.productLineId === line.id,
-                  );
-                  return (
-                    <div
-                      key={line.id}
-                      className="space-y-1 pl-2 border-l-2 border-primary/25"
-                    >
-                      <Link
-                        href={productLineShopHref(line)}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={`font-bold text-sm flex items-center space-x-2 ${
-                          subCats.some(
-                            (cat) => pathname === categoryShopHref(cat),
-                          )
-                            ? "text-primary"
-                            : "text-neutral-800"
-                        }`}
-                      >
-                        <span>{line.icon || "📦"}</span>
-                        <span>{line.name}</span>
-                      </Link>
-                      {subCats.map((cat) => (
-                        <Link
-                          key={cat.id}
-                          href={categoryShopHref(cat)}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className={`block text-xs font-semibold pl-6 py-1 transition ${
-                            pathname === categoryShopHref(cat)
-                              ? "text-primary"
-                              : "text-neutral-500 hover:text-primary"
-                          }`}
-                          aria-current={
-                            pathname === categoryShopHref(cat)
-                              ? "page"
-                              : undefined
-                          }
-                        >
-                          {cat.name}
-                        </Link>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
-
               <div className="pt-2 border-t border-neutral-100 flex flex-col space-y-2 font-bold text-xs">
-                <Link
-                  href="/shop"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-1.5 py-2 transition ${onShopAll ? "text-primary" : "text-neutral-700 hover:text-primary"}`}
-                  aria-current={onShopAll ? "page" : undefined}
-                >
-                  <Store className="w-4 h-4" />
-                  <span>Shop All Products</span>
-                </Link>
-                <p className="pt-2 text-xs font-extrabold uppercase tracking-wider text-neutral-400">
-                  Guides
-                </p>
-                {GUIDES.map((guide) => {
-                  const href = `/guides/${guide.slug}`;
-                  const current = pathname === href;
-                  return (
-                    <Link
-                      key={guide.slug}
-                      href={href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      aria-current={current ? "page" : undefined}
-                      className={`flex items-center gap-1.5 py-2 transition ${
-                        current
-                          ? "text-primary"
-                          : "text-neutral-700 hover:text-primary"
-                      }`}
-                    >
-                      <BookOpen className="h-4 w-4" />
-                      <span>{guide.h1}</span>
-                    </Link>
-                  );
-                })}
                 <Link
                   href="/offers"
                   onClick={() => setIsMobileMenuOpen(false)}

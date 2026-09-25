@@ -17,9 +17,11 @@ export async function PUT(
     if (!name) {
       return NextResponse.json({ error: 'Brush name is required.' }, { status: 400 });
     }
+    const price = Number(body.price);
     const updated = await db.updatePaintBrush(id, {
       name,
       size: typeof body.size === 'string' ? body.size : undefined,
+      price: Number.isFinite(price) && price > 0 ? Math.round(price * 100) / 100 : 0,
     });
     if (!updated) return NextResponse.json({ error: 'Brush not found' }, { status: 404 });
     return NextResponse.json(updated);

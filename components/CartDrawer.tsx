@@ -15,7 +15,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL } from "../config/api";
 import WhatsappOrderModal from "./WhatsappOrderModal";
-import { formatCustomization, formatExtraCharge } from "@/lib/kit";
+import KitSelectionSummary from "./product/KitSelectionSummary";
 
 interface SiteSettings {
   isGlobalOrderingEnabled: boolean;
@@ -139,54 +139,55 @@ export default function CartDrawer() {
                   cart.map((item) => (
                     <div
                       key={item.lineId || item.id}
-                      className="flex items-center space-x-4 bg-neutral-50 p-3 rounded-2xl border border-neutral-100"
+                      className="flex gap-3 rounded-2xl border border-neutral-100 bg-neutral-50 p-3 sm:gap-4 sm:p-4"
                     >
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-16 h-16 rounded-xl object-cover"
+                        className="h-16 w-16 shrink-0 rounded-xl object-cover"
                       />
-                      <div className="flex-1">
-                        <h4 className="font-bold text-sm text-neutral-800">
-                          {item.name}
-                        </h4>
-                        <p className="text-xs text-primary font-bold mt-0.5">
-                          ₹{item.price.toFixed(2)}
-                        </p>
-                        {formatCustomization(item.customization) && (
-                          <p className="text-[10px] font-semibold text-neutral-500 mt-0.5">
-                            {formatCustomization(item.customization)}
-                          </p>
-                        )}
-                        {formatExtraCharge(item.customization) && (
-                          <p className="text-[10px] font-bold text-neutral-700 mt-0.5">
-                            {formatExtraCharge(item.customization)}
-                          </p>
-                        )}
-                        <div className="flex items-center space-x-2 mt-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <h4 className="wrap-break-word text-sm font-bold text-neutral-800">
+                              {item.name}
+                            </h4>
+                            <p className="mt-0.5 text-sm font-bold text-primary">
+                              ₹{item.price.toFixed(2)}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => removeFromCart(item.lineId || item.id)}
+                            className="shrink-0 p-1 text-neutral-400 hover:text-red-500"
+                            aria-label={`Remove ${item.name}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                        <KitSelectionSummary
+                          customization={item.customization}
+                          className="mt-2"
+                        />
+                        <div className="mt-3 flex items-center gap-2">
                           <button
                             onClick={() => updateQuantity(item.lineId || item.id, -1)}
-                            className="w-6 h-6 bg-white rounded-full border border-neutral-200 flex items-center justify-center text-neutral-600 hover:bg-neutral-100"
+                            className="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-100"
+                            aria-label="Decrease quantity"
                           >
-                            <Minus className="w-3 h-3" />
+                            <Minus className="h-3.5 w-3.5" />
                           </button>
-                          <span className="text-xs font-bold w-4 text-center">
+                          <span className="w-5 text-center text-sm font-bold">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => updateQuantity(item.lineId || item.id, 1)}
-                            className="w-6 h-6 bg-white rounded-full border border-neutral-200 flex items-center justify-center text-neutral-600 hover:bg-neutral-100"
+                            className="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-100"
+                            aria-label="Increase quantity"
                           >
-                            <Plus className="w-3 h-3" />
+                            <Plus className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       </div>
-                      <button
-                        onClick={() => removeFromCart(item.lineId || item.id)}
-                        className="text-neutral-400 hover:text-red-500 p-1"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
                   ))
                 )}

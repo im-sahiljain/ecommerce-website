@@ -20,9 +20,16 @@ export async function POST(req: NextRequest) {
     const created = await db.addPaintBrush({
       name,
       size: typeof body.size === 'string' ? body.size : undefined,
+      price: catalogPrice(body.price),
     });
     return NextResponse.json(created, { status: 201 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Failed to create brush' }, { status: 500 });
   }
+}
+
+function catalogPrice(value: unknown) {
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount < 0) return 0;
+  return Math.round(amount * 100) / 100;
 }

@@ -33,7 +33,7 @@ function shopMoreHref(products: Product[], themeKeyword: string) {
   if (!params.has("theme") && !params.has("productLineId") && themeKeyword) {
     params.set("theme", themeKeyword);
   }
-  return `/shop?${params.toString()}`;
+  return `/?${params.toString()}#catalog`;
 }
 
 export interface ActiveThemeSection {

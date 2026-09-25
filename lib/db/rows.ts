@@ -1,5 +1,5 @@
 import { normalizeGallery, type ProductGallery } from '@/lib/gallery';
-import { normalizeKit, type PaintColor, type ProductKit } from '@/lib/kit';
+import { normalizeKit, type PaintBrush, type PaintColor, type ProductKit } from '@/lib/kit';
 import type { Pack, Product } from './types';
 
 export function parseBoolean(val: any, defaultVal = true): boolean {
@@ -65,6 +65,7 @@ export function mapRowToPack(r: any): Pack {
     categoryId: r.category_id || undefined,
     inStock: r.in_stock !== false,
     featured: Boolean(r.featured),
+    kitContents: parseKit(r.kit_contents),
     seoTitle: r.seo_title || undefined,
     seoDescription: r.seo_description || undefined,
     createdAt: r.created_at ? new Date(r.created_at).toISOString() : undefined,
@@ -145,6 +146,7 @@ export function mapPaintColor(r: {
   hex?: string | null;
   color_type_id?: string | null;
   volume_ml?: number | string | null;
+  price?: number | string | null;
   sort_order?: number | string | null;
   available?: boolean | null;
 }): PaintColor {
@@ -154,6 +156,25 @@ export function mapPaintColor(r: {
     hex: r.hex || undefined,
     colorTypeId: r.color_type_id || undefined,
     volumeMl: r.volume_ml != null ? Number(r.volume_ml) : undefined,
+    price: Number(r.price) || 0,
+    available: r.available !== false,
+    sortOrder: Number(r.sort_order) || 0,
+  };
+}
+
+export function mapPaintBrush(r: {
+  id: string;
+  name: string;
+  size?: string | null;
+  price?: number | string | null;
+  sort_order?: number | string | null;
+  available?: boolean | null;
+}): PaintBrush {
+  return {
+    id: r.id,
+    name: r.name,
+    size: r.size || undefined,
+    price: Number(r.price) || 0,
     available: r.available !== false,
     sortOrder: Number(r.sort_order) || 0,
   };

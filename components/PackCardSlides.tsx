@@ -94,15 +94,27 @@ export default function PackCardSlides({
           }}
           onTransitionEnd={finishForwardLoop}
         >
-          {track.map((slide, slideIndex) => (
-            <div
-              key={`${slide.name}-${slide.image}-${slideIndex}`}
-              className="relative h-full"
-              style={{ width: `${100 / trackCount}%` }}
-            >
-              <CatalogImage src={slide.image} name={slide.name} sizes={sizes} />
-            </div>
-          ))}
+          {track.map((slide, slideIndex) => {
+            const load =
+              slideIndex === index ||
+              slideIndex === index + 1 ||
+              slideIndex === index - 1;
+            return (
+              <div
+                key={`${slide.name}-${slide.image}-${slideIndex}`}
+                className="relative h-full"
+                style={{ width: `${100 / trackCount}%` }}
+              >
+                {load ? (
+                  <CatalogImage
+                    src={slide.image}
+                    name={slide.name}
+                    sizes={sizes}
+                  />
+                ) : null}
+              </div>
+            );
+          })}
         </div>
         {children}
         {count > 1 && (

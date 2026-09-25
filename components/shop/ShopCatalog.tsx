@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import type {
+  ShopCatalogLine,
+  ShopCatalogPack,
+  ShopCatalogProduct,
+} from "@/lib/shopCatalog";
 import Link from "next/link";
 import { useCart } from "../../context/CartContext";
 import { Filter, ArrowUpDown, X, Heart } from "lucide-react";
@@ -11,7 +16,6 @@ import CatalogImage from "../../components/CatalogImage";
 import PackCardSlides from "../PackCardSlides";
 import { slidesForPack } from "@/lib/packSlides";
 import { productPath } from "@/lib/site";
-import { publicSlug } from "@/lib/slug";
 
 interface Product {
   id: string;
@@ -54,40 +58,39 @@ interface CategoryFacet {
   slug: string;
 }
 
-function productLineIdFromParam(raw: string, lines: ProductLine[]) {
-  if (!raw) return "";
-  const match = lines.find(
-    (line) => line.id === raw || line.slug === raw || publicSlug(line) === raw,
-  );
-  if (match) return match.id;
-  return raw.startsWith("line-") ? raw : "";
-}
-
-function ShopPageContent({ categoryName }: { categoryName?: string }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialSearch =
-    searchParams.get("search") || searchParams.get("q") || "";
-  const initialTheme = searchParams.get("theme") || "";
-  const initialCategory = searchParams.get("category") || categoryName || "";
-  const initialAge = searchParams.get("ageGroup") || "";
-  const initialProductLineId = productLineIdFromParam(
-    searchParams.get("productLine") || searchParams.get("productLineId") || "",
-    [],
-  );
-  const initialPackId = searchParams.get("packId") || "";
+function ShopPageContent({
+  categoryName,
+  initialProducts,
+  initialPacks,
+  initialProductLines,
+  searchParamsString = "",
+}: {
+  categoryName?: string;
+  initialProducts?: ShopCatalogProduct[];
+  initialPacks?: ShopCatalogPack[];
+  initialProductLines?: ShopCatalogLine[];
+  searchParamsString?: string;
+  syncUrl?: boolean;
+}) {
+  const params = new URLSearchParams(searchParamsString);
+  const seeded = initialProducts !== undefined;
+  const initialSearch = params.get("search") || params.get("q") || "";
+  const initialTheme = params.get("theme") || "";
+  const initialCategory = params.get("category") || categoryName || "";
+  const initialAge = params.get("ageGroup") || "";
+  const initialPackId = params.get("packId") || "";
 
   const { addToCart } = useCart();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [packs, setPacks] = useState<any[]>([]);
-  const [productLines, setProductLines] = useState<ProductLine[]>([]);
+  const [products, setProducts] = useState<Product[]>(initialProducts ?? []);
+  const [packs, setPacks] = useState<ShopCatalogPack[]>(initialPacks ?? []);
+  const [productLines, setProductLines] = useState<ProductLine[]>(
+    initialProductLines ?? [],
+  );
   const [facets, setFacets] = useState<CategoryFacet[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [selectedProductLineId, setSelectedProductLineId] =
-    useState(initialProductLineId);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedTheme, setSelectedTheme] = useState(initialTheme);
   const [selectedAge, setSelectedAge] = useState(initialAge);
@@ -103,6 +106,7 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   useEffect(() => {
+    if (seeded) return;
     fetch("/api/products")
       .then((res) => res.json())
       .then((data) => {
@@ -131,36 +135,16 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
         if (Array.isArray(data)) setFacets(data);
       })
       .catch(() => {});
-  }, []);
+  }, [seeded]);
 
   // Sync state when URL searchParams change (e.g. clicking Shop All or changing category links)
   useEffect(() => {
-    const raw =
-      searchParams.get("productLine") ||
-      searchParams.get("productLineId") ||
-      "";
-    const match = productLines.find(
-      (line) =>
-        line.id === raw || line.slug === raw || publicSlug(line) === raw,
-    );
-    setSelectedProductLineId(match?.id || (raw.startsWith("line-") ? raw : ""));
-    if (match) {
-      const slug = publicSlug(match);
-      if (
-        searchParams.get("productLine") !== slug ||
-        searchParams.has("productLineId")
-      ) {
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete("productLineId");
-        params.set("productLine", slug);
-        router.replace(`/shop?${params.toString()}`, { scroll: false });
-      }
-    }
-    setSelectedCategory(searchParams.get("category") || categoryName || "");
-    setSelectedTheme(searchParams.get("theme") || "");
-    setSelectedAge(searchParams.get("ageGroup") || "");
-    setSelectedPackId(searchParams.get("packId") || "");
-  }, [searchParams, categoryName, productLines, router]);
+    const urlParams = new URLSearchParams(searchParamsString);
+    setSelectedCategory(urlParams.get("category") || categoryName || "");
+    setSelectedTheme(urlParams.get("theme") || "");
+    setSelectedAge(urlParams.get("ageGroup") || "");
+    setSelectedPackId(urlParams.get("packId") || "");
+  }, [searchParamsString, categoryName]);
 
   const filteredProducts = useMemo(() => {
     // Map packs to product-like format
@@ -172,7 +156,9 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
       originalPrice: pack.originalPrice
         ? Number(pack.originalPrice)
         : undefined,
-      theme: "General",
+      theme:
+        productLines.find((line) => line.id === pack.productLineId)?.name ||
+        "",
       category: pack.category || "Kit",
       ageGroup: "All Ages",
       productLineId: pack.productLineId,
@@ -189,17 +175,12 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
     }));
 
     let list = [
-      ...products.filter((p) => p.isVisible !== false),
       ...packProducts,
+      ...products.filter((p) => p.isVisible !== false),
     ];
 
     if (selectedPackId) {
       list = list.filter((p) => p.id === selectedPackId);
-    }
-    if (selectedProductLineId) {
-      list = list.filter(
-        (p) => p.productLineId === selectedProductLineId || !p.productLineId,
-      );
     }
     if (selectedTheme) {
       list = list.filter(
@@ -253,7 +234,12 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
     } else if (sortOrder === "high-to-low") {
       list.sort((a, b) => b.price - a.price);
     } else if (sortOrder === "newest") {
-      list.reverse();
+      const kits: Product[] = [];
+      const rest: Product[] = [];
+      for (let i = list.length - 1; i >= 0; i -= 1) {
+        (list[i].isPack ? kits : rest).push(list[i]);
+      }
+      list = [...kits, ...rest];
     }
 
     return list;
@@ -261,7 +247,6 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
     products,
     packs,
     searchQuery,
-    selectedProductLineId,
     selectedTheme,
     selectedCategory,
     selectedAge,
@@ -272,14 +257,10 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
     filterSellingFast,
     maxPrice,
     sortOrder,
+    productLines,
   ]);
 
-  const activeProductLine = productLines.find(
-    (l) => l.id === selectedProductLineId,
-  );
-
   const activeFilterCount =
-    (selectedProductLineId ? 1 : 0) +
     (selectedCategory ? 1 : 0) +
     (selectedTheme ? 1 : 0) +
     (selectedAge ? 1 : 0) +
@@ -291,7 +272,6 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
     (maxPrice < 500 ? 1 : 0);
 
   const resetAllFilters = () => {
-    setSelectedProductLineId("");
     setSelectedTheme("");
     setSelectedCategory("");
     setSelectedAge("");
@@ -305,33 +285,6 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
 
   const renderFilterControls = () => (
     <>
-      {/* Product Line Filter */}
-      {productLines.length > 0 && (
-        <div>
-          <h4 className="font-extrabold text-xs text-secondary uppercase tracking-wider mb-2">
-            Product Line
-          </h4>
-          <div className="space-y-1">
-            {[
-              { id: "", name: "All Product Lines" },
-              ...productLines.filter((pl) => pl.isVisible !== false),
-            ].map((pl) => (
-              <button
-                key={pl.id || "all-lines"}
-                onClick={() => setSelectedProductLineId(pl.id)}
-                className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition ${
-                  selectedProductLineId === pl.id
-                    ? "bg-purple-100 text-purple-900 font-bold"
-                    : "text-neutral-600 hover:bg-neutral-50"
-                }`}
-              >
-                {pl.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Badges / Highlights Filter */}
       <div>
         <h4 className="font-extrabold text-xs text-secondary uppercase tracking-wider mb-2">
@@ -453,12 +406,10 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
       <div className="bg-linear-to-r from-blush via-yellow-50 to-info-50 p-8 rounded-3xl border border-neutral-100 soft-shadow mb-8">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-primary">
-            {activeProductLine ? activeProductLine.name : "Store Catalog"}
+            Store Catalog
           </span>
           <h1 className="text-3xl font-extrabold text-neutral-800 mt-1">
-            {activeProductLine
-              ? activeProductLine.name
-              : "Explore All POP Painting Kits"}
+            Explore All POP Painting Kits
           </h1>
           <p className="text-xs text-neutral-500 mt-1 max-w-xl">
             Browse non-toxic ready-to-paint plaster figurines, activity boxes,
@@ -564,7 +515,7 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map((n) => (
                 <div
                   key={n}
@@ -591,7 +542,7 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
               {filteredProducts.map((product) => {
                 const packSlides = product.isPack
                   ? slidesForPack(product.productIds, products)
@@ -599,7 +550,7 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                 return (
                   <div
                     key={product.id}
-                    className="bg-white rounded-3xl border border-neutral-100 p-4 soft-shadow hover:soft-shadow-hover transition duration-300 flex flex-col justify-between group"
+                    className="bg-white rounded-2xl border border-neutral-100 p-2.5 sm:rounded-3xl sm:p-4 soft-shadow hover:soft-shadow-hover transition duration-300 flex flex-col justify-between group"
                   >
                     <div>
                       <Link href={productPath(product)} className="block group">
@@ -631,13 +582,15 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                         {packSlides.length > 1 ? (
                           <PackCardSlides
                             slides={packSlides}
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            sizes="(max-width: 1024px) 50vw, 33vw"
                             className="mb-3 rounded-2xl border border-neutral-100"
                             caption={({ names, currentName }) => (
                               <>
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                                  {product.theme}
-                                </span>
+                                {product.theme ? (
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                                    {product.theme}
+                                  </span>
+                                ) : null}
                                 <h4 className="font-bold text-sm text-neutral-800 line-clamp-1 mt-0.5 group-hover:text-primary transition">
                                   {product.name}
                                 </h4>
@@ -680,7 +633,7 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                             <CatalogImage
                               src={product.image}
                               name={product.name}
-                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              sizes="(max-width: 1024px) 50vw, 33vw"
                               className="group-hover:scale-105 transition duration-500"
                             />
                             {(product.isSellingFast ||
@@ -704,17 +657,19 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
 
                         {packSlides.length <= 1 && (
                           <>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                              {product.theme}
-                            </span>
+                            {product.theme ? (
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                                {product.theme}
+                              </span>
+                            ) : null}
                             <h4 className="font-bold text-sm text-neutral-800 line-clamp-1 mt-0.5 group-hover:text-primary transition">
                               {product.name}
                             </h4>
                           </>
                         )}
                       </Link>
-                      <p className="mt-1 flex items-baseline gap-1.5">
-                        <span className="text-secondary font-extrabold text-sm">
+                      <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
+                        <span className="whitespace-nowrap text-secondary font-extrabold text-sm">
                           From{" "}
                           <span className="text-primary">
                             ₹{product.price.toFixed(2)}
@@ -821,20 +776,60 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
   );
 }
 
-export default function ShopCatalog({
-  categoryName,
-}: {
-  categoryName?: string;
-}) {
+export function ShopCatalogSkeleton() {
   return (
-    <Suspense
-      fallback={
-        <div className="max-w-7xl mx-auto px-4 py-16 text-center text-neutral-500 font-bold">
-          Loading Shop Catalog...
-        </div>
-      }
-    >
-      <ShopPageContent categoryName={categoryName} />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="mb-8 h-36 animate-pulse rounded-3xl bg-neutral-100" />
+      <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
+        {[1, 2, 3, 4, 5, 6].map((n) => (
+          <div
+            key={n}
+            className="space-y-3 rounded-3xl border border-neutral-100 bg-white p-4 soft-shadow animate-pulse"
+          >
+            <div className="aspect-square w-full rounded-2xl bg-neutral-100/90" />
+            <div className="h-3 w-1/3 rounded-full bg-neutral-100" />
+            <div className="h-4 w-3/4 rounded-full bg-neutral-100" />
+            <div className="h-4 w-1/4 rounded-full bg-neutral-100" />
+            <div className="mt-4 h-10 w-full rounded-full bg-neutral-100" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type ShopCatalogProps = {
+  categoryName?: string;
+  initialProducts?: ShopCatalogProduct[];
+  initialPacks?: ShopCatalogPack[];
+  initialProductLines?: ShopCatalogLine[];
+  searchParamsString?: string;
+  syncUrl?: boolean;
+};
+
+function ShopCatalogFromUrl(props: ShopCatalogProps) {
+  const searchParams = useSearchParams();
+  return (
+    <ShopPageContent
+      {...props}
+      searchParamsString={searchParams.toString()}
+      syncUrl
+    />
+  );
+}
+
+export default function ShopCatalog(props: ShopCatalogProps) {
+  if (props.syncUrl === false) {
+    return (
+      <ShopPageContent
+        {...props}
+        searchParamsString={props.searchParamsString ?? ""}
+      />
+    );
+  }
+  return (
+    <Suspense fallback={<ShopCatalogSkeleton />}>
+      <ShopCatalogFromUrl {...props} />
     </Suspense>
   );
 }

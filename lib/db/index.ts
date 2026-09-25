@@ -366,13 +366,14 @@ export class Database {
     hex?: string;
     colorTypeId?: string;
     volumeMl?: number;
+    price?: number;
   }): Promise<PaintColor> {
     return kit.addPaintColor(this, input);
   }
 
   async updatePaintColor(
     id: string,
-    input: { name: string; hex?: string; colorTypeId?: string; volumeMl?: number },
+    input: { name: string; hex?: string; colorTypeId?: string; volumeMl?: number; price?: number },
   ): Promise<PaintColor | null> {
     return kit.updatePaintColor(this, id, input);
   }
@@ -389,11 +390,11 @@ export class Database {
     return kit.getPaintBrushes(this);
   }
 
-  async addPaintBrush(input: { name: string; size?: string }): Promise<PaintBrush> {
+  async addPaintBrush(input: { name: string; size?: string; price?: number }): Promise<PaintBrush> {
     return kit.addPaintBrush(this, input);
   }
 
-  async updatePaintBrush(id: string, input: { name: string; size?: string }): Promise<PaintBrush | null> {
+  async updatePaintBrush(id: string, input: { name: string; size?: string; price?: number }): Promise<PaintBrush | null> {
     return kit.updatePaintBrush(this, id, input);
   }
 

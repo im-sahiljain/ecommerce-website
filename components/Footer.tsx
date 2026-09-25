@@ -17,43 +17,22 @@ interface CategoryItem {
   isVisible?: boolean;
 }
 
-function categoryShopHref(cat: { name: string; slug?: string }) {
-  const slug = cat.slug?.trim();
-  return slug
-    ? `/shop/${slug}`
-    : `/shop?category=${encodeURIComponent(cat.name)}`;
+function categoryShopHref(_cat: { name: string; slug?: string }) {
+  return "/#catalog";
 }
 
 type FooterLink = { key: string; href: string; label: string };
 
 const fallbackThemes: FooterLink[] = [
-  { key: "wild-kingdom", href: "/shop", label: "Wild Kingdom" },
-  { key: "secret-garden", href: "/shop", label: "Secret Garden" },
-  { key: "little-friends", href: "/shop", label: "Little Friends" },
+  { key: "wild-kingdom", href: "/#catalog", label: "Wild Kingdom" },
+  { key: "secret-garden", href: "/#catalog", label: "Secret Garden" },
+  { key: "little-friends", href: "/#catalog", label: "Little Friends" },
 ];
 
 const fallbackCategories: FooterLink[] = [
-  { key: "single-pieces", href: "/shop", label: "Single Pieces" },
-  { key: "party-packs", href: "/shop", label: "Party Kits" },
-  { key: "all-kits", href: "/shop", label: "All Kits" },
-];
-
-const guideLinks: FooterLink[] = [
-  {
-    key: "plaster-painting-kits",
-    href: "/guides/plaster-painting-kits-for-kids",
-    label: "Plaster painting kits for kids",
-  },
-  {
-    key: "birthday-return-gifts",
-    href: "/guides/birthday-return-gifts",
-    label: "Birthday return gifts",
-  },
-  {
-    key: "home-decor-figurines",
-    href: "/guides/home-decor-figurines",
-    label: "Home décor figurines",
-  },
+  { key: "single-pieces", href: "/#catalog", label: "Single Pieces" },
+  { key: "party-packs", href: "/#catalog", label: "Party Kits" },
+  { key: "all-kits", href: "/#catalog", label: "All Kits" },
 ];
 
 const linkClassName = "hover:text-primary transition";
@@ -112,7 +91,7 @@ export default function Footer() {
         themes.length > 0
           ? themes.map((theme) => ({
               key: theme.id,
-              href: `/shop?theme=${encodeURIComponent(theme.name)}`,
+              href: "/#catalog",
               label: theme.name,
             }))
           : fallbackThemes,
@@ -128,7 +107,6 @@ export default function Footer() {
             }))
           : fallbackCategories,
     },
-    { title: "Guides", links: guideLinks },
   ];
 
   return (
