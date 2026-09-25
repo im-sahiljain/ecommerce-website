@@ -50,7 +50,8 @@ function ThemeProductCard({ product }: { product: Product }) {
           </h3>
           <div className="mt-0.5 flex items-baseline gap-1.5">
             <span className="text-base font-black text-secondary">
-              ₹{product.price.toFixed(0)}
+              From
+              <span className="text-primary"> ₹{product.price.toFixed(0)}</span>
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
               <span className="text-[11px] font-semibold text-neutral-400 line-through">
@@ -64,7 +65,7 @@ function ThemeProductCard({ product }: { product: Product }) {
         <OptimisticAddToCart
           product={product}
           variant="dark"
-          className="flex min-h-9 w-full items-center justify-center rounded-full bg-secondary px-3 py-1.5 text-sm font-bold text-white"
+          className="flex min-h-9 w-full items-center justify-center rounded-full bg-secondary px-3 py-1.5 text-sm font-bold text-white cursor-pointer"
         />
       </div>
     </div>

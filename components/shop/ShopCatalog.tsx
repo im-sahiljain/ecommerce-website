@@ -4,9 +4,8 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "../../context/CartContext";
-import { ShieldCheck, Filter, ArrowUpDown, X, Heart } from "lucide-react";
+import { Filter, ArrowUpDown, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { API_BASE_URL } from "../../config/api";
 import OptimisticAddToCart from "../../components/OptimisticAddToCart";
 import CatalogImage from "../../components/CatalogImage";
 import PackCardSlides from "../PackCardSlides";
@@ -716,7 +715,10 @@ function ShopPageContent({ categoryName }: { categoryName?: string }) {
                       </Link>
                       <p className="mt-1 flex items-baseline gap-1.5">
                         <span className="text-secondary font-extrabold text-sm">
-                          ₹{product.price.toFixed(2)}
+                          From{" "}
+                          <span className="text-primary">
+                            ₹{product.price.toFixed(2)}
+                          </span>
                         </span>
                         {product.originalPrice &&
                           product.originalPrice > product.price && (

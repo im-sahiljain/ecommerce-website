@@ -45,7 +45,9 @@ interface OfferRule {
 
 function scopeChip(rule: Pick<OfferRule, "applicableScope" | "scopeValue">) {
   if (rule.applicableScope === "productLine") {
-    return rule.scopeValue ? `Product line: ${rule.scopeValue}` : "Product line";
+    return rule.scopeValue
+      ? `Product line: ${rule.scopeValue}`
+      : "Product line";
   }
   if (rule.applicableScope === "category") {
     return rule.scopeValue ? `Category: ${rule.scopeValue}` : "Category";
@@ -69,7 +71,7 @@ export default function OffersPage() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch('/api/products').then((res) => res.json()),
+      fetch("/api/products").then((res) => res.json()),
       fetch("/api/offers").then((res) => res.json()),
     ])
       .then(([prodsData, offersData]) => {
@@ -249,9 +251,7 @@ export default function OffersPage() {
                 <>
                   <span className="px-3 py-1 bg-white rounded-full text-neutral-800 shadow-2xs border">
                     Selected Offer:{" "}
-                    <strong className="text-primary">
-                      {activeOffer.name}
-                    </strong>
+                    <strong className="text-primary">{activeOffer.name}</strong>
                   </span>
                   <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full">
                     {scopeChip(activeOffer)}
@@ -313,8 +313,8 @@ export default function OffersPage() {
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="p-8 text-center bg-white rounded-3xl border text-neutral-500 font-bold text-xs">
-              No products found matching this offer. Try selecting another
-              offer from "See Available Offers".
+              No products found matching this offer. Try selecting another offer
+              from "See Available Offers".
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -490,12 +490,10 @@ export default function OffersPage() {
           <button
             onClick={handleAddOfferToCart}
             disabled={!isValidToCheckout}
-            className="w-full py-4 bg-primary hover:bg-primary/90 disabled:bg-neutral-200 disabled:text-neutral-400 text-white font-extrabold text-xs rounded-2xl shadow-sm transition flex items-center justify-center space-x-2 active:scale-95"
+            className="w-full py-4 bg-primary hover:bg-primary/90 disabled:bg-neutral-200 disabled:text-neutral-400 text-white font-extrabold text-xs rounded-2xl shadow-sm transition flex items-center justify-center space-x-2 active:scale-95 cursor-pointer"
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>
-              Add to Cart
-            </span>
+            <span>Add to Cart</span>
           </button>
         </div>
       </div>

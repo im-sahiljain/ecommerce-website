@@ -51,7 +51,10 @@ function KitCard({ kit, products }: { kit: HomeKit; products: Product[] }) {
           )}
           <div className="mt-1 flex items-baseline gap-1.5">
             <span className="text-base font-black">
-              ₹{Number(kit.price).toFixed(0)}
+              From{" "}
+              <span className="text-primary">
+                ₹{Number(kit.price).toFixed(0)}
+              </span>
             </span>
             {kit.originalPrice && kit.originalPrice > kit.price && (
               <span className="text-[11px] font-semibold text-neutral-400 line-through">

@@ -54,7 +54,7 @@ export default function ProductPurchasePanel({
   const kitExtra = kitExtraPerPiece(product.kitOffer, kitSelection);
   const unitPrice = product.price + kitExtra;
   const lineId = cartLineId(product.id, kitSelection);
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(true);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [openIncludedId, setOpenIncludedId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
@@ -62,6 +62,7 @@ export default function ProductPurchasePanel({
   useEffect(() => {
     setKitSelection(emptyKitSelection());
     setOpenIncludedId(null);
+    setIsDescriptionExpanded(false);
   }, [product.id]);
 
   useEffect(() => {
@@ -76,7 +77,13 @@ export default function ProductPurchasePanel({
     if (!product.isPack || !pieces?.length) return;
     const open = pieces.find((piece) => piece.id === openIncludedId);
     if (open?.image) onIncludedFocus?.(open.image);
-  }, [product.id, product.isPack, product.includedProducts, openIncludedId, onIncludedFocus]);
+  }, [
+    product.id,
+    product.isPack,
+    product.includedProducts,
+    openIncludedId,
+    onIncludedFocus,
+  ]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -170,7 +177,7 @@ export default function ProductPurchasePanel({
               layout
               onClick={onLike}
               title={isLiked ? "Unlike product" : "Like this product"}
-              className={`flex h-9 items-center justify-center rounded-full border shadow-2xs transition-all duration-300 active:scale-95 ${
+              className={`cursor-pointer flex h-9 items-center justify-center rounded-full border shadow-2xs transition-all duration-300 active:scale-95 ${
                 likesCount > 0 ? "space-x-1.5 px-3" : "w-9 px-0"
               } ${
                 isLiked
@@ -203,7 +210,7 @@ export default function ProductPurchasePanel({
             <button
               onClick={handleShare}
               title="Share Product"
-              className="flex items-center justify-center rounded-full bg-neutral-100 p-2.5 text-neutral-600 shadow-2xs transition hover:bg-primary/15 hover:text-primary active:scale-95"
+              className="cursor-pointer flex items-center justify-center rounded-full bg-neutral-100 p-2.5 text-neutral-600 shadow-2xs transition hover:bg-primary/15 hover:text-primary active:scale-95"
             >
               <Share2 className="h-4 w-4" />
             </button>
@@ -212,7 +219,7 @@ export default function ProductPurchasePanel({
 
         <div className="mt-3 flex items-baseline space-x-3">
           <span className="text-3xl font-extrabold text-neutral-900">
-            ₹{unitPrice.toFixed(2)}
+            From <span className="text-primary">₹{unitPrice.toFixed(2)}</span>
           </span>
           {product.originalPrice && (
             <span className="text-lg font-medium text-neutral-400 line-through">
@@ -291,9 +298,7 @@ export default function ProductPurchasePanel({
                         type="button"
                         aria-expanded={isOpen}
                         aria-label={`${isOpen ? "Hide" : "Show"} ${item.name} details`}
-                        onClick={() =>
-                          setOpenIncludedId(isOpen ? "" : item.id)
-                        }
+                        onClick={() => setOpenIncludedId(isOpen ? "" : item.id)}
                         className="absolute inset-0 rounded-2xl"
                       />
                       <div className="pointer-events-none relative flex items-center gap-2.5 p-3">
@@ -423,7 +428,7 @@ export default function ProductPurchasePanel({
             <button
               onClick={() => addConfigured(1)}
               disabled={!isOrderingAllowed}
-              className={`flex h-11 w-full items-center justify-center space-x-1.5 rounded-full text-xs font-bold shadow-2xs transition active:scale-98 ${
+              className={`flex h-11 w-full items-center justify-center space-x-1.5 rounded-full text-xs font-bold shadow-2xs transition active:scale-98 cursor-pointer ${
                 isOrderingAllowed
                   ? "bg-primary text-white hover:bg-primary/90"
                   : "cursor-not-allowed bg-neutral-200 text-neutral-400"
@@ -439,7 +444,7 @@ export default function ProductPurchasePanel({
           )}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="flex h-11 w-full items-center justify-center space-x-1.5 rounded-full bg-warning-400 text-xs font-bold text-neutral-950 shadow-2xs transition hover:bg-warning-500 active:scale-98"
+            className="flex h-11 w-full items-center justify-center space-x-1.5 rounded-full bg-warning-400 text-xs font-bold text-neutral-950 shadow-2xs transition hover:bg-warning-500 active:scale-98 cursor-pointer"
           >
             <ShoppingCart className="h-3.5 w-3.5 text-neutral-900" />
             <span>View Basket ({totalCartItems})</span>

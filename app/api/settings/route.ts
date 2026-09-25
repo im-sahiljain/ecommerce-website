@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 
+export const dynamic = 'force-dynamic';
+
+const noStore = { 'Cache-Control': 'no-store' };
+
 export async function GET(_req: NextRequest) {
   try {
     const settings = await db.getSettings();
-    return NextResponse.json(settings, { status: 200 });
+    return NextResponse.json(settings, { status: 200, headers: noStore });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Failed to fetch settings' },
@@ -24,7 +28,7 @@ export async function PUT(req: NextRequest) {
     revalidatePath('/shop');
     revalidatePath('/account');
 
-    return NextResponse.json(updated, { status: 200 });
+    return NextResponse.json(updated, { status: 200, headers: noStore });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Failed to update settings' },

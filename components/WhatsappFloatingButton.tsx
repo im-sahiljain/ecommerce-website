@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface SiteSettings {
   isWhatsappChatButtonEnabled?: boolean;
-  isWhatsappEnabled?: boolean;
   whatsappNumber: string;
 }
 
@@ -25,17 +24,43 @@ const DESKTOP_HOVER = "(min-width: 640px) and (hover: hover) and (pointer: fine)
 
 export default function WhatsappFloatingButton() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const settingsRef = useRef<SiteSettings | null>(null);
   const [introOpen, setIntroOpen] = useState(true);
   const [hovered, setHovered] = useState(false);
   const [desktopHover, setDesktopHover] = useState(false);
 
   useEffect(() => {
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data) setSettings(data);
-      })
-      .catch(() => {});
+    let cancelled = false;
+
+    const load = () => {
+      fetch("/api/settings", { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (cancelled || !data || data.error) return;
+          const prev = settingsRef.current;
+          if (
+            prev &&
+            prev.isWhatsappChatButtonEnabled ===
+              data.isWhatsappChatButtonEnabled &&
+            prev.whatsappNumber === data.whatsappNumber
+          ) {
+            return;
+          }
+          settingsRef.current = data;
+          setSettings(data);
+        })
+        .catch(() => {});
+    };
+
+    load();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") load();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, []);
 
   useEffect(() => {
@@ -53,12 +78,7 @@ export default function WhatsappFloatingButton() {
     return () => window.clearTimeout(timer);
   }, [settings]);
 
-  const isEnabled = settings
-    ? settings.isWhatsappChatButtonEnabled !== false &&
-      settings.isWhatsappEnabled !== false
-    : true;
-
-  if (!settings || !isEnabled) return null;
+  if (!settings || settings.isWhatsappChatButtonEnabled !== true) return null;
 
   const phoneClean = (settings.whatsappNumber || "").replace(/[^0-9]/g, "");
   const messageText = encodeURIComponent(

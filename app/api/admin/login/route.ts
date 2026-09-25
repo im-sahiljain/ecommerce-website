@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { createAdminSessionToken } from '@/lib/adminSession';
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,15 +30,15 @@ export async function POST(req: NextRequest) {
     }
 
     const adminInfo = {
-      username: adminUser.email || adminUser.identifier,
-      name: adminUser.name || 'Admin User',
-      role: 'admin',
+      username: adminUser.identifier || adminUser.email,
+      name: adminUser.name || 'Admin',
+      role: adminUser.role,
     };
 
     return NextResponse.json(
       {
         success: true,
-        token: `admin-token-${Date.now()}`,
+        token: createAdminSessionToken(adminUser.id),
         admin: adminInfo,
       },
       { status: 200 }

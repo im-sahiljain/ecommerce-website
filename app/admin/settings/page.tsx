@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Save,
   CheckCircle2,
@@ -32,44 +32,93 @@ export default function SettingsPage() {
 
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const chatButtonTouched = useRef(false);
 
   useEffect(() => {
+    let cancelled = false;
     adminFetch("/api/settings")
       .then((res) => res.json())
       .then((data) => {
-        if (data) {
-          setSettings({
-            isGlobalOrderingEnabled: data.isGlobalOrderingEnabled !== false,
-            isWhatsappOrderingEnabled: data.isWhatsappOrderingEnabled !== false,
-            isWhatsappChatButtonEnabled:
-              data.isWhatsappChatButtonEnabled !== false,
-            whatsappNumber: data.whatsappNumber || "",
-            siteTitle: data.siteTitle || "Kits and Craft",
-            defaultMetaDescription: data.defaultMetaDescription || "",
-          });
-        }
+        if (cancelled || !data || data.error) return;
+        setSettings((prev) => ({
+          isGlobalOrderingEnabled: data.isGlobalOrderingEnabled !== false,
+          isWhatsappOrderingEnabled: data.isWhatsappOrderingEnabled !== false,
+          isWhatsappChatButtonEnabled: chatButtonTouched.current
+            ? prev.isWhatsappChatButtonEnabled
+            : data.isWhatsappChatButtonEnabled === true,
+          whatsappNumber: data.whatsappNumber || "",
+          siteTitle: data.siteTitle || "Kits and Craft",
+          defaultMetaDescription: data.defaultMetaDescription || "",
+        }));
       })
       .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  const saveChatButton = async (enabled: boolean) => {
+    chatButtonTouched.current = true;
+    setSettings((prev) => ({ ...prev, isWhatsappChatButtonEnabled: enabled }));
+    setError("");
+    try {
+      const res = await adminFetch("/api/settings", {
+        method: "PUT",
+        body: JSON.stringify({ isWhatsappChatButtonEnabled: enabled }),
+      });
+      const data = await res.json().catch(() => null);
+      if (
+        !res.ok ||
+        !data ||
+        data.error ||
+        data.isWhatsappChatButtonEnabled !== enabled
+      ) {
+        setError(data?.error || "Could not save the WhatsApp chat button setting.");
+        setSettings((prev) => ({
+          ...prev,
+          isWhatsappChatButtonEnabled: !enabled,
+        }));
+      }
+    } catch (err) {
+      console.warn("Save chat button failed:", err);
+      setError("Could not save the WhatsApp chat button setting.");
+      setSettings((prev) => ({
+        ...prev,
+        isWhatsappChatButtonEnabled: !enabled,
+      }));
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setSuccess(false);
+    setError("");
 
     try {
       const res = await adminFetch("/api/settings", {
         method: "PUT",
         body: JSON.stringify(settings),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setSettings(data);
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.error) {
+        setError(data?.error || "Could not save settings. Try again.");
+        return;
       }
+      setSettings({
+        isGlobalOrderingEnabled: data.isGlobalOrderingEnabled !== false,
+        isWhatsappOrderingEnabled: data.isWhatsappOrderingEnabled !== false,
+        isWhatsappChatButtonEnabled: data.isWhatsappChatButtonEnabled === true,
+        whatsappNumber: data.whatsappNumber || "",
+        siteTitle: data.siteTitle || "Kits and Craft",
+        defaultMetaDescription: data.defaultMetaDescription || "",
+      });
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       console.warn("Save settings failed:", err);
+      setError("Could not save settings. Try again.");
     } finally {
       setSaving(false);
     }
@@ -86,6 +135,12 @@ export default function SettingsPage() {
           switches, and SEO defaults.
         </p>
       </div>
+
+      {error && (
+        <div className="p-4 bg-danger-50 border border-danger-200 text-danger-800 text-xs font-bold rounded-2xl">
+          {error}
+        </div>
+      )}
 
       {success && (
         <div className="p-4 bg-success-50 border border-success-200 text-success-800 text-xs font-bold rounded-2xl flex items-center space-x-2">
@@ -206,7 +261,8 @@ export default function SettingsPage() {
               </p>
               <p className="text-xs text-neutral-500 mt-0.5">
                 Displays a floating chat widget in the bottom-right corner of
-                storefront pages for general inquiries.
+                storefront pages for general inquiries. This switch saves as
+                soon as you change it.
               </p>
             </div>
 
@@ -214,12 +270,7 @@ export default function SettingsPage() {
               <input
                 type="checkbox"
                 checked={settings.isWhatsappChatButtonEnabled}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    isWhatsappChatButtonEnabled: e.target.checked,
-                  })
-                }
+                onChange={(e) => saveChatButton(e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-neutral-300 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-success-500"></div>

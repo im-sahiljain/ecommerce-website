@@ -174,7 +174,10 @@ export default function RecommendedProducts({
               </Link>
               <div className="mt-auto space-y-2 px-3 pb-3">
                 <p className="text-sm font-extrabold text-neutral-700">
-                  ₹{Number(item.price).toFixed(2)}
+                  From{" "}
+                  <span className="text-primary">
+                    ₹{Number(item.price).toFixed(2)}
+                  </span>
                 </p>
                 <OptimisticAddToCart
                   product={{

@@ -11,11 +11,10 @@ import {
   Sparkles,
   ArrowRight,
 } from "lucide-react";
-import { API_BASE_URL } from "@/config/api";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("admin@littlecreators.com");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,7 +26,7 @@ export default function AdminLoginPage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -90,7 +89,7 @@ export default function AdminLoginPage() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin@littlecreators.com"
+                placeholder="Enter email address"
                 className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-800 placeholder-neutral-400 focus:outline-hidden focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition font-medium"
               />
             </div>
