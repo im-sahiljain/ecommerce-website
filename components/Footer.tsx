@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { API_BASE_URL } from "../config/api";
 
 interface ThemeItem {
   id: string;
@@ -23,6 +22,63 @@ function categoryShopHref(cat: { name: string; slug?: string }) {
   return slug
     ? `/shop/${slug}`
     : `/shop?category=${encodeURIComponent(cat.name)}`;
+}
+
+type FooterLink = { key: string; href: string; label: string };
+
+const fallbackThemes: FooterLink[] = [
+  { key: "wild-kingdom", href: "/shop", label: "Wild Kingdom" },
+  { key: "secret-garden", href: "/shop", label: "Secret Garden" },
+  { key: "little-friends", href: "/shop", label: "Little Friends" },
+];
+
+const fallbackCategories: FooterLink[] = [
+  { key: "single-pieces", href: "/shop", label: "Single Pieces" },
+  { key: "party-packs", href: "/shop", label: "Party Packs" },
+  { key: "all-kits", href: "/shop", label: "All Kits" },
+];
+
+const guideLinks: FooterLink[] = [
+  {
+    key: "plaster-painting-kits",
+    href: "/guides/plaster-painting-kits-for-kids",
+    label: "Plaster painting kits for kids",
+  },
+  {
+    key: "birthday-return-gifts",
+    href: "/guides/birthday-return-gifts",
+    label: "Birthday return gifts",
+  },
+  {
+    key: "home-decor-figurines",
+    href: "/guides/home-decor-figurines",
+    label: "Home décor figurines",
+  },
+];
+
+const linkClassName = "hover:text-pink-600 transition";
+
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: FooterLink[];
+}) {
+  return (
+    <div>
+      <h4 className="font-bold mb-4 text-[#3C2A21]">{title}</h4>
+      <ul className="text-gray-500 text-sm space-y-2">
+        {links.map((link) => (
+          <li key={link.key}>
+            <Link href={link.href} className={linkClassName}>
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export default function Footer() {
@@ -49,6 +105,32 @@ export default function Footer() {
       .catch(() => {});
   }, []);
 
+  const columns = [
+    {
+      title: "Themes",
+      links:
+        themes.length > 0
+          ? themes.map((theme) => ({
+              key: theme.id,
+              href: `/shop?theme=${encodeURIComponent(theme.name)}`,
+              label: theme.name,
+            }))
+          : fallbackThemes,
+    },
+    {
+      title: "Categories",
+      links:
+        categories.length > 0
+          ? categories.map((category) => ({
+              key: category.id,
+              href: categoryShopHref(category),
+              label: category.name,
+            }))
+          : fallbackCategories,
+    },
+    { title: "Guides", links: guideLinks },
+  ];
+
   return (
     <footer className="bg-white pt-16 pb-8 border-t border-gray-100 font-quicksand">
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
@@ -62,125 +144,13 @@ export default function Footer() {
           </p>
         </div>
 
-        <div>
-          <h4 className="font-bold mb-4 text-[#3C2A21]">Themes</h4>
-          <ul className="text-gray-500 text-sm space-y-2">
-            {themes.length > 0 ? (
-              themes.map((t) => (
-                <li key={t.id}>
-                  <Link
-                    href={`/shop?theme=${encodeURIComponent(t.name)}`}
-                    className="hover:text-[#3C2A21] transition"
-                  >
-                    {t.name}
-                  </Link>
-                </li>
-              ))
-            ) : (
-              <>
-                <li>
-                  <Link
-                    href="/shop"
-                    className="hover:text-[#3C2A21] transition"
-                  >
-                    Wild Kingdom
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/shop"
-                    className="hover:text-[#3C2A21] transition"
-                  >
-                    Secret Garden
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/shop"
-                    className="hover:text-[#3C2A21] transition"
-                  >
-                    Little Friends
-                  </Link>
-                </li>
-              </>
-            )}
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="font-bold mb-4 text-[#3C2A21]">Categories</h4>
-          <ul className="text-gray-500 text-sm space-y-2">
-            {categories.length > 0 ? (
-              categories.map((c) => (
-                <li key={c.id}>
-                  <Link
-                    href={categoryShopHref(c)}
-                    className="hover:text-[#3C2A21] transition"
-                  >
-                    {c.name}
-                  </Link>
-                </li>
-              ))
-            ) : (
-              <>
-                <li>
-                  <Link
-                    href="/shop"
-                    className="hover:text-[#3C2A21] transition"
-                  >
-                    Single Pieces
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/shop"
-                    className="hover:text-[#3C2A21] transition"
-                  >
-                    Party Packs
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/shop"
-                    className="hover:text-[#3C2A21] transition"
-                  >
-                    All Kits
-                  </Link>
-                </li>
-              </>
-            )}
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="font-bold mb-4 text-[#3C2A21]">Guides</h4>
-          <ul className="text-gray-500 text-sm space-y-2">
-            <li>
-              <Link
-                href="/guides/plaster-painting-kits-for-kids"
-                className="hover:text-[#3C2A21] transition"
-              >
-                Plaster painting kits for kids
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/guides/birthday-return-gifts"
-                className="hover:text-[#3C2A21] transition"
-              >
-                Birthday return gifts
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/guides/home-decor-figurines"
-                className="hover:text-[#3C2A21] transition"
-              >
-                Home décor figurines
-              </Link>
-            </li>
-          </ul>
-        </div>
+        {columns.map((column) => (
+          <FooterColumn
+            key={column.title}
+            title={column.title}
+            links={column.links}
+          />
+        ))}
       </div>
 
       <div className="container mx-auto px-6 pt-8 border-t border-gray-50 text-center md:text-left">

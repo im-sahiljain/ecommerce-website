@@ -3,6 +3,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  HERO_IMAGE_SIZES,
+  heroFallbackSrc,
+  heroSrcSet,
+  kidsSlideFallbackSrc,
+  kidsSlideSrcSet,
+  ILLUSTRATION_SIZES,
+  owlShelfFallbackSrc,
+  owlShelfSrcSet,
+  plasterCraftsFallbackSrc,
+  plasterCraftsSrcSet,
+} from "@/lib/heroImage";
 
 const heroSlides = [
   {
@@ -52,12 +64,29 @@ const heroSlides = [
         <div className="w-full md:w-7/12 flex justify-center md:justify-end relative">
           <div className="relative w-full max-w-md sm:max-w-lg">
             <div className="overflow-hidden rounded-3xl shadow-2xl border-4 border-white transform rotate-1 hover:rotate-0 transition duration-500">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/hero/indian-kids-painting.png"
-                alt="Indian children joyfully painting plaster crafts"
-                className="w-full h-72 sm:h-96 object-cover object-center"
-              />
+              <picture>
+                <source
+                  type="image/avif"
+                  srcSet={heroSrcSet("avif")}
+                  sizes={HERO_IMAGE_SIZES}
+                />
+                <source
+                  type="image/webp"
+                  srcSet={heroSrcSet("webp")}
+                  sizes={HERO_IMAGE_SIZES}
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={heroFallbackSrc}
+                  srcSet={heroSrcSet("jpg")}
+                  sizes={HERO_IMAGE_SIZES}
+                  width={1024}
+                  height={768}
+                  alt="Indian children joyfully painting plaster crafts"
+                  fetchPriority="high"
+                  className="w-full h-72 sm:h-96 object-cover object-center"
+                />
+              </picture>
             </div>
             <div className="absolute -top-3 -right-2 bg-sky-600 text-white rounded-full px-3.5 py-1 text-xs font-black shadow-lg">
               ✨ Ready-To-Paint Kits
@@ -124,24 +153,60 @@ const heroSlides = [
         <div className="w-full md:w-7/12 flex flex-col sm:flex-row items-center justify-center gap-5 relative">
           <div className="relative max-w-xs sm:max-w-sm w-full flex flex-col items-center">
             <div className="relative rounded-3xl bg-white/70 backdrop-blur-xs p-3.5 border border-rose-200/70 shadow-lg hover:shadow-xl transition duration-300 w-full flex justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/hero/owl-shelf.png"
-                alt="Owl Figurine on Shelf"
-                className="w-full h-auto max-h-52 object-contain filter drop-shadow-md"
-              />
+              <picture>
+                <source
+                  type="image/avif"
+                  srcSet={owlShelfSrcSet("avif")}
+                  sizes={ILLUSTRATION_SIZES}
+                />
+                <source
+                  type="image/webp"
+                  srcSet={owlShelfSrcSet("webp")}
+                  sizes={ILLUSTRATION_SIZES}
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={owlShelfFallbackSrc}
+                  srcSet={owlShelfSrcSet("png")}
+                  sizes={ILLUSTRATION_SIZES}
+                  width={480}
+                  height={260}
+                  alt="Owl Figurine on Shelf"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-auto max-h-52 object-contain filter drop-shadow-md"
+                />
+              </picture>
               <div className="absolute -top-3 -right-2 bg-pink-600 text-white rounded-full px-3 py-0.5 text-[10px] font-black shadow">
                 Home Shelf Decor
               </div>
             </div>
 
             <div className="relative rounded-3xl bg-white/70 backdrop-blur-xs p-3 mt-3 border border-rose-200/70 shadow-md hover:shadow-lg transition duration-300 w-full flex justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/hero/plaster-crafts.png"
-                alt="Painted Plaster Figurines"
-                className="w-full h-auto max-h-36 object-contain filter drop-shadow-xs"
-              />
+              <picture>
+                <source
+                  type="image/avif"
+                  srcSet={plasterCraftsSrcSet("avif")}
+                  sizes={ILLUSTRATION_SIZES}
+                />
+                <source
+                  type="image/webp"
+                  srcSet={plasterCraftsSrcSet("webp")}
+                  sizes={ILLUSTRATION_SIZES}
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={plasterCraftsFallbackSrc}
+                  srcSet={plasterCraftsSrcSet("png")}
+                  sizes={ILLUSTRATION_SIZES}
+                  width={475}
+                  height={225}
+                  alt="Painted Plaster Figurines"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-auto max-h-36 object-contain filter drop-shadow-xs"
+                />
+              </picture>
             </div>
           </div>
 
@@ -207,12 +272,30 @@ const heroSlides = [
         <div className="w-full md:w-7/12 flex justify-center md:justify-end relative">
           <div className="relative w-full max-w-md sm:max-w-lg">
             <div className="overflow-hidden rounded-3xl shadow-2xl border-4 border-white transform rotate-1 hover:rotate-0 transition duration-500">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/hero/kids-painting-slide.png"
-                alt="Kids enjoying painting crafts"
-                className="w-full h-72 sm:h-96 object-cover object-center"
-              />
+              <picture>
+                <source
+                  type="image/avif"
+                  srcSet={kidsSlideSrcSet("avif")}
+                  sizes={HERO_IMAGE_SIZES}
+                />
+                <source
+                  type="image/webp"
+                  srcSet={kidsSlideSrcSet("webp")}
+                  sizes={HERO_IMAGE_SIZES}
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={kidsSlideFallbackSrc}
+                  srcSet={kidsSlideSrcSet("jpg")}
+                  sizes={HERO_IMAGE_SIZES}
+                  width={1024}
+                  height={768}
+                  alt="Kids enjoying painting crafts"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-72 sm:h-96 object-cover object-center"
+                />
+              </picture>
             </div>
             <div className="absolute -bottom-4 -left-3 bg-white px-4 py-2 rounded-2xl shadow-xl border border-amber-200 flex items-center space-x-2">
               <span className="text-xl">👩‍🎨</span>

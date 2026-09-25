@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import HomePage from "@/components/home/HomePage";
-import { siteUrl } from "@/lib/site";
+import { HERO_IMAGE_SIZES, heroSrcSet } from "@/lib/heroImage";
+import { siteLogoUrl, siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
@@ -12,9 +13,7 @@ export default function Page() {
         "@type": "Organization",
         name: "Kits & Craft",
         url: siteUrl(),
-        logo:
-          process.env.NEXT_PUBLIC_SEO_IMAGE_URL ||
-          "https://res.cloudinary.com/dagkrnoap/image/upload/v1785413297/indian-kids-painting_zcbcf2.jpg",
+        logo: siteLogoUrl(),
       },
       {
         "@type": "WebSite",
@@ -26,6 +25,14 @@ export default function Page() {
 
   return (
     <>
+      <link
+        rel="preload"
+        as="image"
+        type="image/avif"
+        imageSrcSet={heroSrcSet("avif")}
+        imageSizes={HERO_IMAGE_SIZES}
+        fetchPriority="high"
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

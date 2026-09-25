@@ -3,11 +3,9 @@ import { permanentRedirect } from "next/navigation";
 import ShopCatalog from "@/components/shop/ShopCatalog";
 import { db } from "@/lib/db";
 import { CatalogJsonLdScript } from "@/lib/catalogJsonLd";
-import { siteUrl } from "@/lib/site";
+import { siteShareImageUrl, siteUrl } from "@/lib/site";
 
-const SEO_IMAGE =
-  process.env.NEXT_PUBLIC_SEO_IMAGE_URL ||
-  "https://res.cloudinary.com/dagkrnoap/image/upload/v1785413297/indian-kids-painting_zcbcf2.jpg";
+const SEO_IMAGE = siteShareImageUrl();
 
 const title = "Shop Plaster Painting Kits";
 const description =

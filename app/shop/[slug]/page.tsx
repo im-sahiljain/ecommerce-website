@@ -5,11 +5,9 @@ import ShopCatalog from "@/components/shop/ShopCatalog";
 import { db } from "@/lib/db";
 import type { Category } from "@/lib/db/types";
 import { CatalogJsonLdScript } from "@/lib/catalogJsonLd";
-import { siteUrl } from "@/lib/site";
+import { siteShareImageUrl, siteUrl } from "@/lib/site";
 
-const SEO_IMAGE =
-  process.env.NEXT_PUBLIC_SEO_IMAGE_URL ||
-  "https://res.cloudinary.com/dagkrnoap/image/upload/v1785413297/indian-kids-painting_zcbcf2.jpg";
+const SEO_IMAGE = siteShareImageUrl();
 
 type Props = { params: Promise<{ slug: string }> };
 

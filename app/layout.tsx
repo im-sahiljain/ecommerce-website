@@ -4,11 +4,9 @@ import StoreProvider from "../store/StoreProvider";
 import { AuthProvider } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
 import StorefrontLayout from "../components/StorefrontLayout";
-import { siteUrl } from "@/lib/site";
+import { siteShareImageUrl, siteUrl } from "@/lib/site";
 
-const SEO_IMAGE_URL =
-  process.env.NEXT_PUBLIC_SEO_IMAGE_URL ||
-  "https://res.cloudinary.com/dagkrnoap/image/upload/v1785413297/indian-kids-painting_zcbcf2.jpg";
+const SEO_IMAGE_URL = siteShareImageUrl();
 
 export const metadata = {
   metadataBase: new URL(siteUrl()),
@@ -46,7 +44,7 @@ export const metadata = {
         url: SEO_IMAGE_URL,
         width: 1200,
         height: 630,
-        alt: "Kits & Craft - Plaster Painting Kits & Home Décor",
+        alt: "Kits & Craft",
       },
     ],
   },
