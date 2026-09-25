@@ -235,11 +235,11 @@ export default function KitCustomizer({
                 const selectedBrushCount = selection.brushes.filter(
                   (item) => item.quantity > 0,
                 ).length;
+                const allowanceReached =
+                  offer.brushes!.includedCount <= 0 ||
+                  selectedBrushCount >= offer.brushes!.includedCount;
                 const showPrice =
-                  !brush.included &&
-                  brush.price > 0 &&
-                  (offer.brushes!.includedCount <= 0 ||
-                    selectedBrushCount > offer.brushes!.includedCount);
+                  allowanceReached && !brush.included && brush.price > 0;
                 return (
                   <button
                     key={brush.id}
