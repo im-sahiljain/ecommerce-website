@@ -87,26 +87,26 @@ export default function ProductsManagerPage() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-800 sm:text-2xl">
+          <h1 className="text-xl font-extrabold text-neutral-800 sm:text-2xl">
             Products Catalog Management
           </h1>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-neutral-500">
             Granular product CRUD, SKU management, line and category assignment,
             and stock adjustments.
           </p>
         </div>
         <Link
           href="/admin/products/new"
-          className="flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-pink-500 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-pink-600"
+          className="flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-2xs transition hover:bg-primary/90"
         >
           <Plus className="h-4 w-4" />
           Add Craft / Candle Product
         </Link>
       </div>
 
-      <div className="overflow-x-auto rounded-3xl border border-slate-200/80 bg-white shadow-xs">
+      <div className="overflow-x-auto rounded-3xl border border-neutral-200/80 bg-white shadow-2xs">
         <table className="w-full text-left text-xs">
-          <thead className="border-b border-slate-200/80 bg-slate-50 font-bold uppercase tracking-wider text-slate-500">
+          <thead className="border-b border-neutral-200/80 bg-neutral-50 font-bold uppercase tracking-wider text-neutral-500">
             <tr>
               <th className="p-4">Product Info</th>
               <th className="p-4">Product Line</th>
@@ -117,13 +117,13 @@ export default function ProductsManagerPage() {
               <th className="p-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-neutral-100">
             {products.map((p) => {
               const stock = p.stockQuantity !== undefined ? p.stockQuantity : 10;
               const isOrderOn = p.isOrderingEnabled !== false;
               const line = productLines.find((l) => l.id === p.productLineId);
               return (
-                <tr key={p.id} className="transition hover:bg-slate-50/80">
+                <tr key={p.id} className="transition hover:bg-neutral-50/80">
                   <td className="flex items-center gap-3 p-4">
                     <img
                       src={p.image}
@@ -131,12 +131,12 @@ export default function ProductsManagerPage() {
                       className="h-10 w-10 rounded-xl border object-cover"
                     />
                     <div>
-                      <p className="text-sm font-bold text-slate-800">{p.name}</p>
-                      <p className="font-mono text-[10px] text-slate-400">{p.sku || p.id}</p>
+                      <p className="text-sm font-bold text-neutral-800">{p.name}</p>
+                      <p className="font-mono text-[10px] text-neutral-400">{p.sku || p.id}</p>
                     </div>
                   </td>
-                  <td className="p-4 font-bold text-slate-800">
-                    <span className="rounded-full bg-sky-100 px-2.5 py-1 text-[10px] text-sky-800">
+                  <td className="p-4 font-bold text-neutral-800">
+                    <span className="rounded-full bg-info-100 px-2.5 py-1 text-[10px] text-info-800">
                       {line
                         ? line.name
                         : p.productLineId === "line-2"
@@ -144,26 +144,26 @@ export default function ProductsManagerPage() {
                           : "POP Figurines"}
                     </span>
                   </td>
-                  <td className="p-4 font-semibold text-slate-700">
-                    <span className="block font-bold text-slate-800">{p.category}</span>
-                    <span className="text-[11px] font-bold text-pink-500">{p.theme}</span>
+                  <td className="p-4 font-semibold text-neutral-700">
+                    <span className="block font-bold text-neutral-800">{p.category}</span>
+                    <span className="text-[11px] font-bold text-primary">{p.theme}</span>
                   </td>
-                  <td className="p-4 font-extrabold text-slate-800">₹{p.price.toFixed(2)}</td>
+                  <td className="p-4 font-extrabold text-neutral-800">₹{p.price.toFixed(2)}</td>
                   <td className="p-4">
                     <button
                       onClick={() => setStockModalProduct(p)}
-                      className="flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-extrabold text-slate-800 hover:bg-slate-200"
+                      className="flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[10px] font-extrabold text-neutral-800 hover:bg-neutral-200"
                     >
                       <span>{stock} units</span>
-                      <Sliders className="h-3 w-3 text-slate-500" />
+                      <Sliders className="h-3 w-3 text-neutral-500" />
                     </button>
                   </td>
                   <td className="p-4">
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-[10px] font-extrabold ${
                         isOrderOn
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-amber-100 text-amber-800"
+                          ? "bg-success-100 text-success-800"
+                          : "bg-warning-100 text-warning-800"
                       }`}
                     >
                       {isOrderOn ? "Enabled" : "WhatsApp Only"}
@@ -180,14 +180,14 @@ export default function ProductsManagerPage() {
                     <Link
                       href={`/admin/products/${p.id}`}
                       title="Edit product"
-                      className="inline-flex rounded-lg bg-slate-100 p-1.5 text-slate-700 hover:bg-slate-200"
+                      className="inline-flex rounded-lg bg-neutral-100 p-1.5 text-neutral-700 hover:bg-neutral-200"
                     >
                       <Edit className="h-4 w-4" />
                     </Link>
                     <button
                       onClick={() => handleDelete(p.id)}
                       title="Delete product"
-                      className="rounded-lg bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-100"
+                      className="rounded-lg bg-danger-50 p-1.5 text-danger-600 hover:bg-danger-100"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -205,12 +205,12 @@ export default function ProductsManagerPage() {
             onSubmit={handleStockAdjustment}
             className="w-full max-w-sm space-y-4 rounded-3xl bg-white p-6 shadow-2xl"
           >
-            <h3 className="border-b pb-2 text-base font-extrabold text-slate-800">
+            <h3 className="border-b pb-2 text-base font-extrabold text-neutral-800">
               Adjust Stock for {stockModalProduct.name}
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-neutral-500">
               Current Stock:{" "}
-              <strong className="text-slate-800">
+              <strong className="text-neutral-800">
                 {stockModalProduct.stockQuantity !== undefined
                   ? stockModalProduct.stockQuantity
                   : 10}{" "}
@@ -218,7 +218,7 @@ export default function ProductsManagerPage() {
               </strong>
             </p>
             <div>
-              <label className="mb-1 block text-xs font-bold text-slate-700">
+              <label className="mb-1 block text-xs font-bold text-neutral-700">
                 Adjustment Quantity (+ to add, - to reduce)
               </label>
               <input
@@ -226,11 +226,11 @@ export default function ProductsManagerPage() {
                 value={stockChangeAmount}
                 onChange={(e) => setStockChangeAmount(Number(e.target.value))}
                 required
-                className="w-full rounded-xl border bg-slate-50 px-3 py-2 text-xs font-bold"
+                className="w-full rounded-xl border bg-neutral-50 px-3 py-2 text-xs font-bold"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-slate-700">
+              <label className="mb-1 block text-xs font-bold text-neutral-700">
                 Reason / Note (Audit Trail)
               </label>
               <input
@@ -239,20 +239,20 @@ export default function ProductsManagerPage() {
                 onChange={(e) => setStockReason(e.target.value)}
                 placeholder="Restock from warehouse"
                 required
-                className="w-full rounded-xl border bg-slate-50 px-3 py-2 text-xs"
+                className="w-full rounded-xl border bg-neutral-50 px-3 py-2 text-xs"
               />
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setStockModalProduct(null)}
-                className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200"
+                className="rounded-xl bg-neutral-100 px-4 py-2 text-xs font-bold text-neutral-700 hover:bg-neutral-200"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-slate-800"
+                className="rounded-xl bg-neutral-900 px-5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-neutral-800"
               >
                 Save Stock Change
               </button>

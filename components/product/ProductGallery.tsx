@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Heart, X, ZoomIn } from "lucide-react";
 import ProductImageTrack from "./ProductImageTrack";
+import { imageCaption } from "@/lib/gallery";
 import { productImages, type ProductDetail } from "./types";
 
 export default function ProductGallery({
@@ -19,6 +20,7 @@ export default function ProductGallery({
 }) {
   const images = productImages(product);
   const [selectedImgIndex, setSelectedImgIndex] = useState(0);
+  const selectedCaption = imageCaption(product.gallery, selectedImgIndex);
   const [imageDragX, setImageDragX] = useState(0);
   const [imageDragging, setImageDragging] = useState(false);
   const [imageSlideInstant, setImageSlideInstant] = useState(false);
@@ -59,6 +61,32 @@ export default function ProductGallery({
     });
     return () => cancelAnimationFrame(frame);
   }, [imageSlideInstant]);
+
+  useEffect(() => {
+    if (!isFullscreenModalOpen) return;
+    const { body } = document;
+    const scrollY = window.scrollY;
+    const previous = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+    };
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    return () => {
+      body.style.position = previous.position;
+      body.style.top = previous.top;
+      body.style.left = previous.left;
+      body.style.right = previous.right;
+      body.style.width = previous.width;
+      window.scrollTo(0, scrollY);
+    };
+  }, [isFullscreenModalOpen]);
 
   useEffect(() => {
     if (!isFullscreenModalOpen) return;
@@ -158,7 +186,7 @@ export default function ProductGallery({
     <>
       <div className="relative space-y-4 md:sticky md:top-28 md:z-10 md:self-start">
         <div
-          className="group relative flex aspect-square cursor-pointer select-none items-center justify-center overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-50 shadow-xs touch-pan-y"
+          className="group relative flex aspect-square cursor-pointer select-none items-center justify-center overflow-hidden rounded-3xl border border-neutral-200/80 bg-neutral-50 shadow-2xs touch-pan-y"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onMouseMove={handleMouseMove}
@@ -180,7 +208,7 @@ export default function ProductGallery({
 
           {isHovered && (
             <div
-              className="pointer-events-none absolute z-30 hidden h-28 w-28 rounded-2xl border-2 border-pink-500 bg-pink-500/20 shadow-lg transition-transform duration-75 md:block"
+              className="pointer-events-none absolute z-30 hidden h-28 w-28 rounded-2xl border-2 border-primary bg-primary/20 shadow-lg transition-transform duration-75 md:block"
               style={{
                 left: `calc(${mousePos.x}% - 3.5rem)`,
                 top: `calc(${mousePos.y}% - 3.5rem)`,
@@ -189,10 +217,15 @@ export default function ProductGallery({
           )}
 
           <div className="pointer-events-none absolute left-4 top-4 z-20 flex flex-col space-y-2">
-            <span className="rounded-full bg-sky-100/90 px-3.5 py-1.5 text-xs font-bold text-sky-800 shadow-xs backdrop-blur-md">
+            <span className="rounded-full bg-info-100/90 px-3.5 py-1.5 text-xs font-bold text-info-800 shadow-2xs backdrop-blur-md">
               {product.ageGroup}
             </span>
           </div>
+          {selectedCaption && (
+            <span className="pointer-events-none absolute bottom-4 left-4 z-20 rounded-full bg-neutral-900/85 px-3 py-1.5 text-xs font-bold text-white shadow-2xs backdrop-blur-md">
+              {selectedCaption}
+            </span>
+          )}
 
           {/* <div className="absolute right-4 top-4 z-20 flex items-center space-x-2">
             <motion.button
@@ -202,12 +235,12 @@ export default function ProductGallery({
                 onLike();
               }}
               title={isLiked ? "Unlike Product" : "Like Product"}
-              className={`flex h-9 items-center justify-center rounded-full shadow-sm backdrop-blur-md transition-all duration-300 active:scale-95 ${
+              className={`flex h-9 items-center justify-center rounded-full shadow-xs backdrop-blur-md transition-all duration-300 active:scale-95 ${
                 likesCount > 0 ? "space-x-1.5 px-3" : "w-9 px-0"
               } ${
                 isLiked
-                  ? "bg-rose-500 text-white"
-                  : "bg-white/80 text-slate-700 hover:bg-white hover:text-rose-500"
+                  ? "bg-danger-500 text-white"
+                  : "bg-white/80 text-neutral-700 hover:bg-white hover:text-danger-500"
               }`}
             >
               <Heart
@@ -235,14 +268,14 @@ export default function ProductGallery({
               <button
                 onClick={handlePrevImage}
                 aria-label="Previous Image"
-                className="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-800 opacity-90 shadow-md backdrop-blur-md transition-all hover:scale-110 hover:bg-white group-hover:opacity-100 sm:opacity-0"
+                className="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-800 opacity-90 shadow-md backdrop-blur-md transition-all hover:scale-110 hover:bg-white group-hover:opacity-100 sm:opacity-0"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
               <button
                 onClick={handleNextImage}
                 aria-label="Next Image"
-                className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-800 opacity-90 shadow-md backdrop-blur-md transition-all hover:scale-110 hover:bg-white group-hover:opacity-100 sm:opacity-0"
+                className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-800 opacity-90 shadow-md backdrop-blur-md transition-all hover:scale-110 hover:bg-white group-hover:opacity-100 sm:opacity-0"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
@@ -258,8 +291,8 @@ export default function ProductGallery({
                 onClick={() => setSelectedImgIndex(idx)}
                 className={`flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 bg-white transition sm:h-20 sm:w-20 ${
                   selectedImgIndex === idx
-                    ? "scale-105 border-pink-500 shadow-md ring-2 ring-pink-500/30"
-                    : "border-slate-200 opacity-70 hover:border-slate-300 hover:opacity-100"
+                    ? "scale-105 border-primary shadow-md ring-2 ring-primary/30"
+                    : "border-neutral-200 opacity-70 hover:border-neutral-300 hover:opacity-100"
                 }`}
               >
                 <img
@@ -273,7 +306,7 @@ export default function ProductGallery({
         )}
 
         {isHovered && (
-          <div className="animate-fade-in pointer-events-none absolute left-[calc(100%+2.5rem)] top-0 z-40 hidden aspect-square w-full overflow-hidden rounded-3xl border-2 border-pink-400 bg-white shadow-2xl lg:block">
+          <div className="animate-fade-in pointer-events-none absolute left-[calc(100%+2.5rem)] top-0 z-40 hidden aspect-square w-full overflow-hidden rounded-3xl border-2 border-primary/70 bg-white shadow-2xl lg:block">
             <div
               className="h-full w-full bg-no-repeat"
               style={{
@@ -287,15 +320,20 @@ export default function ProductGallery({
       </div>
 
       {isFullscreenModalOpen && (
-        <div className="animate-fade-in fixed inset-0 z-[100] flex flex-col justify-between bg-black/95 p-4 text-white backdrop-blur-xl sm:p-8">
+        <div className="animate-fade-in fixed inset-0 z-100 flex flex-col justify-between overscroll-none bg-black/95 p-4 text-white backdrop-blur-xl sm:p-8">
           <div className="z-10 mx-auto flex w-full max-w-7xl items-center justify-between">
             <div className="flex items-center space-x-3">
               <span className="rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold text-white backdrop-blur-md">
                 {selectedImgIndex + 1} / {images.length}
               </span>
-              <h3 className="max-w-xs truncate text-sm font-bold text-slate-200 sm:max-w-md sm:text-base">
+              <h3 className="max-w-xs truncate text-sm font-bold text-neutral-200 sm:max-w-md sm:text-base">
                 {product.name}
               </h3>
+              {selectedCaption && (
+                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white">
+                  {selectedCaption}
+                </span>
+              )}
             </div>
             <button
               onClick={() => setIsFullscreenModalOpen(false)}
@@ -307,7 +345,7 @@ export default function ProductGallery({
           </div>
 
           <div
-            className="relative my-4 flex w-full max-w-7xl flex-1 touch-pan-y items-center justify-center overflow-hidden"
+            className="relative mx-auto my-4 flex w-full max-w-7xl flex-1 touch-pan-y items-center justify-center overflow-hidden"
             onTouchStart={handleImageTouchStart}
             onTouchMove={handleImageTouchMove}
             onTouchEnd={handleImageTouchEnd}
@@ -350,7 +388,7 @@ export default function ProductGallery({
                   onClick={() => setSelectedImgIndex(idx)}
                   className={`h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 bg-white p-1 transition sm:h-16 sm:w-16 ${
                     selectedImgIndex === idx
-                      ? "scale-110 border-pink-500 shadow-lg ring-2 ring-pink-500/50"
+                      ? "scale-110 border-primary shadow-lg ring-2 ring-primary/50"
                       : "border-white/20 opacity-60 hover:opacity-100"
                   }`}
                 >

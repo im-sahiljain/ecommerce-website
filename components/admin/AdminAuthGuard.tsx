@@ -29,13 +29,13 @@ const navItems = [
     href: "/admin",
     label: "Dashboard Overview",
     icon: LayoutDashboard,
-    color: "text-pink-400",
+    color: "text-primary/70",
   },
   {
     href: "/admin/product-lines",
     label: "Product Lines",
     icon: Layers,
-    color: "text-sky-400",
+    color: "text-info-400",
   },
   {
     href: "/admin/categories",
@@ -47,31 +47,31 @@ const navItems = [
     href: "/admin/products",
     label: "Products Catalog",
     icon: Package,
-    color: "text-emerald-400",
+    color: "text-success-400",
   },
   {
     href: "/admin/packs",
     label: "Packs Builder",
     icon: Boxes,
-    color: "text-amber-400",
+    color: "text-warning-400",
   },
   {
     href: "/admin/homepage-builder",
     label: "Homepage CMS (not in use)",
     icon: Sparkles,
-    color: "text-pink-400",
+    color: "text-primary/70",
   },
   {
     href: "/admin/offers",
     label: "Offer Rules",
     icon: Gift,
-    color: "text-amber-400",
+    color: "text-warning-400",
   },
   {
     href: "/admin/orders",
     label: "Orders & Fulfillment",
     icon: ShoppingCart,
-    color: "text-rose-400",
+    color: "text-danger-400",
   },
   {
     href: "/admin/analytics",
@@ -83,7 +83,7 @@ const navItems = [
     href: "/admin/settings",
     label: "Settings & WhatsApp",
     icon: Settings,
-    color: "text-slate-400",
+    color: "text-neutral-400",
   },
 ];
 
@@ -152,10 +152,10 @@ export default function AdminAuthGuard({
 
   if (isAuthenticated === null) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-800">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-800">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-pink-500/30 border-t-pink-500 rounded-full animate-spin" />
-          <span className="text-xs font-bold tracking-wider uppercase text-slate-500">
+          <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <span className="text-xs font-bold tracking-wider uppercase text-neutral-500">
             Verifying Admin Session...
           </span>
         </div>
@@ -168,23 +168,23 @@ export default function AdminAuthGuard({
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row text-slate-800 bg-slate-50 antialiased font-sans w-full overflow-x-hidden">
+    <div className="min-h-screen flex flex-col lg:flex-row text-neutral-800 bg-neutral-50 antialiased font-sans w-full overflow-x-hidden">
       {/* Top Mobile Bar */}
-      <header className="lg:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-md">
+      <header className="lg:hidden bg-neutral-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-md">
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setIsMobileOpen(!isMobileOpen)}
             aria-label="Toggle navigation menu"
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
+            className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 transition"
           >
             {isMobileOpen ? (
-              <X className="w-5 h-5 text-pink-400" />
+              <X className="w-5 h-5 text-primary/70" />
             ) : (
-              <Menu className="w-5 h-5 text-pink-400" />
+              <Menu className="w-5 h-5 text-primary/70" />
             )}
           </button>
           <div className="flex items-center space-x-2">
-            <div className="w-7 h-7 bg-pink-500 text-white rounded-lg flex items-center justify-center font-bold">
+            <div className="w-7 h-7 bg-primary text-white rounded-lg flex items-center justify-center font-bold">
               <Sparkles className="w-4 h-4" />
             </div>
             <span className="font-extrabold text-sm text-white tracking-tight">
@@ -195,7 +195,7 @@ export default function AdminAuthGuard({
 
         <Link
           href="/"
-          className="p-2 bg-slate-800 hover:bg-slate-700 text-pink-400 rounded-xl transition flex items-center space-x-1 text-xs font-bold"
+          className="p-2 bg-neutral-800 hover:bg-neutral-700 text-primary/70 rounded-xl transition flex items-center space-x-1 text-xs font-bold"
         >
           <span>Storefront</span>
           <ExternalLink className="w-3.5 h-3.5" />
@@ -206,13 +206,13 @@ export default function AdminAuthGuard({
       {isMobileOpen && (
         <div
           onClick={() => setIsMobileOpen(false)}
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 lg:hidden transition-opacity"
+          className="fixed inset-0 bg-neutral-950/60 backdrop-blur-xs z-40 lg:hidden transition-opacity"
         />
       )}
 
       {/* Desktop & Mobile Slide-out Sidebar */}
       <aside
-        className={`bg-slate-900 text-white flex flex-col justify-between p-4 lg:p-5 fixed top-0 bottom-0 left-0 z-50 shadow-2xl transition-all duration-300 ease-in-out ${
+        className={`bg-neutral-900 text-white flex flex-col justify-between p-4 lg:p-5 fixed top-0 bottom-0 left-0 z-50 shadow-2xl transition-all duration-300 ease-in-out ${
           isMobileOpen
             ? "translate-x-0 w-64"
             : "-translate-x-full lg:translate-x-0"
@@ -220,9 +220,9 @@ export default function AdminAuthGuard({
       >
         <div className="space-y-6">
           {/* Logo & Desktop Collapse Toggle Button */}
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
             <div className="flex items-center space-x-3 overflow-hidden">
-              <div className="w-9 h-9 bg-pink-500 text-white rounded-xl flex items-center justify-center font-bold shadow-md shrink-0">
+              <div className="w-9 h-9 bg-primary text-white rounded-xl flex items-center justify-center font-bold shadow-md shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
               {!isCollapsed && (
@@ -230,7 +230,7 @@ export default function AdminAuthGuard({
                   <h1 className="font-extrabold text-base tracking-tight text-white truncate">
                     Kits and Craft
                   </h1>
-                  <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest block">
+                  <span className="text-[10px] font-bold text-primary/70 uppercase tracking-widest block">
                     Admin Control
                   </span>
                 </div>
@@ -241,12 +241,12 @@ export default function AdminAuthGuard({
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-              className="hidden lg:flex p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition shrink-0"
+              className="hidden lg:flex p-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white transition shrink-0"
             >
               {isCollapsed ? (
-                <ChevronRight className="w-4 h-4 text-pink-400" />
+                <ChevronRight className="w-4 h-4 text-primary/70" />
               ) : (
-                <ChevronLeft className="w-4 h-4 text-pink-400" />
+                <ChevronLeft className="w-4 h-4 text-primary/70" />
               )}
             </button>
           </div>
@@ -268,8 +268,8 @@ export default function AdminAuthGuard({
                   title={isCollapsed ? item.label : undefined}
                   className={`flex items-center space-x-3 px-3 py-3 rounded-xl transition group relative ${
                     isActive
-                      ? "bg-pink-600 text-white font-bold shadow-md"
-                      : "hover:bg-slate-800 text-slate-300 hover:text-white"
+                      ? "bg-primary text-white font-bold shadow-md"
+                      : "hover:bg-neutral-800 text-neutral-300 hover:text-white"
                   } ${isCollapsed ? "justify-center px-0" : ""}`}
                 >
                   <IconComponent className={`w-5 h-5 shrink-0 ${item.color}`} />
@@ -281,7 +281,7 @@ export default function AdminAuthGuard({
 
                   {/* Tooltip on Collapsed Mode */}
                   {isCollapsed && (
-                    <span className="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-[11px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition pointer-events-none shadow-xl whitespace-nowrap z-50 border border-slate-700">
+                    <span className="absolute left-full ml-3 px-2.5 py-1 bg-neutral-900 text-white text-[11px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition pointer-events-none shadow-xl whitespace-nowrap z-50 border border-neutral-700">
                       {item.label}
                     </span>
                   )}
@@ -292,20 +292,20 @@ export default function AdminAuthGuard({
         </div>
 
         {/* Bottom Section: Admin User & Logout */}
-        <div className="pt-4 border-t border-slate-800 text-xs space-y-2 mt-auto">
+        <div className="pt-4 border-t border-neutral-800 text-xs space-y-2 mt-auto">
           {!isCollapsed ? (
             <>
-              <div className="px-3 py-2 bg-slate-800/80 rounded-xl flex items-center justify-between">
+              <div className="px-3 py-2 bg-neutral-800/80 rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-2 truncate">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span className="font-bold text-slate-200 truncate">
+                  <ShieldCheck className="w-4 h-4 text-success-400 shrink-0" />
+                  <span className="font-bold text-neutral-200 truncate">
                     {adminUser?.username || "Admin User"}
                   </span>
                 </div>
                 <button
                   onClick={handleLogout}
                   title="Logout of Admin Panel"
-                  className="p-1.5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-lg transition shrink-0"
+                  className="p-1.5 hover:bg-danger-500/20 text-neutral-400 hover:text-danger-400 rounded-lg transition shrink-0"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -313,10 +313,10 @@ export default function AdminAuthGuard({
 
               <Link
                 href="/"
-                className="flex items-center justify-between px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold transition"
+                className="flex items-center justify-between px-3 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-xl font-bold transition"
               >
                 <span>View Storefront</span>
-                <ExternalLink className="w-3.5 h-3.5 text-pink-400" />
+                <ExternalLink className="w-3.5 h-3.5 text-primary/70" />
               </Link>
             </>
           ) : (
@@ -324,7 +324,7 @@ export default function AdminAuthGuard({
               <button
                 onClick={handleLogout}
                 title="Logout of Admin Panel"
-                className="p-2.5 bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 rounded-xl transition"
+                className="p-2.5 bg-neutral-800 hover:bg-danger-500/20 text-neutral-300 hover:text-danger-400 rounded-xl transition"
               >
                 <LogOut className="w-5 h-5" />
               </button>

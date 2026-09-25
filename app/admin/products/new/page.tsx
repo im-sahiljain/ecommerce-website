@@ -14,7 +14,7 @@ export default function Page() {
   return (
     <Suspense
       fallback={
-        <p className="py-16 text-center text-xs font-bold text-slate-500">
+        <p className="py-16 text-center text-xs font-bold text-neutral-500">
           Loading product form...
         </p>
       }

@@ -171,34 +171,34 @@ export default function CheckoutPage() {
 
   if (orderSuccess) {
     return (
-      <div className="max-w-2xl mx-auto my-16 p-8 bg-white rounded-3xl border border-slate-100 soft-shadow text-center space-y-6">
-        <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+      <div className="max-w-2xl mx-auto my-16 p-8 bg-white rounded-3xl border border-neutral-100 soft-shadow text-center space-y-6">
+        <div className="w-16 h-16 bg-success-100 text-success-600 rounded-full flex items-center justify-center mx-auto">
           <CheckCircle2 className="w-10 h-10" />
         </div>
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-800">
+          <h2 className="text-2xl font-extrabold text-neutral-800">
             Order Confirmed!
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-neutral-500 mt-1">
             Thank you for ordering with Kits and Craft Craft Hub!
           </p>
         </div>
 
-        <div className="bg-slate-50 p-6 rounded-2xl text-left border border-slate-100 space-y-3 text-xs">
-          <div className="flex justify-between border-b border-slate-200 pb-2 font-bold text-slate-700">
+        <div className="bg-neutral-50 p-6 rounded-2xl text-left border border-neutral-100 space-y-3 text-xs">
+          <div className="flex justify-between border-b border-neutral-200 pb-2 font-bold text-neutral-700">
             <span>Order Number: {orderSuccess.orderNumber}</span>
             <span>Status: {orderSuccess.status}</span>
           </div>
           <p>
-            <span className="font-bold text-slate-600">Customer:</span>{" "}
+            <span className="font-bold text-neutral-600">Customer:</span>{" "}
             {orderSuccess.customerName}
           </p>
           <p>
-            <span className="font-bold text-slate-600">Shipping Address:</span>{" "}
+            <span className="font-bold text-neutral-600">Shipping Address:</span>{" "}
             {orderSuccess.shippingAddress}
           </p>
           <p>
-            <span className="font-bold text-slate-600">Tracking Code:</span>{" "}
+            <span className="font-bold text-neutral-600">Tracking Code:</span>{" "}
             {orderSuccess.trackingNumber || "TRK-88492019"}
           </p>
         </div>
@@ -206,13 +206,13 @@ export default function CheckoutPage() {
         <div className="pt-4 flex justify-center space-x-4">
           <button
             onClick={() => router.push("/account")}
-            className="px-6 py-2.5 bg-pink-300 hover:bg-pink-400 text-slate-800 font-bold text-xs rounded-full shadow transition"
+            className="px-6 py-2.5 bg-primary/40 hover:bg-primary/70 text-neutral-800 font-bold text-xs rounded-full shadow-sm transition"
           >
             Track Order Status
           </button>
           <button
             onClick={() => router.push("/shop")}
-            className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-full transition"
+            className="px-6 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-xs rounded-full transition"
           >
             Continue Shopping
           </button>
@@ -224,10 +224,10 @@ export default function CheckoutPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-slate-800">
+        <h1 className="text-3xl font-extrabold text-neutral-800">
           Checkout & Order Placement
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-neutral-500 mt-1">
           {ACCOUNT_AUTH_PAUSED
             ? "Enter delivery details to place your craft order."
             : "Select a saved shipping address or enter delivery details to place your craft order."}
@@ -235,18 +235,18 @@ export default function CheckoutPage() {
       </div>
 
       {!ACCOUNT_AUTH_PAUSED && !user ? (
-        <div className="bg-white p-8 rounded-3xl border border-slate-100 soft-shadow text-center space-y-4 max-w-lg mx-auto">
-          <Lock className="w-12 h-12 text-pink-400 mx-auto" />
-          <h3 className="text-lg font-bold text-slate-800">
+        <div className="bg-white p-8 rounded-3xl border border-neutral-100 soft-shadow text-center space-y-4 max-w-lg mx-auto">
+          <Lock className="w-12 h-12 text-primary/70 mx-auto" />
+          <h3 className="text-lg font-bold text-neutral-800">
             Account Authentication Required
           </h3>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-neutral-500">
             Please log in to use your saved addresses and secure 1-click
             checkout.
           </p>
           <button
             onClick={openAuth}
-            className="px-8 py-3 bg-pink-300 hover:bg-pink-400 text-slate-800 font-bold text-xs rounded-full shadow transition"
+            className="px-8 py-3 bg-primary/40 hover:bg-primary/70 text-neutral-800 font-bold text-xs rounded-full shadow-sm transition"
           >
             Log In / Sign Up to Continue
           </button>
@@ -258,16 +258,16 @@ export default function CheckoutPage() {
         >
           <div className="lg:col-span-2 space-y-6">
             {/* SAVED ADDRESSES SELECTOR */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 soft-shadow space-y-4">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-100 soft-shadow space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-extrabold text-slate-800 flex items-center space-x-2">
-                  <MapPin className="w-5 h-5 text-pink-500" />
+                <h2 className="text-lg font-extrabold text-neutral-800 flex items-center space-x-2">
+                  <MapPin className="w-5 h-5 text-primary" />
                   <span>Select Delivery Address</span>
                 </h2>
                 <button
                   type="button"
                   onClick={handleSelectNewAddressMode}
-                  className="text-xs font-bold text-pink-600 hover:text-pink-700 flex items-center space-x-1"
+                  className="text-xs font-bold text-primary hover:text-primary flex items-center space-x-1"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add New Address</span>
@@ -284,32 +284,32 @@ export default function CheckoutPage() {
                         onClick={() => applyAddress(addr)}
                         className={`p-4 rounded-2xl border cursor-pointer transition relative ${
                           isSelected
-                            ? "border-pink-400 bg-pink-50/50 shadow-sm"
-                            : "border-slate-200 hover:border-slate-300 bg-white"
+                            ? "border-primary/70 bg-primary/5 shadow-xs"
+                            : "border-neutral-200 hover:border-neutral-300 bg-white"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-extrabold text-xs text-slate-800">
+                          <span className="font-extrabold text-xs text-neutral-800">
                             {addr.label || "Home"}
                           </span>
                           {addr.isDefault && (
-                            <span className="px-2 py-0.5 bg-sky-100 text-sky-700 text-[10px] font-extrabold rounded-md">
+                            <span className="px-2 py-0.5 bg-info-100 text-info-700 text-[10px] font-extrabold rounded-md">
                               Default
                             </span>
                           )}
                         </div>
-                        <p className="text-xs font-bold text-slate-700 truncate">
+                        <p className="text-xs font-bold text-neutral-700 truncate">
                           {addr.fullName}
                         </p>
-                        <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">
+                        <p className="text-[11px] text-neutral-500 line-clamp-2 mt-0.5">
                           {addr.addressLine}, {addr.city}, {addr.state}{" "}
                           {addr.zipCode}
                         </p>
-                        <p className="text-[11px] text-slate-400 mt-1">
+                        <p className="text-[11px] text-neutral-400 mt-1">
                           {addr.phone}
                         </p>
                         {isSelected && (
-                          <div className="absolute top-3 right-3 w-4 h-4 bg-pink-500 text-white rounded-full flex items-center justify-center">
+                          <div className="absolute top-3 right-3 w-4 h-4 bg-primary text-white rounded-full flex items-center justify-center">
                             <Check className="w-3 h-3" />
                           </div>
                         )}
@@ -320,8 +320,8 @@ export default function CheckoutPage() {
               )}
 
               {/* ADDRESS FORM INPUTS */}
-              <div className="pt-4 border-t border-slate-100 space-y-4">
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+              <div className="pt-4 border-t border-neutral-100 space-y-4">
+                <h3 className="text-xs font-extrabold text-neutral-400 uppercase tracking-wider">
                   {selectedAddressId === "custom"
                     ? "Enter Delivery Details"
                     : "Selected Address Info"}
@@ -329,7 +329,7 @@ export default function CheckoutPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-neutral-700 mb-1">
                       Recipient Full Name
                     </label>
                     <input
@@ -338,12 +338,12 @@ export default function CheckoutPage() {
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder="Sarah Jenkins"
                       required
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-pink-400"
+                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold focus:outline-hidden focus:border-primary/70"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-neutral-700 mb-1">
                       Phone Number
                     </label>
                     <input
@@ -352,13 +352,13 @@ export default function CheckoutPage() {
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+1 (555) 000-0000"
                       required
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-pink-400"
+                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold focus:outline-hidden focus:border-primary/70"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-neutral-700 mb-1">
                     Street Address
                   </label>
                   <input
@@ -367,13 +367,13 @@ export default function CheckoutPage() {
                     onChange={(e) => setAddressLine(e.target.value)}
                     placeholder="742 Evergreen Terrace"
                     required
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-pink-400"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold focus:outline-hidden focus:border-primary/70"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-neutral-700 mb-1">
                       City
                     </label>
                     <input
@@ -382,12 +382,12 @@ export default function CheckoutPage() {
                       onChange={(e) => setCity(e.target.value)}
                       placeholder="Springfield"
                       required
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-pink-400"
+                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold focus:outline-hidden focus:border-primary/70"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-neutral-700 mb-1">
                       State
                     </label>
                     <input
@@ -396,12 +396,12 @@ export default function CheckoutPage() {
                       onChange={(e) => setState(e.target.value)}
                       placeholder="Oregon"
                       required
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-pink-400"
+                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold focus:outline-hidden focus:border-primary/70"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-neutral-700 mb-1">
                       ZIP Code
                     </label>
                     <input
@@ -410,7 +410,7 @@ export default function CheckoutPage() {
                       onChange={(e) => setZipCode(e.target.value)}
                       placeholder="97477"
                       required
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-pink-400"
+                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold focus:outline-hidden focus:border-primary/70"
                     />
                   </div>
                 </div>
@@ -418,7 +418,7 @@ export default function CheckoutPage() {
                 {!ACCOUNT_AUTH_PAUSED && selectedAddressId === "custom" && (
                   <div className="flex items-center space-x-4 pt-2">
                     <div className="flex-1">
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                      <label className="block text-xs font-bold text-neutral-700 mb-1">
                         Address Label
                       </label>
                       <input
@@ -426,17 +426,17 @@ export default function CheckoutPage() {
                         value={addressLabel}
                         onChange={(e) => setAddressLabel(e.target.value)}
                         placeholder="Home, Work, Vacation"
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none"
+                        className="w-full px-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold focus:outline-hidden"
                       />
                     </div>
-                    <label className="flex items-center space-x-2 pt-5 text-xs font-bold text-slate-700 cursor-pointer">
+                    <label className="flex items-center space-x-2 pt-5 text-xs font-bold text-neutral-700 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={saveAddressToAccount}
                         onChange={(e) =>
                           setSaveAddressToAccount(e.target.checked)
                         }
-                        className="rounded text-pink-500 focus:ring-pink-400"
+                        className="rounded-sm text-primary focus:ring-primary/70"
                       />
                       <span>Save to my account addresses</span>
                     </label>
@@ -446,7 +446,7 @@ export default function CheckoutPage() {
             </div>
 
             {error && (
-              <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-2xl">
+              <div className="p-4 bg-danger-50 border border-danger-200 text-danger-700 text-xs font-bold rounded-2xl">
                 {error}
               </div>
             )}
@@ -454,7 +454,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={isSubmitting || cart.length === 0}
-              className="w-full py-4 bg-pink-300 hover:bg-pink-400 text-slate-800 font-extrabold text-sm rounded-2xl shadow transition flex items-center justify-center space-x-2"
+              className="w-full py-4 bg-primary/40 hover:bg-primary/70 text-neutral-800 font-extrabold text-sm rounded-2xl shadow-sm transition flex items-center justify-center space-x-2"
             >
               <CreditCard className="w-5 h-5" />
               <span>
@@ -466,15 +466,15 @@ export default function CheckoutPage() {
           </div>
 
           {/* ORDER SUMMARY SIDEBAR */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 soft-shadow h-fit space-y-4">
-            <h2 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3">
+          <div className="bg-white p-6 rounded-3xl border border-neutral-100 soft-shadow h-fit space-y-4">
+            <h2 className="text-lg font-bold text-neutral-800 border-b border-neutral-100 pb-3">
               Order Summary ({cart.length} Kits)
             </h2>
             <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
               {cart.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between text-xs pb-2 border-b border-slate-50"
+                  className="flex items-center justify-between text-xs pb-2 border-b border-neutral-50"
                 >
                   <div className="flex items-center space-x-3">
                     <img
@@ -483,29 +483,29 @@ export default function CheckoutPage() {
                       className="w-10 h-10 rounded-lg object-cover"
                     />
                     <div>
-                      <p className="font-bold text-slate-800 line-clamp-1">
+                      <p className="font-bold text-neutral-800 line-clamp-1">
                         {item.name}
                       </p>
-                      <p className="text-slate-400">Qty: {item.quantity}</p>
+                      <p className="text-neutral-400">Qty: {item.quantity}</p>
                     </div>
                   </div>
-                  <span className="font-bold text-slate-800">
+                  <span className="font-bold text-neutral-800">
                     ₹{(item.price * item.quantity).toFixed(2)}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="space-y-2 text-xs border-t border-slate-100 pt-3">
-              <div className="flex justify-between text-slate-500">
+            <div className="space-y-2 text-xs border-t border-neutral-100 pt-3">
+              <div className="flex justify-between text-neutral-500">
                 <span>Subtotal</span>
                 <span>₹{totalPrice.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-slate-500">
+              <div className="flex justify-between text-neutral-500">
                 <span>Flat Express Shipping</span>
-                <span className="text-slate-800 font-bold">₹250.00</span>
+                <span className="text-neutral-800 font-bold">₹250.00</span>
               </div>
-              <div className="flex justify-between text-sm font-extrabold text-slate-800 pt-2 border-t border-slate-100">
+              <div className="flex justify-between text-sm font-extrabold text-neutral-800 pt-2 border-t border-neutral-100">
                 <span>Total Amount</span>
                 <span>₹{(totalPrice + 250).toFixed(2)}</span>
               </div>

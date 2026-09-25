@@ -86,7 +86,7 @@ export default function OrderDetailsPage() {
 
   if (loading) {
     return (
-      <p className="py-16 text-center text-xs font-bold text-slate-500">
+      <p className="py-16 text-center text-xs font-bold text-neutral-500">
         Loading order...
       </p>
     );
@@ -94,11 +94,11 @@ export default function OrderDetailsPage() {
 
   if (missing || !order) {
     return (
-      <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-8 text-center">
-        <p className="text-sm font-bold text-slate-700">This order was not found.</p>
+      <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-8 text-center">
+        <p className="text-sm font-bold text-neutral-700">This order was not found.</p>
         <Link
           href="/admin/orders"
-          className="inline-flex items-center gap-1 text-xs font-bold text-pink-600"
+          className="inline-flex items-center gap-1 text-xs font-bold text-primary"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to orders
@@ -111,22 +111,22 @@ export default function OrderDetailsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div className="flex flex-col gap-4 rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-2xs sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
           <Link
             href="/admin/orders"
-            className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-800"
+            className="inline-flex items-center gap-1 text-xs font-bold text-neutral-500 hover:text-neutral-800"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Orders
           </Link>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-extrabold text-slate-800 sm:text-2xl">
+            <h1 className="text-xl font-extrabold text-neutral-800 sm:text-2xl">
               {order.orderNumber}
             </h1>
             <OrderStatusBadge status={order.status} />
           </div>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-neutral-500">
             Placed {new Date(order.createdAt).toLocaleString()}
           </p>
         </div>
@@ -136,7 +136,7 @@ export default function OrderDetailsPage() {
             setDeleteError("");
             setConfirmingDelete(true);
           }}
-          className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-extrabold text-rose-700 hover:bg-rose-100"
+          className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-danger-200 bg-danger-50 px-4 py-2 text-xs font-extrabold text-danger-700 hover:bg-danger-100"
         >
           <Trash2 className="h-3.5 w-3.5" />
           Delete order
@@ -144,9 +144,9 @@ export default function OrderDetailsPage() {
       </div>
 
       {order.status === "WhatsApp Initiated" && (
-        <div className="flex flex-col gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2 font-semibold text-emerald-900">
-            <AlertCircle className="h-4 w-4 shrink-0 text-emerald-600" />
+        <div className="flex flex-col gap-3 rounded-xl border border-success-200 bg-success-50 p-3.5 text-xs sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 font-semibold text-success-900">
+            <AlertCircle className="h-4 w-4 shrink-0 text-success-600" />
             <span>
               Customer clicked <strong>Send to WhatsApp</strong>. Confirm this
               order once the message is received.
@@ -156,7 +156,7 @@ export default function OrderDetailsPage() {
             <button
               type="button"
               onClick={() => handleStatusChange("Pending")}
-              className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-extrabold text-white hover:bg-emerald-700"
+              className="inline-flex items-center gap-1 rounded-lg bg-success-600 px-3 py-1.5 text-[11px] font-extrabold text-white hover:bg-success-700"
             >
               <CheckCircle2 className="h-3.5 w-3.5" />
               Confirm order
@@ -164,7 +164,7 @@ export default function OrderDetailsPage() {
             <button
               type="button"
               onClick={() => handleStatusChange("Processing")}
-              className="rounded-lg bg-sky-600 px-3 py-1.5 text-[11px] font-extrabold text-white hover:bg-sky-700"
+              className="rounded-lg bg-info-600 px-3 py-1.5 text-[11px] font-extrabold text-white hover:bg-info-700"
             >
               Mark processing
             </button>
@@ -173,23 +173,23 @@ export default function OrderDetailsPage() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-5">
-          <h2 className="text-sm font-extrabold text-slate-800">Customer</h2>
-          <p className="mt-3 text-sm font-bold text-slate-800">
+        <section className="rounded-2xl border border-neutral-200/80 bg-white p-5">
+          <h2 className="text-sm font-extrabold text-neutral-800">Customer</h2>
+          <p className="mt-3 text-sm font-bold text-neutral-800">
             {order.customerName}
           </p>
-          <p className="text-xs text-slate-500">{order.phone || "No phone"}</p>
-          <p className="mt-1 text-xs text-slate-500">{order.userIdentifier}</p>
+          <p className="text-xs text-neutral-500">{order.phone || "No phone"}</p>
+          <p className="mt-1 text-xs text-neutral-500">{order.userIdentifier}</p>
         </section>
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-5">
-          <h2 className="text-sm font-extrabold text-slate-800">Delivery</h2>
-          <p className="mt-3 text-sm font-bold text-slate-800">
+        <section className="rounded-2xl border border-neutral-200/80 bg-white p-5">
+          <h2 className="text-sm font-extrabold text-neutral-800">Delivery</h2>
+          <p className="mt-3 text-sm font-bold text-neutral-800">
             {order.shippingAddress}
           </p>
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-neutral-500">
             Tracking: {order.trackingNumber || "Not assigned"}
           </p>
-          <label className="mt-4 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
+          <label className="mt-4 block text-[11px] font-bold uppercase tracking-wide text-neutral-500">
             Status
           </label>
           <select
@@ -198,7 +198,7 @@ export default function OrderDetailsPage() {
             onChange={(event) =>
               handleStatusChange(event.target.value as OrderStatus)
             }
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800"
+            className="mt-1 w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2 text-xs font-bold text-neutral-800"
           >
             {ORDER_STATUSES.map((status) => (
               <option key={status} value={status}>
@@ -209,15 +209,15 @@ export default function OrderDetailsPage() {
         </section>
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white">
-        <div className="border-b border-slate-100 px-5 py-4">
-          <h2 className="text-sm font-extrabold text-slate-800">
+      <section className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white">
+        <div className="border-b border-neutral-100 px-5 py-4">
+          <h2 className="text-sm font-extrabold text-neutral-800">
             Items ({itemCount})
           </h2>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-xs">
-            <thead className="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+            <thead className="bg-neutral-50 text-[11px] uppercase tracking-wide text-neutral-500">
               <tr>
                 <th className="px-5 py-3 font-bold">Product</th>
                 <th className="px-5 py-3 font-bold">Qty</th>
@@ -227,7 +227,7 @@ export default function OrderDetailsPage() {
             </thead>
             <tbody>
               {(order.items || []).map((item, index) => (
-                <tr key={`${item.productId}-${index}`} className="border-t border-slate-100">
+                <tr key={`${item.productId}-${index}`} className="border-t border-neutral-100">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       {item.image ? (
@@ -237,18 +237,18 @@ export default function OrderDetailsPage() {
                           className="h-10 w-10 rounded-md object-cover"
                         />
                       ) : null}
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-neutral-800">
                         {item.productName}
                       </span>
                     </div>
                   </td>
-                  <td className="px-5 py-3 font-bold text-slate-700">
+                  <td className="px-5 py-3 font-bold text-neutral-700">
                     {item.quantity}
                   </td>
-                  <td className="px-5 py-3 text-slate-600">
+                  <td className="px-5 py-3 text-neutral-600">
                     {formatOrderMoney(item.price)}
                   </td>
-                  <td className="px-5 py-3 font-extrabold text-slate-900">
+                  <td className="px-5 py-3 font-extrabold text-neutral-900">
                     {formatOrderMoney(item.price * item.quantity)}
                   </td>
                 </tr>
@@ -256,20 +256,20 @@ export default function OrderDetailsPage() {
             </tbody>
           </table>
         </div>
-        <div className="space-y-1 border-t border-slate-100 px-5 py-4 text-xs">
-          <div className="flex justify-between text-slate-500">
+        <div className="space-y-1 border-t border-neutral-100 px-5 py-4 text-xs">
+          <div className="flex justify-between text-neutral-500">
             <span>Subtotal</span>
-            <span className="font-bold text-slate-800">
+            <span className="font-bold text-neutral-800">
               {formatOrderMoney(order.subtotal)}
             </span>
           </div>
-          <div className="flex justify-between text-slate-500">
+          <div className="flex justify-between text-neutral-500">
             <span>Shipping</span>
-            <span className="font-bold text-slate-800">
+            <span className="font-bold text-neutral-800">
               {formatOrderMoney(order.shipping || 0)}
             </span>
           </div>
-          <div className="flex justify-between pt-1 text-sm font-extrabold text-slate-900">
+          <div className="flex justify-between pt-1 text-sm font-extrabold text-neutral-900">
             <span>Total</span>
             <span>{formatOrderMoney(order.total)}</span>
           </div>

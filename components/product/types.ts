@@ -13,6 +13,7 @@ export interface ProductDetail {
   isNonToxic: boolean;
   image: string;
   images?: string[];
+  gallery?: import("@/lib/gallery").ProductGallery;
   description: string;
   inStock: boolean;
   isOrderingEnabled?: boolean;

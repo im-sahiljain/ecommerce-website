@@ -206,7 +206,7 @@ export default function HomepageBuilderPage() {
 
   if (loading) {
     return (
-      <div className="p-12 text-center text-slate-500 font-bold">
+      <div className="p-12 text-center text-neutral-500 font-bold">
         Loading Homepage Sections...
       </div>
     );
@@ -215,23 +215,23 @@ export default function HomepageBuilderPage() {
   if (HOMEPAGE_CMS_PAUSED) {
     return (
       <div className="mx-auto max-w-5xl space-y-6 px-4 py-6">
-        <div className="rounded-3xl bg-slate-900 p-6 text-white shadow-xl sm:p-8">
-          <span className="inline-flex items-center space-x-1.5 text-xs font-black uppercase tracking-widest text-amber-300">
+        <div className="rounded-3xl bg-neutral-900 p-6 text-white shadow-xl sm:p-8">
+          <span className="inline-flex items-center space-x-1.5 text-xs font-black uppercase tracking-widest text-warning-300">
             <Sparkles className="h-4 w-4" />
             <span>Not in use</span>
           </span>
           <h1 className="mt-1 text-2xl font-extrabold text-white sm:text-3xl">
             Homepage Layout Builder
           </h1>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300">
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-neutral-300">
             The storefront homepage is built from code in{" "}
-            <span className="font-mono text-amber-100">
+            <span className="font-mono text-warning-100">
               components/home/homepageSections.tsx
             </span>
             . This screen does not change the live page.
           </p>
         </div>
-        <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-sm leading-relaxed text-amber-950">
+        <div className="rounded-3xl border border-warning-200 bg-warning-50 p-6 text-sm leading-relaxed text-warning-950">
           Database reads and writes for homepage sections are paused. Saved
           rows stay in the database. Add, reorder, hide, and delete stay off
           until this CMS is turned back on.
@@ -243,16 +243,16 @@ export default function HomepageBuilderPage() {
   return (
     <div className="space-y-8 max-w-5xl mx-auto py-6 px-4">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-neutral-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl">
         <div>
-          <span className="inline-flex items-center space-x-1.5 text-xs font-black text-pink-400 uppercase tracking-widest">
+          <span className="inline-flex items-center space-x-1.5 text-xs font-black text-primary/70 uppercase tracking-widest">
             <Sparkles className="w-4 h-4" />
             <span>Homepage Section CMS</span>
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold mt-1 text-white">
             Homepage Layout Builder
           </h1>
-          <p className="text-xs text-slate-400 mt-1 max-w-lg leading-relaxed">
+          <p className="text-xs text-neutral-400 mt-1 max-w-lg leading-relaxed">
             Reorder sections, toggle visibility, customize background colors,
             and fine-tune floating emoji positions, font sizes, opacity, &
             device visibility.
@@ -261,7 +261,7 @@ export default function HomepageBuilderPage() {
 
         <button
           onClick={() => setIsAddingNew(!isAddingNew)}
-          className="px-5 py-3 bg-pink-500 hover:bg-pink-600 text-white font-extrabold text-xs rounded-2xl shadow-lg transition active:scale-95 flex items-center space-x-2 shrink-0"
+          className="px-5 py-3 bg-primary hover:bg-primary/90 text-white font-extrabold text-xs rounded-2xl shadow-lg transition active:scale-95 flex items-center space-x-2 shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>{isAddingNew ? "Close Form" : "Add New Section"}</span>
@@ -272,16 +272,16 @@ export default function HomepageBuilderPage() {
       {isAddingNew && (
         <form
           onSubmit={handleCreateNew}
-          className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-md space-y-6"
+          className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-md space-y-6"
         >
-          <h3 className="font-extrabold text-lg text-slate-800 flex items-center space-x-2">
-            <Plus className="w-5 h-5 text-pink-500" />
+          <h3 className="font-extrabold text-lg text-neutral-800 flex items-center space-x-2">
+            <Plus className="w-5 h-5 text-primary" />
             <span>Add New Theme Section</span>
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-neutral-700 mb-1">
                 Section Title
               </label>
               <input
@@ -290,12 +290,12 @@ export default function HomepageBuilderPage() {
                 onChange={(e) => setNewTitle(e.target.value)}
                 placeholder="e.g. Ocean Explorers"
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-pink-500"
+                className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 text-xs font-semibold focus:ring-2 focus:ring-primary"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-neutral-700 mb-1">
                 Select Theme
               </label>
               <select
@@ -306,7 +306,7 @@ export default function HomepageBuilderPage() {
                   if (!newTitle) setNewTitle(sel);
                 }}
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-pink-500 bg-white"
+                className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 text-xs font-semibold focus:ring-2 focus:ring-primary bg-white"
               >
                 <option value="">-- Select Theme --</option>
                 {availableThemeNames.map((tName) => (
@@ -318,13 +318,13 @@ export default function HomepageBuilderPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-neutral-700 mb-1">
                 Title Alignment
               </label>
               <select
                 value={newTitleLayout}
                 onChange={(e: any) => setNewTitleLayout(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-pink-500"
+                className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 text-xs font-semibold focus:ring-2 focus:ring-primary"
               >
                 <option value="left">Left Title Alignment</option>
                 <option value="center">Center Title Alignment</option>
@@ -334,7 +334,7 @@ export default function HomepageBuilderPage() {
 
             <div className="flex items-center space-x-4">
               <div className="flex-1">
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
                   Background Color
                 </label>
                 <div className="flex items-center space-x-2">
@@ -348,13 +348,13 @@ export default function HomepageBuilderPage() {
                     type="text"
                     value={newBgColor}
                     onChange={(e) => setNewBgColor(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs font-mono"
                   />
                 </div>
               </div>
 
               <div className="flex-1">
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
                   Text Color
                 </label>
                 <div className="flex items-center space-x-2">
@@ -368,7 +368,7 @@ export default function HomepageBuilderPage() {
                     type="text"
                     value={newTextColor}
                     onChange={(e) => setNewTextColor(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs font-mono"
                   />
                 </div>
               </div>
@@ -379,13 +379,13 @@ export default function HomepageBuilderPage() {
             <button
               type="button"
               onClick={() => setIsAddingNew(false)}
-              className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl"
+              className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-xs rounded-xl"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-extrabold text-xs rounded-xl shadow transition"
+              className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white font-extrabold text-xs rounded-xl shadow-sm transition"
             >
               Save New Section
             </button>
@@ -395,8 +395,8 @@ export default function HomepageBuilderPage() {
 
       {/* Sections List */}
       <div className="space-y-4">
-        <h2 className="font-black text-slate-800 text-lg flex items-center space-x-2">
-          <Layers className="w-5 h-5 text-pink-500" />
+        <h2 className="font-black text-neutral-800 text-lg flex items-center space-x-2">
+          <Layers className="w-5 h-5 text-primary" />
           <span>Active Homepage Sections ({sections.length})</span>
         </h2>
 
@@ -406,10 +406,10 @@ export default function HomepageBuilderPage() {
           return (
             <div
               key={section.id}
-              className={`bg-white rounded-3xl border transition p-5 shadow-sm space-y-4 ${
+              className={`bg-white rounded-3xl border transition p-5 shadow-xs space-y-4 ${
                 section.isVisible
-                  ? "border-slate-200"
-                  : "border-slate-200 opacity-60 bg-slate-50"
+                  ? "border-neutral-200"
+                  : "border-neutral-200 opacity-60 bg-neutral-50"
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -419,21 +419,21 @@ export default function HomepageBuilderPage() {
                     <button
                       disabled={index === 0}
                       onClick={() => handleMove(index, "up")}
-                      className="p-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30"
+                      className="p-1 rounded-sm bg-neutral-100 hover:bg-neutral-200 disabled:opacity-30"
                     >
-                      <ArrowUp className="w-3.5 h-3.5 text-slate-700" />
+                      <ArrowUp className="w-3.5 h-3.5 text-neutral-700" />
                     </button>
                     <button
                       disabled={index === sections.length - 1}
                       onClick={() => handleMove(index, "down")}
-                      className="p-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30"
+                      className="p-1 rounded-sm bg-neutral-100 hover:bg-neutral-200 disabled:opacity-30"
                     >
-                      <ArrowDown className="w-3.5 h-3.5 text-slate-700" />
+                      <ArrowDown className="w-3.5 h-3.5 text-neutral-700" />
                     </button>
                   </div>
 
                   <div
-                    className="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs shadow-xs shrink-0"
+                    className="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs shadow-2xs shrink-0"
                     style={{
                       backgroundColor: section.bgColor || "#F1E4F7",
                       color: section.textColor || "#3C2A21",
@@ -444,25 +444,25 @@ export default function HomepageBuilderPage() {
 
                   <div>
                     <div className="flex items-center space-x-2">
-                      <h3 className="font-extrabold text-base text-slate-800">
+                      <h3 className="font-extrabold text-base text-neutral-800">
                         {section.title}
                       </h3>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200">
                         {section.themeKeyword || "General"}
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-neutral-500 mt-0.5">
                       Layout:{" "}
-                      <span className="font-bold text-slate-700 uppercase">
+                      <span className="font-bold text-neutral-700 uppercase">
                         {section.titleLayout || "left"}
                       </span>{" "}
                       • Bg Color:{" "}
-                      <span className="font-mono text-slate-700">
+                      <span className="font-mono text-neutral-700">
                         {section.bgColor || "#FFFFFF"}
                       </span>{" "}
                       • Emojis:{" "}
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-neutral-800">
                         {(section.decorations || [])
                           .map((d) => d.content)
                           .join(" ")}
@@ -479,8 +479,8 @@ export default function HomepageBuilderPage() {
                     }
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${
                       section.isVisible
-                        ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                        : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                        ? "bg-success-100 text-success-800 hover:bg-success-200"
+                        : "bg-neutral-200 text-neutral-600 hover:bg-neutral-300"
                     }`}
                   >
                     {section.isVisible ? (
@@ -506,14 +506,14 @@ export default function HomepageBuilderPage() {
                         setActiveEmojiEditId(null);
                       }
                     }}
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                    className="p-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
 
                   <button
                     onClick={() => handleDelete(section.id)}
-                    className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
+                    className="p-2 rounded-xl bg-danger-50 hover:bg-danger-100 text-danger-600 transition"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -522,9 +522,9 @@ export default function HomepageBuilderPage() {
 
               {/* Inline Section Edit Form */}
               {isEditing && editingSection && (
-                <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-5 rounded-2xl">
+                <div className="pt-4 border-t border-neutral-100 grid grid-cols-1 sm:grid-cols-3 gap-4 bg-neutral-50 p-5 rounded-2xl">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-[11px] font-bold text-neutral-600 mb-1">
                       Title
                     </label>
                     <input
@@ -536,12 +536,12 @@ export default function HomepageBuilderPage() {
                           title: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-[11px] font-bold text-neutral-600 mb-1">
                       Theme Keyword
                     </label>
                     <select
@@ -552,7 +552,7 @@ export default function HomepageBuilderPage() {
                           themeKeyword: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
                     >
                       <option value="">-- Select Theme --</option>
                       {availableThemeNames.map((tName) => (
@@ -564,7 +564,7 @@ export default function HomepageBuilderPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-[11px] font-bold text-neutral-600 mb-1">
                       Title Layout
                     </label>
                     <select
@@ -575,7 +575,7 @@ export default function HomepageBuilderPage() {
                           titleLayout: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
                     >
                       <option value="left">Left Title</option>
                       <option value="center">Center Title</option>
@@ -584,7 +584,7 @@ export default function HomepageBuilderPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-[11px] font-bold text-neutral-600 mb-1">
                       Background Hex Color
                     </label>
                     <div className="flex items-center space-x-2">
@@ -597,7 +597,7 @@ export default function HomepageBuilderPage() {
                             bgColor: e.target.value,
                           })
                         }
-                        className="w-8 h-8 rounded border-0 cursor-pointer"
+                        className="w-8 h-8 rounded-sm border-0 cursor-pointer"
                       />
                       <input
                         type="text"
@@ -608,13 +608,13 @@ export default function HomepageBuilderPage() {
                             bgColor: e.target.value,
                           })
                         }
-                        className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                        className="w-full px-3 py-1.5 rounded-xl border border-neutral-200 text-xs font-mono bg-white"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-[11px] font-bold text-neutral-600 mb-1">
                       Text Hex Color
                     </label>
                     <div className="flex items-center space-x-2">
@@ -627,7 +627,7 @@ export default function HomepageBuilderPage() {
                             textColor: e.target.value,
                           })
                         }
-                        className="w-8 h-8 rounded border-0 cursor-pointer"
+                        className="w-8 h-8 rounded-sm border-0 cursor-pointer"
                       />
                       <input
                         type="text"
@@ -638,21 +638,21 @@ export default function HomepageBuilderPage() {
                             textColor: e.target.value,
                           })
                         }
-                        className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                        className="w-full px-3 py-1.5 rounded-xl border border-neutral-200 text-xs font-mono bg-white"
                       />
                     </div>
                   </div>
 
                   {/* Floating Emojis & Position/Size Property Inspector */}
-                  <div className="sm:col-span-3 bg-white p-4 rounded-2xl border border-slate-200 space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <label className="text-xs font-black text-slate-800 flex items-center space-x-2">
-                        <Sparkles className="w-4 h-4 text-pink-500" />
+                  <div className="sm:col-span-3 bg-white p-4 rounded-2xl border border-neutral-200 space-y-4">
+                    <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
+                      <label className="text-xs font-black text-neutral-800 flex items-center space-x-2">
+                        <Sparkles className="w-4 h-4 text-primary" />
                         <span>
                           Section Floating Emojis & Position Inspector
                         </span>
                       </label>
-                      <span className="text-[10px] text-slate-400 font-semibold">
+                      <span className="text-[10px] text-neutral-400 font-semibold">
                         Configure position, size, opacity, & device visibility
                       </span>
                     </div>
@@ -684,8 +684,8 @@ export default function HomepageBuilderPage() {
                               }
                               className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-2xl text-sm font-extrabold border transition ${
                                 isSelected
-                                  ? "bg-pink-500 text-white border-pink-600 shadow"
-                                  : "bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200"
+                                  ? "bg-primary text-white border-primary shadow-sm"
+                                  : "bg-neutral-50 hover:bg-neutral-100 text-neutral-800 border-neutral-200"
                               }`}
                             >
                               <span className="text-base">{dec.content}</span>
@@ -708,7 +708,7 @@ export default function HomepageBuilderPage() {
                                 if (activeEmojiEditId === dec.id)
                                   setActiveEmojiEditId(null);
                               }}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                              className="p-1.5 text-neutral-400 hover:text-danger-600 hover:bg-danger-50 rounded-xl transition"
                               title="Delete Emoji"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -718,7 +718,7 @@ export default function HomepageBuilderPage() {
                       })}
 
                       {(editingSection.decorations || []).length === 0 && (
-                        <span className="text-xs text-slate-400 italic">
+                        <span className="text-xs text-neutral-400 italic">
                           No emojis added yet. Pick preset emojis below to add:
                         </span>
                       )}
@@ -726,7 +726,7 @@ export default function HomepageBuilderPage() {
 
                     {/* Emoji Inspector Detailed Property Editor Panel */}
                     {activeEmojiEditId && (
-                      <div className="p-4 bg-slate-50 rounded-2xl border border-pink-200/80 space-y-3">
+                      <div className="p-4 bg-neutral-50 rounded-2xl border border-primary/20 space-y-3">
                         {(() => {
                           const activeDec = (
                             editingSection.decorations || []
@@ -747,7 +747,7 @@ export default function HomepageBuilderPage() {
                             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                               {/* Emoji Character */}
                               <div>
-                                <label className="block font-bold text-slate-600 mb-1">
+                                <label className="block font-bold text-neutral-600 mb-1">
                                   Emoji Icon / Content
                                 </label>
                                 <input
@@ -760,13 +760,13 @@ export default function HomepageBuilderPage() {
                                       e.target.value,
                                     )
                                   }
-                                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-sm bg-white font-extrabold"
+                                  className="w-full px-3 py-1.5 rounded-xl border border-neutral-200 text-sm bg-white font-extrabold"
                                 />
                               </div>
 
                               {/* Vertical Position */}
                               <div>
-                                <label className="block font-bold text-slate-600 mb-1">
+                                <label className="block font-bold text-neutral-600 mb-1">
                                   Vertical Position ({isTop ? "Top" : "Bottom"})
                                 </label>
                                 <div className="flex items-center space-x-1">
@@ -780,7 +780,7 @@ export default function HomepageBuilderPage() {
                                         true,
                                       )
                                     }
-                                    className="px-2 py-1.5 rounded-xl border border-slate-200 text-xs bg-white font-bold"
+                                    className="px-2 py-1.5 rounded-xl border border-neutral-200 text-xs bg-white font-bold"
                                   >
                                     <option value="top">Top</option>
                                     <option value="bottom">Bottom</option>
@@ -799,14 +799,14 @@ export default function HomepageBuilderPage() {
                                         true,
                                       )
                                     }
-                                    className="w-full px-2 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                                    className="w-full px-2 py-1.5 rounded-xl border border-neutral-200 text-xs font-mono bg-white"
                                   />
                                 </div>
                               </div>
 
                               {/* Horizontal Position */}
                               <div>
-                                <label className="block font-bold text-slate-600 mb-1">
+                                <label className="block font-bold text-neutral-600 mb-1">
                                   Horizontal Position (
                                   {isLeft ? "Left" : "Right"})
                                 </label>
@@ -821,7 +821,7 @@ export default function HomepageBuilderPage() {
                                         true,
                                       )
                                     }
-                                    className="px-2 py-1.5 rounded-xl border border-slate-200 text-xs font-bold"
+                                    className="px-2 py-1.5 rounded-xl border border-neutral-200 text-xs font-bold"
                                   >
                                     <option value="left">Left</option>
                                     <option value="right">Right</option>
@@ -840,14 +840,14 @@ export default function HomepageBuilderPage() {
                                         true,
                                       )
                                     }
-                                    className="w-full px-2 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                                    className="w-full px-2 py-1.5 rounded-xl border border-neutral-200 text-xs font-mono bg-white"
                                   />
                                 </div>
                               </div>
 
                               {/* Font Size */}
                               <div>
-                                <label className="block font-bold text-slate-600 mb-1">
+                                <label className="block font-bold text-neutral-600 mb-1">
                                   Font Size (e.g. 36px, 48px)
                                 </label>
                                 <input
@@ -861,13 +861,13 @@ export default function HomepageBuilderPage() {
                                       true,
                                     )
                                   }
-                                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                                  className="w-full px-3 py-1.5 rounded-xl border border-neutral-200 text-xs font-mono bg-white"
                                 />
                               </div>
 
                               {/* Opacity */}
                               <div>
-                                <label className="block font-bold text-slate-600 mb-1">
+                                <label className="block font-bold text-neutral-600 mb-1">
                                   Opacity (0.1 to 1.0)
                                 </label>
                                 <input
@@ -884,13 +884,13 @@ export default function HomepageBuilderPage() {
                                       true,
                                     )
                                   }
-                                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                                  className="w-full px-3 py-1.5 rounded-xl border border-neutral-200 text-xs font-mono bg-white"
                                 />
                               </div>
 
                               {/* Rotation / Transform */}
                               <div>
-                                <label className="block font-bold text-slate-600 mb-1">
+                                <label className="block font-bold text-neutral-600 mb-1">
                                   Transform / Rotation
                                 </label>
                                 <input
@@ -905,13 +905,13 @@ export default function HomepageBuilderPage() {
                                     )
                                   }
                                   placeholder="e.g. rotate(-15deg)"
-                                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono bg-white"
+                                  className="w-full px-3 py-1.5 rounded-xl border border-neutral-200 text-xs font-mono bg-white"
                                 />
                               </div>
 
                               {/* Device Visibility */}
                               <div className="sm:col-span-2">
-                                <label className="block font-bold text-slate-600 mb-1">
+                                <label className="block font-bold text-neutral-600 mb-1">
                                   Device Visibility Class
                                 </label>
                                 <select
@@ -925,7 +925,7 @@ export default function HomepageBuilderPage() {
                                       e.target.value,
                                     )
                                   }
-                                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-white font-semibold"
+                                  className="w-full px-3 py-1.5 rounded-xl border border-neutral-200 text-xs bg-white font-semibold"
                                 >
                                   <option value="hidden sm:block">
                                     Hidden on Mobile (Visible on Tablet &
@@ -947,8 +947,8 @@ export default function HomepageBuilderPage() {
                     )}
 
                     {/* Quick Add Emoji Palette */}
-                    <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-1.5">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">
+                    <div className="pt-2 border-t border-neutral-100 flex flex-wrap items-center gap-1.5">
+                      <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mr-1">
                         Add Preset Emoji:
                       </span>
                       {[
@@ -1000,7 +1000,7 @@ export default function HomepageBuilderPage() {
                               ],
                             });
                           }}
-                          className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-pink-100 hover:scale-110 text-base flex items-center justify-center transition border border-slate-200/80 shadow-2xs"
+                          className="w-8 h-8 rounded-xl bg-neutral-50 hover:bg-primary/15 hover:scale-110 text-base flex items-center justify-center transition border border-neutral-200/80 shadow-2xs"
                         >
                           {emoji}
                         </button>
@@ -1014,13 +1014,13 @@ export default function HomepageBuilderPage() {
                         setEditingSection(null);
                         setActiveEmojiEditId(null);
                       }}
-                      className="px-4 py-2 bg-slate-200 text-slate-700 font-bold text-xs rounded-xl"
+                      className="px-4 py-2 bg-neutral-200 text-neutral-700 font-bold text-xs rounded-xl"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSaveEdit}
-                      className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-extrabold text-xs rounded-xl flex items-center space-x-1 shadow"
+                      className="px-5 py-2 bg-primary hover:bg-primary/90 text-white font-extrabold text-xs rounded-xl flex items-center space-x-1 shadow-sm"
                     >
                       <Save className="w-3.5 h-3.5" />
                       <span>Save Changes</span>

@@ -56,7 +56,7 @@ const guideLinks: FooterLink[] = [
   },
 ];
 
-const linkClassName = "hover:text-pink-600 transition";
+const linkClassName = "hover:text-primary transition";
 
 function FooterColumn({
   title,
@@ -67,7 +67,7 @@ function FooterColumn({
 }) {
   return (
     <div>
-      <h4 className="font-bold mb-4 text-[#3C2A21]">{title}</h4>
+      <h4 className="font-bold mb-4 text-secondary">{title}</h4>
       <ul className="text-gray-500 text-sm space-y-2">
         {links.map((link) => (
           <li key={link.key}>
@@ -135,7 +135,7 @@ export default function Footer() {
     <footer className="bg-white pt-16 pb-8 border-t border-gray-100 font-quicksand">
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
         <div>
-          <h3 className="font-bold text-xl mb-4 text-[#3C2A21]">
+          <h3 className="font-bold text-xl mb-4 text-secondary">
             Kits and Craft
           </h3>
           <p className="text-gray-500 text-sm leading-relaxed max-w-sm">

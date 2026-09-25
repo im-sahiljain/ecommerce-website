@@ -10,9 +10,9 @@ import { productPath } from "@/lib/site";
 
 function ThemeProductCard({ product }: { product: Product }) {
   return (
-    <div className="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-white/60 bg-white text-[#3C2A21] shadow-md">
+    <div className="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-white/60 bg-white text-secondary shadow-md">
       <Link href={productPath(product)} className="block min-w-0">
-        <div className="relative aspect-[5/6] w-full overflow-hidden bg-[#F7F1EA] sm:aspect-square">
+        <div className="relative aspect-5/6 w-full overflow-hidden bg-sand sm:aspect-square">
           <CatalogImage
             src={product.image}
             name={product.name}
@@ -21,39 +21,39 @@ function ThemeProductCard({ product }: { product: Product }) {
           />
           <div className="absolute left-1.5 top-1.5 flex max-w-[70%] flex-wrap gap-1">
             {product.ageGroup && product.ageGroup.trim() !== "" && (
-              <span className="whitespace-nowrap rounded-full bg-white/95 px-2 py-0.5 text-xs font-bold text-sky-800">
+              <span className="whitespace-nowrap rounded-full bg-white/95 px-2 py-0.5 text-xs font-bold text-info-800">
                 {product.ageGroup}
               </span>
             )}
             {product.isSellingFast ||
             Boolean(product.badge?.toLowerCase().includes("selling")) ? (
-              <span className="whitespace-nowrap rounded-full bg-rose-600 px-2 py-0.5 text-xs font-bold text-white">
-                Selling fast
+              <span className="whitespace-nowrap rounded-full bg-danger-600 px-2 py-0.5 text-xs font-bold text-white">
+                🔥 Selling Fast
               </span>
             ) : product.isNewLaunch ||
               Boolean(product.badge?.toLowerCase().includes("new")) ? (
-              <span className="whitespace-nowrap rounded-full bg-amber-400 px-2 py-0.5 text-xs font-bold text-slate-900">
-                New
+              <span className="whitespace-nowrap rounded-full bg-warning-400 px-2 py-0.5 text-xs font-bold text-neutral-900">
+                🎀 New Launch
               </span>
             ) : null}
           </div>
           {(product.likesCount || 0) > 0 && (
-            <div className="absolute right-1.5 top-1.5 flex items-center gap-0.5 rounded-full bg-white/95 px-2 py-0.5 text-xs font-bold text-rose-600">
-              <Heart className="h-3.5 w-3.5 fill-rose-500 text-rose-500" />
+            <div className="absolute right-1.5 top-1.5 flex items-center gap-0.5 rounded-full bg-white/95 px-2 py-0.5 text-xs font-bold text-danger-600">
+              <Heart className="h-3.5 w-3.5 fill-danger-500 text-danger-500" />
               <span>{product.likesCount}</span>
             </div>
           )}
         </div>
         <div className="px-2.5 pt-2">
-          <h3 className="line-clamp-1 text-left text-base font-extrabold leading-tight text-[#3C2A21]">
+          <h3 className="line-clamp-1 text-left text-base font-extrabold leading-tight text-secondary">
             {product.name}
           </h3>
           <div className="mt-0.5 flex items-baseline gap-1.5">
-            <span className="text-base font-black text-[#3C2A21]">
+            <span className="text-base font-black text-secondary">
               ₹{product.price.toFixed(0)}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
-              <span className="text-[11px] font-semibold text-slate-400 line-through">
+              <span className="text-[11px] font-semibold text-neutral-400 line-through">
                 ₹{product.originalPrice.toFixed(0)}
               </span>
             )}
@@ -64,7 +64,7 @@ function ThemeProductCard({ product }: { product: Product }) {
         <OptimisticAddToCart
           product={product}
           variant="dark"
-          className="flex min-h-9 w-full items-center justify-center rounded-full bg-[#3C2A21] px-3 py-1.5 text-sm font-bold text-white"
+          className="flex min-h-9 w-full items-center justify-center rounded-full bg-secondary px-3 py-1.5 text-sm font-bold text-white"
         />
       </div>
     </div>
@@ -114,7 +114,7 @@ export default function ThemeProductGrid({
 
   if (themeProducts.length === 0) {
     return (
-      <div className="mt-8 text-center text-sm font-medium text-slate-500">
+      <div className="mt-8 text-center text-sm font-medium text-neutral-500">
         No items available in this theme yet.
       </div>
     );

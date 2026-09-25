@@ -124,7 +124,7 @@ export default function ThemeSections({
                 </div>
                 <Link
                   href={shopMoreHref(themeProducts, sectionConfig.themeKeyword)}
-                  className="inline-flex shrink-0 items-center space-x-1.5 rounded-full bg-[var(--shop-more-bg)] px-6 py-2.5 text-sm font-extrabold shadow-md transition hover:bg-[var(--shop-more-hover)] active:scale-95"
+                  className="inline-flex shrink-0 items-center space-x-1.5 rounded-full bg-(--shop-more-bg) px-6 py-2.5 text-sm font-extrabold shadow-md transition hover:bg-(--shop-more-hover) active:scale-95"
                   style={
                     {
                       color: sectionConfig.shopMoreText,

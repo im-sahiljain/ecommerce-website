@@ -25,6 +25,7 @@ function productToDetail(product: Product): ProductDetail {
     isNonToxic: product.isNonToxic,
     image: product.image,
     images: product.images,
+    gallery: product.gallery || undefined,
     description: product.description,
     inStock: product.inStock,
     isOrderingEnabled: product.isOrderingEnabled,

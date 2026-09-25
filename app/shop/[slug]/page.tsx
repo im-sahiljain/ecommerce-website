@@ -58,15 +58,15 @@ export default async function CategoryShopPage({ params }: Props) {
   if (!category) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <h1 className="text-2xl font-extrabold text-slate-800">
+        <h1 className="text-2xl font-extrabold text-neutral-800">
           Category not found
         </h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-neutral-600">
           That category is not in the shop.
         </p>
         <Link
           href="/shop"
-          className="mt-6 inline-block font-bold text-pink-600 hover:text-pink-700"
+          className="mt-6 inline-block font-bold text-primary hover:text-primary"
         >
           Back to shop
         </Link>

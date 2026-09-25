@@ -97,12 +97,12 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div className="flex flex-col gap-4 rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-2xs sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-800 sm:text-2xl">
+          <h1 className="text-xl font-extrabold text-neutral-800 sm:text-2xl">
             Orders
           </h1>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-neutral-500">
             {loading
               ? "Loading orders..."
               : `Showing ${rangeStart}–${rangeEnd} of ${total}`}
@@ -110,7 +110,7 @@ export default function OrdersPage() {
         </div>
         <button
           onClick={() => setReloadToken((token) => token + 1)}
-          className="inline-flex shrink-0 items-center justify-center gap-1 rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
+          className="inline-flex shrink-0 items-center justify-center gap-1 rounded-xl bg-neutral-100 px-4 py-2 text-xs font-bold text-neutral-700 transition hover:bg-neutral-200"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Refresh
@@ -130,14 +130,14 @@ export default function OrdersPage() {
               }}
               className={`flex items-center gap-1.5 whitespace-nowrap rounded-xl border px-3.5 py-2 transition ${
                 isActive
-                  ? "border-slate-900 bg-slate-900 text-white shadow-xs"
-                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  ? "border-neutral-900 bg-neutral-900 text-white shadow-2xs"
+                  : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
               }`}
             >
               <span>{tab}</span>
               <span
                 className={`rounded-md px-1.5 py-0.5 text-[10px] font-black ${
-                  isActive ? "bg-pink-500 text-white" : "bg-slate-100 text-slate-600"
+                  isActive ? "bg-primary text-white" : "bg-neutral-100 text-neutral-600"
                 }`}
               >
                 {count}
@@ -147,10 +147,10 @@ export default function OrdersPage() {
         })}
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+      <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-2xs">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-xs">
-            <thead className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+            <thead className="border-b border-neutral-100 bg-neutral-50 text-[11px] uppercase tracking-wide text-neutral-500">
               <tr>
                 <th className="px-4 py-3 font-bold">Order</th>
                 <th className="px-4 py-3 font-bold">Customer</th>
@@ -164,48 +164,48 @@ export default function OrdersPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center font-bold text-slate-500">
+                  <td colSpan={7} className="px-4 py-12 text-center font-bold text-neutral-500">
                     Loading orders...
                   </td>
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center font-bold text-slate-500">
+                  <td colSpan={7} className="px-4 py-12 text-center font-bold text-neutral-500">
                     No orders for “{selectedFilter}”.
                   </td>
                 </tr>
               ) : (
                 orders.map((order) => (
-                  <tr key={order.id} className="border-b border-slate-100 last:border-0">
+                  <tr key={order.id} className="border-b border-neutral-100 last:border-0">
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="font-extrabold text-slate-800 hover:text-pink-600"
+                        className="font-extrabold text-neutral-800 hover:text-primary"
                       >
                         {order.orderNumber}
                       </Link>
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-bold text-slate-800">{order.customerName}</p>
-                      <p className="text-slate-500">{order.phone || "No phone"}</p>
+                      <p className="font-bold text-neutral-800">{order.customerName}</p>
+                      <p className="text-neutral-500">{order.phone || "No phone"}</p>
                     </td>
-                    <td className="px-4 py-3 font-bold text-slate-700">
+                    <td className="px-4 py-3 font-bold text-neutral-700">
                       {order.itemCount}
                     </td>
-                    <td className="px-4 py-3 font-extrabold text-slate-900">
+                    <td className="px-4 py-3 font-extrabold text-neutral-900">
                       {formatOrderMoney(order.total)}
                     </td>
                     <td className="px-4 py-3">
                       <OrderStatusBadge status={order.status} />
                     </td>
-                    <td className="px-4 py-3 text-slate-500">
+                    <td className="px-4 py-3 text-neutral-500">
                       {new Date(order.createdAt).toLocaleString()}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/admin/orders/${order.id}`}
-                          className="rounded-lg bg-slate-100 px-2.5 py-1.5 font-bold text-slate-700 hover:bg-slate-200"
+                          className="rounded-lg bg-neutral-100 px-2.5 py-1.5 font-bold text-neutral-700 hover:bg-neutral-200"
                         >
                           View
                         </Link>
@@ -215,7 +215,7 @@ export default function OrdersPage() {
                             setDeleteError("");
                             setOrderToDelete(order);
                           }}
-                          className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1.5 font-bold text-rose-700 hover:bg-rose-100"
+                          className="inline-flex items-center gap-1 rounded-lg border border-danger-200 bg-danger-50 px-2.5 py-1.5 font-bold text-danger-700 hover:bg-danger-100"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           Delete
@@ -229,7 +229,7 @@ export default function OrdersPage() {
           </table>
         </div>
 
-        <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-xs font-bold text-slate-600">
+        <div className="flex items-center justify-between border-t border-neutral-100 px-4 py-3 text-xs font-bold text-neutral-600">
           <span>
             Page {Math.min(page, pageCount)} of {pageCount}
           </span>
@@ -238,7 +238,7 @@ export default function OrdersPage() {
               type="button"
               disabled={page <= 1 || loading}
               onClick={() => setPage((current) => Math.max(1, current - 1))}
-              className="rounded-lg bg-slate-100 px-3 py-1.5 hover:bg-slate-200 disabled:opacity-40"
+              className="rounded-lg bg-neutral-100 px-3 py-1.5 hover:bg-neutral-200 disabled:opacity-40"
             >
               Previous
             </button>
@@ -246,7 +246,7 @@ export default function OrdersPage() {
               type="button"
               disabled={page >= pageCount || loading}
               onClick={() => setPage((current) => current + 1)}
-              className="rounded-lg bg-slate-100 px-3 py-1.5 hover:bg-slate-200 disabled:opacity-40"
+              className="rounded-lg bg-neutral-100 px-3 py-1.5 hover:bg-neutral-200 disabled:opacity-40"
             >
               Next
             </button>

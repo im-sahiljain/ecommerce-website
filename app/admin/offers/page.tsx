@@ -152,17 +152,17 @@ export default function OffersAdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-800">
+          <h1 className="text-2xl font-extrabold text-neutral-800">
             Offer Rules
           </h1>
-          <p className="text-slate-500 text-xs mt-1">
+          <p className="text-neutral-500 text-xs mt-1">
             Create exact-quantity or minimum-threshold offers for storewide,
             product lines, categories, or themes.
           </p>
         </div>
         <button
           onClick={openAddModal}
-          className="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-1.5"
+          className="px-4 py-2.5 bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl shadow-2xs transition flex items-center space-x-1.5"
         >
           <Plus className="w-4 h-4" />
           <span>Create New Offer</span>
@@ -170,7 +170,7 @@ export default function OffersAdminPage() {
       </div>
 
       {loading ? (
-        <div className="p-8 text-center text-slate-500 font-bold">
+        <div className="p-8 text-center text-neutral-500 font-bold">
           Loading offer rules...
         </div>
       ) : (
@@ -178,19 +178,19 @@ export default function OffersAdminPage() {
           {rules.map((rule) => (
             <div
               key={rule.id}
-              className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-4"
+              className="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-2xs flex flex-col justify-between space-y-4"
             >
               <div>
                 <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-2">
-                    <span className="p-2 bg-pink-100 text-pink-600 rounded-xl">
+                    <span className="p-2 bg-primary/15 text-primary rounded-xl">
                       <Gift className="w-5 h-5" />
                     </span>
                     <div>
-                      <h3 className="font-extrabold text-base text-slate-800">
+                      <h3 className="font-extrabold text-base text-neutral-800">
                         {rule.name}
                       </h3>
-                      <p className="text-xs text-slate-500 font-medium">
+                      <p className="text-xs text-neutral-500 font-medium">
                         {rule.description || "Special package offer discount"}
                       </p>
                     </div>
@@ -198,8 +198,8 @@ export default function OffersAdminPage() {
                   <span
                     className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${
                       rule.isActive
-                        ? "bg-emerald-100 text-emerald-800"
-                        : "bg-slate-100 text-slate-500"
+                        ? "bg-success-100 text-success-800"
+                        : "bg-neutral-100 text-neutral-500"
                     }`}
                   >
                     {rule.isActive ? "Active Coupon" : "Disabled"}
@@ -212,7 +212,7 @@ export default function OffersAdminPage() {
                     Scope: {rule.applicableScope.toUpperCase()}{" "}
                     {rule.scopeValue ? `(${rule.scopeValue})` : ""}
                   </span>
-                  <span className="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">
+                  <span className="px-2.5 py-1 bg-warning-100 text-warning-800 rounded-full">
                     Mode:{" "}
                     {rule.requirementMode === "exact"
                       ? "Exact Item Count"
@@ -225,7 +225,7 @@ export default function OffersAdminPage() {
                   {rule.tiers.map((tier, idx) => (
                     <div
                       key={idx}
-                      className="flex justify-between text-xs font-bold text-slate-700"
+                      className="flex justify-between text-xs font-bold text-neutral-700"
                     >
                       <span>
                         {rule.requirementMode === "exact"
@@ -233,7 +233,7 @@ export default function OffersAdminPage() {
                           : `Buy ${tier.quantity}+ items`}
                         :
                       </span>
-                      <span className="text-pink-600 font-extrabold">
+                      <span className="text-primary font-extrabold">
                         {tier.discountValue}% OFF
                       </span>
                     </div>
@@ -244,14 +244,14 @@ export default function OffersAdminPage() {
               <div className="flex justify-end space-x-2 border-t pt-3">
                 <button
                   onClick={() => openEditModal(rule)}
-                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center space-x-1"
+                  className="px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-xs rounded-xl flex items-center space-x-1"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                   <span>Edit Offer</span>
                 </button>
                 <button
                   onClick={() => handleDelete(rule.id)}
-                  className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-xl flex items-center space-x-1"
+                  className="px-3 py-1.5 bg-danger-50 hover:bg-danger-100 text-danger-600 font-bold text-xs rounded-xl flex items-center space-x-1"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Delete</span>
@@ -269,14 +269,14 @@ export default function OffersAdminPage() {
             onSubmit={handleSubmit}
             className="bg-white rounded-3xl p-6 w-full max-w-lg space-y-4 shadow-2xl animate-in zoom-in-95 max-h-[90vh] overflow-y-auto"
           >
-            <h3 className="font-extrabold text-base text-slate-800 border-b pb-3">
+            <h3 className="font-extrabold text-base text-neutral-800 border-b pb-3">
               {editingRule
                 ? `Edit Offer: ${editingRule.name}`
                 : "Create New Offer"}
             </h3>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-neutral-700 mb-1">
                 Offer Name
               </label>
               <input
@@ -285,12 +285,12 @@ export default function OffersAdminPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Space Explorer 3-Pack Deal"
                 required
-                className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-semibold"
+                className="w-full px-3 py-2 bg-neutral-50 border rounded-xl text-xs font-semibold"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-neutral-700 mb-1">
                 Description / Subtitle
               </label>
               <input
@@ -298,19 +298,19 @@ export default function OffersAdminPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Select 3 Space theme kits to get 15% OFF!"
-                className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"
+                className="w-full px-3 py-2 bg-neutral-50 border rounded-xl text-xs"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
                   Applicable Scope
                 </label>
                 <select
                   value={applicableScope}
                   onChange={(e) => setApplicableScope(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-semibold"
+                  className="w-full px-3 py-2 bg-neutral-50 border rounded-xl text-xs font-semibold"
                 >
                   <option value="all">Storewide (All Products)</option>
                   <option value="productLine">Product Line Specific</option>
@@ -320,7 +320,7 @@ export default function OffersAdminPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
                   Scope Value (ID / Name)
                 </label>
                 <input
@@ -328,19 +328,19 @@ export default function OffersAdminPage() {
                   value={scopeValue}
                   onChange={(e) => setScopeValue(e.target.value)}
                   placeholder="e.g. Space Adventures or line-2"
-                  className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-neutral-50 border rounded-xl text-xs"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-neutral-700 mb-1">
                 Requirement Mode
               </label>
               <select
                 value={requirementMode}
                 onChange={(e) => setRequirementMode(e.target.value as any)}
-                className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-semibold"
+                className="w-full px-3 py-2 bg-neutral-50 border rounded-xl text-xs font-semibold"
               >
                 <option value="exact">
                   Exact Item Quantity (Must pick EXACT N items)
@@ -351,13 +351,13 @@ export default function OffersAdminPage() {
               </select>
             </div>
 
-            <div className="p-3 bg-slate-50 rounded-2xl border space-y-2">
-              <h4 className="text-xs font-extrabold text-slate-800">
+            <div className="p-3 bg-neutral-50 rounded-2xl border space-y-2">
+              <h4 className="text-xs font-extrabold text-neutral-800">
                 Discount Tiers
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  <label className="block text-[11px] font-bold text-neutral-600 mb-1">
                     Tier 1 Item Qty
                   </label>
                   <input
@@ -368,19 +368,19 @@ export default function OffersAdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  <label className="block text-[11px] font-bold text-neutral-600 mb-1">
                     Tier 1 Discount %
                   </label>
                   <input
                     type="number"
                     value={tier1Value}
                     onChange={(e) => setTier1Value(Number(e.target.value))}
-                    className="w-full px-2.5 py-1.5 bg-white border rounded-xl text-xs font-bold text-pink-600"
+                    className="w-full px-2.5 py-1.5 bg-white border rounded-xl text-xs font-bold text-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  <label className="block text-[11px] font-bold text-neutral-600 mb-1">
                     Tier 2 Item Qty (Optional)
                   </label>
                   <input
@@ -391,26 +391,26 @@ export default function OffersAdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  <label className="block text-[11px] font-bold text-neutral-600 mb-1">
                     Tier 2 Discount %
                   </label>
                   <input
                     type="number"
                     value={tier2Value}
                     onChange={(e) => setTier2Value(Number(e.target.value))}
-                    className="w-full px-2.5 py-1.5 bg-white border rounded-xl text-xs font-bold text-pink-600"
+                    className="w-full px-2.5 py-1.5 bg-white border rounded-xl text-xs font-bold text-primary"
                   />
                 </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between pt-2">
-              <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+              <label className="flex items-center space-x-2 text-xs font-bold text-neutral-700 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
-                  className="rounded text-pink-500"
+                  className="rounded-sm text-primary"
                 />
                 <span>Active Offer</span>
               </label>
@@ -419,13 +419,13 @@ export default function OffersAdminPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl"
+                  className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-xs rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs"
+                  className="px-5 py-2 bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl shadow-2xs"
                 >
                   Save Offer
                 </button>

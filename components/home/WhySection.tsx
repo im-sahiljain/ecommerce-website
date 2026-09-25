@@ -19,7 +19,7 @@ function WhyCard({
       className="p-6 sm:p-8 rounded-3xl text-center flex flex-col items-center justify-between h-full space-y-4"
       style={{ backgroundColor: bg }}
     >
-      <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm overflow-hidden shrink-0">
+      <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-xs overflow-hidden shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={iconSrc}
@@ -30,11 +30,11 @@ function WhyCard({
       <div>
         <h3
           className="font-bold mb-2 text-lg sm:text-xl"
-          style={{ color: "#3C2A21" }}
+          style={{ color: "var(--color-secondary)" }}
         >
           {title}
         </h3>
-        <p className="text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
+        <p className="text-neutral-600 text-sm sm:text-base font-medium leading-relaxed">
           {desc}
         </p>
       </div>
@@ -86,7 +86,7 @@ export default function WhySection() {
       <div className="max-w-7xl mx-auto px-6 relative">
         <h2
           className="text-center font-bold mb-10 text-3xl sm:text-4xl"
-          style={{ color: "#3C2A21" }}
+          style={{ color: "var(--color-secondary)" }}
         >
           Why Kits and Craft?
         </h2>
@@ -97,7 +97,7 @@ export default function WhySection() {
           <button
             onClick={scrollLeft}
             aria-label="Scroll left"
-            className="md:hidden absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white/90 shadow-md border border-slate-200 text-[#3C2A21] hover:bg-white active:scale-95 cursor-pointer -ml-3"
+            className="md:hidden absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white/90 shadow-md border border-neutral-200 text-secondary hover:bg-white active:scale-95 cursor-pointer -ml-3"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -106,7 +106,7 @@ export default function WhySection() {
           <button
             onClick={scrollRight}
             aria-label="Scroll right"
-            className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white/90 shadow-md border border-slate-200 text-[#3C2A21] hover:bg-white active:scale-95 cursor-pointer -mr-3"
+            className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white/90 shadow-md border border-neutral-200 text-secondary hover:bg-white active:scale-95 cursor-pointer -mr-3"
           >
             <ChevronRight className="w-5 h-5" />
           </button>

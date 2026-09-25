@@ -194,23 +194,23 @@ export default function PacksAdminPage() {
   );
 
   return (
-    <div className="space-y-8 font-sans text-slate-800">
+    <div className="space-y-8 font-sans text-neutral-800">
       {/* Top Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-2xs">
         <div>
           <div className="flex items-center space-x-2">
-            <Boxes className="w-6 h-6 text-amber-500" />
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+            <Boxes className="w-6 h-6 text-warning-500" />
+            <h1 className="text-xl sm:text-2xl font-extrabold text-neutral-900">
               Packs Builder
             </h1>
           </div>
-          <p className="text-slate-500 text-xs mt-1">
+          <p className="text-neutral-500 text-xs mt-1">
             Group existing catalog products into curated packs (e.g., Pack of 4, Pack of 10) with special pricing. No duplicate uploads required!
           </p>
         </div>
         <button
           onClick={openAddModal}
-          className="px-5 py-3 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs rounded-2xl shadow-md transition flex items-center justify-center space-x-2 shrink-0"
+          className="px-5 py-3 bg-warning-500 hover:bg-warning-600 text-white font-extrabold text-xs rounded-2xl shadow-md transition flex items-center justify-center space-x-2 shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>+ Create New Pack</span>
@@ -219,24 +219,24 @@ export default function PacksAdminPage() {
 
       {/* Packs Grid / Table */}
       {loading ? (
-        <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center">
-          <div className="w-8 h-8 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="bg-white p-12 rounded-3xl border border-neutral-200 text-center">
+          <div className="w-8 h-8 border-4 border-warning-500/30 border-t-warning-500 rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
             Loading Packs Catalog...
           </p>
         </div>
       ) : packs.length === 0 ? (
-        <div className="bg-white p-12 rounded-3xl border border-dashed border-slate-300 text-center space-y-3">
-          <Boxes className="w-12 h-12 text-slate-300 mx-auto" />
-          <h3 className="font-extrabold text-slate-700 text-base">
+        <div className="bg-white p-12 rounded-3xl border border-dashed border-neutral-300 text-center space-y-3">
+          <Boxes className="w-12 h-12 text-neutral-300 mx-auto" />
+          <h3 className="font-extrabold text-neutral-700 text-base">
             No Packs Created Yet
           </h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+          <p className="text-xs text-neutral-400 max-w-sm mx-auto">
             Click "+ Create New Pack" to group existing products into a Pack of 4, Pack of 10, or curated combo.
           </p>
           <button
             onClick={openAddModal}
-            className="px-4 py-2 bg-amber-500 text-white text-xs font-extrabold rounded-xl hover:bg-amber-600 transition"
+            className="px-4 py-2 bg-warning-500 text-white text-xs font-extrabold rounded-xl hover:bg-warning-600 transition"
           >
             Create Your First Pack
           </button>
@@ -250,24 +250,24 @@ export default function PacksAdminPage() {
             return (
               <div
                 key={pack.id}
-                className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between"
+                className="bg-white rounded-3xl border border-neutral-200/80 shadow-2xs hover:shadow-md transition overflow-hidden flex flex-col justify-between"
               >
                 <div className="p-6 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="inline-block px-2.5 py-1 bg-amber-50 text-amber-600 font-extrabold text-[10px] uppercase tracking-wider rounded-lg mb-1">
+                      <span className="inline-block px-2.5 py-1 bg-warning-50 text-warning-600 font-extrabold text-[10px] uppercase tracking-wider rounded-lg mb-1">
                         {pack.productIds.length} Items Pack
                       </span>
-                      <h3 className="font-extrabold text-slate-800 text-base leading-snug">
+                      <h3 className="font-extrabold text-neutral-800 text-base leading-snug">
                         {pack.name}
                       </h3>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-black text-slate-900">
+                      <p className="text-lg font-black text-neutral-900">
                         ₹{pack.price}
                       </p>
                       {pack.originalPrice && (
-                        <p className="text-xs font-semibold text-slate-400 line-through">
+                        <p className="text-xs font-semibold text-neutral-400 line-through">
                           ₹{pack.originalPrice}
                         </p>
                       )}
@@ -275,21 +275,21 @@ export default function PacksAdminPage() {
                   </div>
 
                   {pack.description && (
-                    <p className="text-xs text-slate-500 line-clamp-2">
+                    <p className="text-xs text-neutral-500 line-clamp-2">
                       {pack.description}
                     </p>
                   )}
 
                   {/* Included Items Thumbnails */}
                   <div>
-                    <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+                    <p className="text-[10px] font-extrabold text-neutral-400 uppercase tracking-wider mb-2">
                       Included Products ({includedProds.length}):
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {includedProds.slice(0, 6).map((p) => (
                         <div
                           key={p.id}
-                          className="w-9 h-9 rounded-xl border border-slate-100 bg-slate-50 overflow-hidden relative group/img"
+                          className="w-9 h-9 rounded-xl border border-neutral-100 bg-neutral-50 overflow-hidden relative group/img"
                           title={p.name}
                         >
                           <img
@@ -300,7 +300,7 @@ export default function PacksAdminPage() {
                         </div>
                       ))}
                       {includedProds.length > 6 && (
-                        <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-extrabold text-xs border border-amber-100">
+                        <div className="w-9 h-9 rounded-xl bg-warning-50 text-warning-600 flex items-center justify-center font-extrabold text-xs border border-warning-100">
                           +{includedProds.length - 6}
                         </div>
                       )}
@@ -309,12 +309,12 @@ export default function PacksAdminPage() {
                 </div>
 
                 {/* Card Actions Footer */}
-                <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <div className="p-4 bg-neutral-50 border-t border-neutral-100 flex items-center justify-between">
                   <span
                     className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${
                       pack.inStock
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-rose-100 text-rose-700"
+                        ? "bg-success-100 text-success-700"
+                        : "bg-danger-100 text-danger-700"
                     }`}
                   >
                     {pack.inStock ? "In Stock" : "Out of Stock"}
@@ -323,13 +323,13 @@ export default function PacksAdminPage() {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => openEditModal(pack)}
-                      className="p-2 text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition"
+                      className="p-2 text-neutral-600 hover:text-warning-600 hover:bg-warning-50 rounded-xl transition"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(pack.id)}
-                      className="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                      className="p-2 text-neutral-600 hover:text-danger-600 hover:bg-danger-50 rounded-xl transition"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -343,18 +343,18 @@ export default function PacksAdminPage() {
 
       {/* CREATE / EDIT MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 my-8">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/60 p-4 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-neutral-100 my-8">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
               <div className="flex items-center space-x-2">
-                <Boxes className="w-6 h-6 text-amber-500" />
-                <h2 className="text-lg font-extrabold text-slate-800">
+                <Boxes className="w-6 h-6 text-warning-500" />
+                <h2 className="text-lg font-extrabold text-neutral-800">
                   {editingPack ? "Edit Pack Details" : "Build New Pack"}
                 </h2>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold text-lg"
+                className="text-neutral-400 hover:text-neutral-600 font-bold text-lg"
               >
                 ✕
               </button>
@@ -364,7 +364,7 @@ export default function PacksAdminPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Pack Name */}
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
                     Pack Title *
                   </label>
                   <input
@@ -373,13 +373,13 @@ export default function PacksAdminPage() {
                     placeholder="e.g. Space Figurines - Pack of 5"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
                   />
                 </div>
 
                 {/* Price */}
                 <div>
-                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
                     Pack Price (₹) *
                   </label>
                   <input
@@ -390,13 +390,13 @@ export default function PacksAdminPage() {
                     onChange={(e) =>
                       setPrice(e.target.value === "" ? "" : Number(e.target.value))
                     }
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
                   />
                 </div>
 
                 {/* Original Price */}
                 <div>
-                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
                     Original Price (₹) (Optional)
                   </label>
                   <input
@@ -408,19 +408,19 @@ export default function PacksAdminPage() {
                         e.target.value === "" ? "" : Number(e.target.value),
                       )
                     }
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
                   />
                 </div>
 
                 {/* Product Line */}
                 <div>
-                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
                     Product Line (Optional)
                   </label>
                   <select
                     value={productLineId}
                     onChange={(e) => setProductLineId(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
                   >
                     <option value="">Select Product Line...</option>
                     {productLines.map((l) => (
@@ -433,13 +433,13 @@ export default function PacksAdminPage() {
 
                 {/* Category */}
                 <div>
-                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
                     Category (Optional)
                   </label>
                   <select
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
                   >
                     <option value="">Select Category...</option>
                     {categories.map((c) => (
@@ -452,7 +452,7 @@ export default function PacksAdminPage() {
 
                 {/* Description */}
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
                     Description
                   </label>
                   <textarea
@@ -460,13 +460,13 @@ export default function PacksAdminPage() {
                     placeholder="Short summary of what's inside this pack..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
                   />
                 </div>
 
                 {/* Image URL */}
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-extrabold text-neutral-700 uppercase tracking-wider mb-1">
                     Cover Image URL (Optional - uses 1st selected product photo if empty)
                   </label>
                   <input
@@ -474,38 +474,38 @@ export default function PacksAdminPage() {
                     placeholder="https://..."
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-800 focus:outline-hidden focus:border-warning-500 focus:bg-white"
                   />
                 </div>
               </div>
 
               {/* PRODUCT SELECTION CHECKLIST */}
-              <div className="space-y-3 border-t border-slate-100 pt-4">
+              <div className="space-y-3 border-t border-neutral-100 pt-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+                    <label className="block text-xs font-extrabold text-neutral-800 uppercase tracking-wider">
                       Select Products for this Pack *
                     </label>
-                    <p className="text-[11px] font-semibold text-amber-600">
+                    <p className="text-[11px] font-semibold text-warning-600">
                       {selectedProductIds.length} products selected
                     </p>
                   </div>
 
                   {/* Search Products */}
                   <div className="relative">
-                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                    <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-2.5" />
                     <input
                       type="text"
                       placeholder="Search products..."
                       value={productSearch}
                       onChange={(e) => setProductSearch(e.target.value)}
-                      className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none focus:border-amber-500"
+                      className="pl-8 pr-3 py-1.5 bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-semibold text-neutral-700 focus:outline-hidden focus:border-warning-500"
                     />
                   </div>
                 </div>
 
                 {/* Products List Checklist */}
-                <div className="max-h-56 overflow-y-auto border border-slate-200 rounded-2xl p-2 space-y-1.5 bg-slate-50">
+                <div className="max-h-56 overflow-y-auto border border-neutral-200 rounded-2xl p-2 space-y-1.5 bg-neutral-50">
                   {filteredProducts.map((p) => {
                     const isSelected = selectedProductIds.includes(p.id);
                     return (
@@ -514,31 +514,31 @@ export default function PacksAdminPage() {
                         onClick={() => toggleProductSelection(p.id)}
                         className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition ${
                           isSelected
-                            ? "bg-amber-50 border border-amber-200 text-amber-900 font-bold"
-                            : "bg-white border border-slate-100 hover:bg-slate-100 text-slate-700"
+                            ? "bg-warning-50 border border-warning-200 text-warning-900 font-bold"
+                            : "bg-white border border-neutral-100 hover:bg-neutral-100 text-neutral-700"
                         }`}
                       >
                         <div className="flex items-center space-x-3">
                           {isSelected ? (
-                            <CheckSquare className="w-5 h-5 text-amber-600 shrink-0" />
+                            <CheckSquare className="w-5 h-5 text-warning-600 shrink-0" />
                           ) : (
-                            <Square className="w-5 h-5 text-slate-300 shrink-0" />
+                            <Square className="w-5 h-5 text-neutral-300 shrink-0" />
                           )}
                           <img
                             src={p.image}
                             alt={p.name}
-                            className="w-8 h-8 rounded-lg object-cover border border-slate-200 shrink-0"
+                            className="w-8 h-8 rounded-lg object-cover border border-neutral-200 shrink-0"
                           />
                           <div>
                             <p className="text-xs font-extrabold leading-tight">
                               {p.name}
                             </p>
-                            <span className="text-[10px] text-slate-400 font-medium">
+                            <span className="text-[10px] text-neutral-400 font-medium">
                               {p.category}
                             </span>
                           </div>
                         </div>
-                        <span className="text-xs font-black text-slate-800">
+                        <span className="text-xs font-black text-neutral-800">
                           ₹{p.price}
                         </span>
                       </div>
@@ -548,17 +548,17 @@ export default function PacksAdminPage() {
               </div>
 
               {/* Form Buttons */}
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-neutral-100">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 text-slate-500 font-bold text-xs hover:bg-slate-100 rounded-xl transition"
+                  className="px-5 py-2.5 text-neutral-500 font-bold text-xs hover:bg-neutral-100 rounded-xl transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs rounded-xl shadow-md transition"
+                  className="px-6 py-2.5 bg-warning-500 hover:bg-warning-600 text-white font-extrabold text-xs rounded-xl shadow-md transition"
                 >
                   {editingPack ? "Update Pack" : "Save & Publish Pack"}
                 </button>

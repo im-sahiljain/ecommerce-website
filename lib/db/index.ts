@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { normalizeGallery, type ProductGallery } from '@/lib/gallery';
 import { isIdSlug, slugify, uniqueSlug } from '../slug';
 import {
   Product,
@@ -90,6 +91,16 @@ function mapRowToPack(r: any): Pack {
   };
 }
 
+function parseGallery(value: unknown): ProductGallery | undefined {
+  if (!value) return undefined;
+  try {
+    const raw = typeof value === 'string' ? JSON.parse(value) : value;
+    return normalizeGallery(raw);
+  } catch {
+    return undefined;
+  }
+}
+
 function mapRowToProduct(r: any): Product {
   const images = parseProductImages(r);
   return {
@@ -107,6 +118,7 @@ function mapRowToProduct(r: any): Product {
     isNonToxic: r.is_non_toxic !== false,
     image: r.image || images[0] || '',
     images,
+    gallery: parseGallery(r.gallery),
     description: r.description || '',
     inStock: r.in_stock !== false,
     stockQuantity: r.stock_quantity ? Number(r.stock_quantity) : 10,
@@ -248,8 +260,8 @@ export class Database {
       try {
         await pool.query(
           `
-          INSERT INTO public.products (id, sku, name, slug, price, original_price, cost_price, theme, category, age_group, product_line_id, is_non_toxic, image, images, description, in_stock, stock_quantity, is_ordering_enabled, badge, size, material, is_visible, is_new_launch, is_selling_fast, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
+          INSERT INTO public.products (id, sku, name, slug, price, original_price, cost_price, theme, category, age_group, product_line_id, is_non_toxic, image, images, description, in_stock, stock_quantity, is_ordering_enabled, badge, size, material, is_visible, is_new_launch, is_selling_fast, created_at, updated_at, gallery)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
           ON CONFLICT (id) DO NOTHING;
         `,
           [
@@ -279,6 +291,7 @@ export class Database {
             Boolean(newProduct.isSellingFast),
             newProduct.createdAt,
             newProduct.updatedAt,
+            newProduct.gallery ? JSON.stringify(newProduct.gallery) : null,
           ]
         );
       } catch (err: any) {
@@ -309,8 +322,8 @@ export class Database {
           is_non_toxic = $9, image = $10, images = $11, description = $12,
           in_stock = $13, stock_quantity = $14, is_ordering_enabled = $15, updated_at = $16,
           slug = $17, sku = $18, badge = $19, size = $20, material = $21, is_visible = $22,
-          is_new_launch = $23, is_selling_fast = $24
-        WHERE id = $25
+          is_new_launch = $23, is_selling_fast = $24, gallery = $25
+        WHERE id = $26
       `,
         [
           merged.name,
@@ -337,6 +350,7 @@ export class Database {
           merged.isVisible !== false,
           Boolean(merged.isNewLaunch),
           Boolean(merged.isSellingFast),
+          merged.gallery ? JSON.stringify(merged.gallery) : null,
           id,
         ]
       );

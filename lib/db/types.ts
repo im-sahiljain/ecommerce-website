@@ -1,3 +1,5 @@
+import type { ProductGallery } from '@/lib/gallery';
+
 export interface Product {
   id: string;
   sku?: string;
@@ -17,6 +19,7 @@ export interface Product {
   isNonToxic: boolean;
   image: string;
   images?: string[];
+  gallery?: ProductGallery | null;
   description: string;
   richDescription?: string;
   inStock: boolean;

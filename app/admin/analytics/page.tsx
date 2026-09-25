@@ -55,10 +55,10 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-800">
+        <h1 className="text-2xl font-extrabold text-neutral-800">
           Product Analytics & Insights
         </h1>
-        <p className="text-slate-500 text-xs mt-1">
+        <p className="text-neutral-500 text-xs mt-1">
           Track views, wishlist counts, inventory velocity, and revenue
           performance across all items.
         </p>
@@ -66,38 +66,38 @@ export default function AnalyticsPage() {
 
       {/* Aggregate Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-2">
-          <div className="flex justify-between items-center text-slate-500">
+        <div className="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-2xs space-y-2">
+          <div className="flex justify-between items-center text-neutral-500">
             <span className="text-xs font-bold uppercase tracking-wider">
               Total Product Views
             </span>
-            <div className="p-2 bg-sky-50 text-sky-500 rounded-xl">
+            <div className="p-2 bg-info-50 text-info-500 rounded-xl">
               <Eye className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-3xl font-extrabold text-slate-800">{totalViews}</p>
-          <p className="text-[11px] text-slate-400 font-semibold">
+          <p className="text-3xl font-extrabold text-neutral-800">{totalViews}</p>
+          <p className="text-[11px] text-neutral-400 font-semibold">
             Storefront page impressions
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-2">
-          <div className="flex justify-between items-center text-slate-500">
+        <div className="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-2xs space-y-2">
+          <div className="flex justify-between items-center text-neutral-500">
             <span className="text-xs font-bold uppercase tracking-wider">
               Total Wishlist Likes
             </span>
-            <div className="p-2 bg-rose-50 text-rose-500 rounded-xl">
+            <div className="p-2 bg-danger-50 text-danger-500 rounded-xl">
               <Heart className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-3xl font-extrabold text-slate-800">{totalLikes}</p>
-          <p className="text-[11px] text-slate-400 font-semibold">
+          <p className="text-3xl font-extrabold text-neutral-800">{totalLikes}</p>
+          <p className="text-[11px] text-neutral-400 font-semibold">
             User favorite interactions
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-2">
-          <div className="flex justify-between items-center text-slate-500">
+        <div className="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-2xs space-y-2">
+          <div className="flex justify-between items-center text-neutral-500">
             <span className="text-xs font-bold uppercase tracking-wider">
               Catalog Items
             </span>
@@ -105,28 +105,28 @@ export default function AnalyticsPage() {
               <Package className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-3xl font-extrabold text-slate-800">
+          <p className="text-3xl font-extrabold text-neutral-800">
             {products.length}
           </p>
-          <p className="text-[11px] text-slate-400 font-semibold">
+          <p className="text-[11px] text-neutral-400 font-semibold">
             Active listings
           </p>
         </div>
       </div>
 
       {/* Per Product Performance Table with Horizontal Scroll */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-x-auto">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="font-extrabold text-base text-slate-800">
+      <div className="bg-white rounded-3xl border border-neutral-200/80 shadow-2xs overflow-x-auto">
+        <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+          <h2 className="font-extrabold text-base text-neutral-800">
             Per-Product Performance Insights
           </h2>
-          <span className="text-xs font-bold text-slate-400">
+          <span className="text-xs font-bold text-neutral-400">
             Real-time metrics
           </span>
         </div>
 
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200/80">
+          <thead className="bg-neutral-50 text-neutral-500 font-bold uppercase tracking-wider border-b border-neutral-200/80">
             <tr>
               <th className="p-4">Product Name</th>
               <th className="p-4">Price (₹)</th>
@@ -137,7 +137,7 @@ export default function AnalyticsPage() {
               <th className="p-4 text-right">Est. Revenue</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-neutral-100">
             {products.map((p) => {
               const stat = analytics[p.id] || {
                 views: 0,
@@ -148,37 +148,37 @@ export default function AnalyticsPage() {
               const stock =
                 p.stockQuantity !== undefined ? p.stockQuantity : 10;
               return (
-                <tr key={p.id} className="hover:bg-slate-50/80 transition">
+                <tr key={p.id} className="hover:bg-neutral-50/80 transition">
                   <td className="p-4 flex items-center space-x-3">
                     <img
                       src={p.image}
                       alt={p.name}
                       className="w-10 h-10 rounded-xl object-cover border"
                     />
-                    <span className="font-extrabold text-slate-800 text-sm">
+                    <span className="font-extrabold text-neutral-800 text-sm">
                       {p.name}
                     </span>
                   </td>
-                  <td className="p-4 font-extrabold text-slate-800">
+                  <td className="p-4 font-extrabold text-neutral-800">
                     ₹{p.price.toFixed(2)}
                   </td>
                   <td className="p-4 font-bold">
                     <span
                       className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold ${
                         stock <= 5
-                          ? "bg-rose-100 text-rose-800"
-                          : "bg-emerald-100 text-emerald-800"
+                          ? "bg-danger-100 text-danger-800"
+                          : "bg-success-100 text-success-800"
                       }`}
                     >
                       {stock} units
                     </span>
                   </td>
-                  <td className="p-4 font-bold text-slate-700">{stat.views}</td>
-                  <td className="p-4 font-bold text-rose-600">{stat.likes}</td>
-                  <td className="p-4 font-bold text-slate-800">
+                  <td className="p-4 font-bold text-neutral-700">{stat.views}</td>
+                  <td className="p-4 font-bold text-danger-600">{stat.likes}</td>
+                  <td className="p-4 font-bold text-neutral-800">
                     {stat.unitsOrdered}
                   </td>
-                  <td className="p-4 text-right font-extrabold text-slate-900">
+                  <td className="p-4 text-right font-extrabold text-neutral-900">
                     ₹{stat.totalRevenue.toFixed(2)}
                   </td>
                 </tr>

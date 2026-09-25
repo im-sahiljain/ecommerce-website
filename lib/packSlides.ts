@@ -7,9 +7,8 @@ export function slidesForPack(
   return (productIds || []).flatMap((id) => {
     const product = catalog.find((item) => item.id === id);
     if (!product) return [];
-    const urls = [product.image, ...(product.images || [])].filter(
-      (url): url is string => Boolean(url),
-    );
-    return [...new Set(urls)].map((image) => ({ name: product.name, image }));
+    const image = product.image || product.images?.[0];
+    if (!image) return [];
+    return [{ name: product.name, image }];
   });
 }

@@ -77,7 +77,7 @@ export default function WhatsappFloatingButton() {
         if (desktopHover) setHovered(true);
       }}
       onMouseLeave={() => setHovered(false)}
-      className={`fixed bottom-6 right-6 z-40 flex h-14 w-max min-w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-emerald-600 text-white shadow-2xl transition-all duration-500 ease-in-out ${
+      className={`fixed bottom-6 right-6 z-40 flex h-14 w-max min-w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-success-600 text-white shadow-2xl transition-all duration-500 ease-in-out ${
         expanded ? "max-w-56 gap-2 px-4" : "max-w-14 gap-0 px-0"
       }`}
     >

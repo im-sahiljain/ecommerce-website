@@ -116,17 +116,17 @@ export default function ProductLinesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-800">
+          <h1 className="text-2xl font-extrabold text-neutral-800">
             Product Lines Management
           </h1>
-          <p className="text-slate-500 text-xs mt-1">
+          <p className="text-neutral-500 text-xs mt-1">
             Manage top-level channels (e.g. POP Figurines, Wax Candles, DIY
             Craft Kits).
           </p>
         </div>
         <button
           onClick={openAddModal}
-          className="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-1.5"
+          className="px-4 py-2.5 bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl shadow-2xs transition flex items-center space-x-1.5"
         >
           <Plus className="w-4 h-4" />
           <span>Add Product Line</span>
@@ -134,7 +134,7 @@ export default function ProductLinesPage() {
       </div>
 
       {loading ? (
-        <div className="p-8 text-center text-slate-500 font-bold">
+        <div className="p-8 text-center text-neutral-500 font-bold">
           Loading product lines...
         </div>
       ) : (
@@ -142,16 +142,16 @@ export default function ProductLinesPage() {
           {productLines.map((line) => (
             <div
               key={line.id}
-              className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-4 relative"
+              className="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-2xs space-y-4 relative"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl">{line.icon || "📦"}</span>
                   <div>
-                    <h3 className="font-extrabold text-base text-slate-800">
+                    <h3 className="font-extrabold text-base text-neutral-800">
                       {line.name}
                     </h3>
-                    <p className="text-[10px] text-slate-400 font-mono">
+                    <p className="text-[10px] text-neutral-400 font-mono">
                       {line.slug}
                     </p>
                   </div>
@@ -160,8 +160,8 @@ export default function ProductLinesPage() {
                 <span
                   className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full flex items-center space-x-1 ${
                     line.isVisible
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "bg-slate-100 text-slate-500"
+                      ? "bg-success-100 text-success-800"
+                      : "bg-neutral-100 text-neutral-500"
                   }`}
                 >
                   {line.isVisible ? (
@@ -173,24 +173,24 @@ export default function ProductLinesPage() {
                 </span>
               </div>
 
-              <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+              <p className="text-xs text-neutral-600 line-clamp-2 leading-relaxed">
                 {line.description || "No description provided."}
               </p>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-400 font-bold">
+              <div className="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs">
+                <span className="text-neutral-400 font-bold">
                   Sort Order: {line.sortOrder}
                 </span>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => openEditModal(line)}
-                    className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg"
+                    className="p-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => handleDelete(line.id)}
-                    className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg"
+                    className="p-1.5 bg-danger-50 hover:bg-danger-100 text-danger-600 rounded-lg"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -208,13 +208,13 @@ export default function ProductLinesPage() {
             onSubmit={handleSubmit}
             className="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl animate-in zoom-in-95"
           >
-            <h3 className="font-extrabold text-base text-slate-800 border-b pb-3">
+            <h3 className="font-extrabold text-base text-neutral-800 border-b pb-3">
               {editingLine ? "Edit Product Line" : "Add New Product Line"}
             </h3>
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
                   Icon Emoji
                 </label>
                 <input
@@ -222,12 +222,12 @@ export default function ProductLinesPage() {
                   value={icon}
                   onChange={(e) => setIcon(e.target.value)}
                   placeholder="📦"
-                  className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs text-center"
+                  className="w-full px-3 py-2 bg-neutral-50 border rounded-xl text-xs text-center"
                 />
               </div>
 
               <div className="col-span-2">
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
                   Product Line Name
                 </label>
                 <input
@@ -236,13 +236,13 @@ export default function ProductLinesPage() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ceramic Craft Sets"
                   required
-                  className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-neutral-50 border rounded-xl text-xs"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-neutral-700 mb-1">
                 Description
               </label>
               <textarea
@@ -250,17 +250,17 @@ export default function ProductLinesPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Brief summary of product line..."
-                className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"
+                className="w-full px-3 py-2 bg-neutral-50 border rounded-xl text-xs"
               />
             </div>
 
             <div className="flex items-center justify-between pt-2">
-              <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+              <label className="flex items-center space-x-2 text-xs font-bold text-neutral-700 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isVisible}
                   onChange={(e) => setIsVisible(e.target.checked)}
-                  className="rounded text-pink-500"
+                  className="rounded-sm text-primary"
                 />
                 <span>Visible in Storefront & Navigation</span>
               </label>
@@ -269,13 +269,13 @@ export default function ProductLinesPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl"
+                  className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-xs rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-xs"
+                  className="px-5 py-2 bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl shadow-2xs"
                 >
                   Save Line
                 </button>

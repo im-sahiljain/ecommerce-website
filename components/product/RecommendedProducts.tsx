@@ -19,14 +19,14 @@ function RecommendedSkeleton() {
       {Array.from({ length: PAGE_SIZE }, (_, index) => (
         <div
           key={index}
-          className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
+          className="overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-xs"
         >
-          <div className="aspect-square animate-pulse bg-slate-100" />
+          <div className="aspect-square animate-pulse bg-neutral-100" />
           <div className="space-y-2 p-3">
-            <div className="h-3 w-1/3 animate-pulse rounded-full bg-slate-100" />
-            <div className="h-4 w-3/4 animate-pulse rounded-full bg-slate-100" />
-            <div className="h-4 w-1/4 animate-pulse rounded-full bg-slate-100" />
-            <div className="mt-3 h-9 w-full animate-pulse rounded-full bg-slate-100" />
+            <div className="h-3 w-1/3 animate-pulse rounded-full bg-neutral-100" />
+            <div className="h-4 w-3/4 animate-pulse rounded-full bg-neutral-100" />
+            <div className="h-4 w-1/4 animate-pulse rounded-full bg-neutral-100" />
+            <div className="mt-3 h-9 w-full animate-pulse rounded-full bg-neutral-100" />
           </div>
         </div>
       ))}
@@ -36,7 +36,8 @@ function RecommendedSkeleton() {
 
 function ProductBadges({ item }: { item: ProductDetail }) {
   const sellingFast =
-    item.isSellingFast || Boolean(item.badge?.toLowerCase().includes("selling"));
+    item.isSellingFast ||
+    Boolean(item.badge?.toLowerCase().includes("selling"));
   const isNew =
     item.isNewLaunch || Boolean(item.badge?.toLowerCase().includes("new"));
   const likes = item.likesCount || 0;
@@ -45,27 +46,27 @@ function ProductBadges({ item }: { item: ProductDetail }) {
     <>
       <div className="absolute left-1.5 top-1.5 flex max-w-[70%] flex-wrap gap-1">
         {item.isPack ? (
-          <span className="whitespace-nowrap rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
+          <span className="whitespace-nowrap rounded-full bg-warning-500 px-2 py-0.5 text-[10px] font-bold text-white">
             {item.category || "Pack"}
           </span>
         ) : item.ageGroup?.trim() ? (
-          <span className="whitespace-nowrap rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-bold text-sky-800">
+          <span className="whitespace-nowrap rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-bold text-info-800">
             {item.ageGroup}
           </span>
         ) : null}
         {sellingFast ? (
-          <span className="whitespace-nowrap rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold text-white">
-            Selling fast
+          <span className="whitespace-nowrap rounded-full bg-danger-600 px-2 py-0.5 text-[10px] font-bold text-white">
+            🔥 Selling Fast
           </span>
         ) : isNew ? (
-          <span className="whitespace-nowrap rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-slate-900">
-            New
+          <span className="whitespace-nowrap rounded-full bg-warning-400 px-2 py-0.5 text-[10px] font-bold text-neutral-900">
+            🎀 New Launch
           </span>
         ) : null}
       </div>
       {likes > 0 && (
-        <div className="absolute right-1.5 top-1.5 flex items-center gap-0.5 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-bold text-rose-600">
-          <Heart className="h-3 w-3 fill-rose-500 text-rose-500" />
+        <div className="absolute right-1.5 top-1.5 flex items-center gap-0.5 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-bold text-danger-600">
+          <Heart className="h-3 w-3 fill-danger-500 text-danger-500" />
           <span>{likes}</span>
         </div>
       )}
@@ -73,7 +74,11 @@ function ProductBadges({ item }: { item: ProductDetail }) {
   );
 }
 
-export default function RecommendedProducts({ product }: { product: ProductDetail }) {
+export default function RecommendedProducts({
+  product,
+}: {
+  product: ProductDetail;
+}) {
   const sectionRef = useRef<HTMLElement>(null);
   const moreRef = useRef<HTMLDivElement>(null);
   const [catalog, setCatalog] = useState<ProductDetail[] | null>(null);
@@ -109,7 +114,9 @@ export default function RecommendedProducts({ product }: { product: ProductDetai
   }, [product.id]);
 
   const recommended =
-    catalog?.filter((item) => item.id !== product.id && item.isVisible !== false) ?? [];
+    catalog?.filter(
+      (item) => item.id !== product.id && item.isVisible !== false,
+    ) ?? [];
   const shown = recommended.slice(0, visibleCount);
   const hasMore = shown.length < recommended.length;
 
@@ -132,56 +139,56 @@ export default function RecommendedProducts({ product }: { product: ProductDetai
 
   return (
     <section ref={sectionRef} className="mt-10 sm:mt-14">
-      <h2 className="text-xl font-extrabold text-slate-800 sm:text-2xl">
+      <h2 className="text-xl font-extrabold text-neutral-800 sm:text-2xl">
         Recommended products
       </h2>
       {catalog === null ? (
         <RecommendedSkeleton />
       ) : shown.length === 0 ? null : (
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
-        {shown.map((item) => (
-          <article
-            key={item.id}
-            className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
-          >
-            <Link href={productPath(item)} className="group flex flex-col">
-              <div className="relative aspect-square overflow-hidden bg-slate-50">
-                <CatalogImage
-                  src={item.image}
-                  name={item.name}
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="transition duration-500 group-hover:scale-105"
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+          {shown.map((item) => (
+            <article
+              key={item.id}
+              className="flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-xs"
+            >
+              <Link href={productPath(item)} className="group flex flex-col">
+                <div className="relative aspect-square overflow-hidden bg-neutral-50">
+                  <CatalogImage
+                    src={item.image}
+                    name={item.name}
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="transition duration-500 group-hover:scale-105"
+                  />
+                  <ProductBadges item={item} />
+                </div>
+                <div className="space-y-1 p-3 pb-2">
+                  {item.theme && item.theme !== "General" && (
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                      {item.theme}
+                    </p>
+                  )}
+                  <h3 className="line-clamp-2 text-sm font-bold text-neutral-800 group-hover:text-primary">
+                    {item.name}
+                  </h3>
+                </div>
+              </Link>
+              <div className="mt-auto space-y-2 px-3 pb-3">
+                <p className="text-sm font-extrabold text-neutral-700">
+                  ₹{Number(item.price).toFixed(2)}
+                </p>
+                <OptimisticAddToCart
+                  product={{
+                    id: item.id,
+                    name: item.name,
+                    price: Number(item.price),
+                    image: item.image,
+                    inStock: item.inStock,
+                  }}
                 />
-                <ProductBadges item={item} />
               </div>
-              <div className="space-y-1 p-3 pb-2">
-                {item.theme && item.theme !== "General" && (
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-pink-500">
-                    {item.theme}
-                  </p>
-                )}
-                <h3 className="line-clamp-2 text-sm font-bold text-slate-800 group-hover:text-pink-500">
-                  {item.name}
-                </h3>
-              </div>
-            </Link>
-            <div className="mt-auto space-y-2 px-3 pb-3">
-              <p className="text-sm font-extrabold text-slate-700">
-                ₹{Number(item.price).toFixed(2)}
-              </p>
-              <OptimisticAddToCart
-                product={{
-                  id: item.id,
-                  name: item.name,
-                  price: Number(item.price),
-                  image: item.image,
-                  inStock: item.inStock,
-                }}
-              />
-            </div>
-          </article>
-        ))}
-      </div>
+            </article>
+          ))}
+        </div>
       )}
       {hasMore && <div ref={moreRef} className="h-8" aria-hidden="true" />}
     </section>

@@ -120,14 +120,14 @@ export default async function GuidePage({ params }: Props) {
         }}
       />
       <div>
-        <h1 className="text-3xl font-extrabold text-[#3C2A21] sm:text-4xl">{guide.h1}</h1>
-        <div className="mt-6 space-y-4 text-base leading-relaxed text-slate-600">
+        <h1 className="text-3xl font-extrabold text-secondary sm:text-4xl">{guide.h1}</h1>
+        <div className="mt-6 space-y-4 text-base leading-relaxed text-neutral-600">
           {guide.paragraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
         </div>
         <p className="mt-8">
-          <Link href={guide.shopHref} className="font-bold text-pink-600 hover:text-pink-700">
+          <Link href={guide.shopHref} className="font-bold text-primary hover:text-primary">
             {guide.shopLabel}
           </Link>
         </p>
@@ -137,7 +137,7 @@ export default async function GuidePage({ params }: Props) {
           {picks.map((item) => (
             <article
               key={item.id}
-              className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
+              className="flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-xs"
             >
               <Link href={productPath(item)} className="group flex flex-col">
                 {item.slides && item.slides.length > 1 ? (
@@ -146,7 +146,7 @@ export default async function GuidePage({ params }: Props) {
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   />
                 ) : (
-                <div className="relative aspect-square overflow-hidden bg-slate-50">
+                <div className="relative aspect-square overflow-hidden bg-neutral-50">
                   <CatalogImage
                     src={item.image}
                     name={item.name}
@@ -157,17 +157,17 @@ export default async function GuidePage({ params }: Props) {
                 )}
                 <div className="space-y-1 p-3 pb-2">
                   {item.theme && item.theme !== "General" && (
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-pink-500">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
                       {item.theme}
                     </p>
                   )}
-                  <h2 className="line-clamp-2 text-sm font-bold text-slate-800 group-hover:text-pink-500">
+                  <h2 className="line-clamp-2 text-sm font-bold text-neutral-800 group-hover:text-primary">
                     {item.name}
                   </h2>
                 </div>
               </Link>
               <div className="mt-auto space-y-2 px-3 pb-3">
-                <p className="text-sm font-extrabold text-slate-700">
+                <p className="text-sm font-extrabold text-neutral-700">
                   ₹{Number(item.price).toFixed(2)}
                 </p>
                 <OptimisticAddToCart

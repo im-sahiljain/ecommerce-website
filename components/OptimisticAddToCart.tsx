@@ -85,8 +85,8 @@ export default function OptimisticAddToCart({
         }}
         className={
           isPink
-            ? "w-full py-2 px-3 bg-pink-100 text-slate-800 border border-pink-200 font-extrabold text-xs rounded-full flex items-center justify-between shadow-xs"
-            : "w-full py-2 px-3 bg-[#3C2A21] text-white font-bold text-xs rounded-full flex items-center justify-between shadow-xs"
+            ? "w-full py-2 px-3 bg-primary/15 text-neutral-800 border border-primary/25 font-extrabold text-xs rounded-full flex items-center justify-between shadow-2xs"
+            : "w-full py-2 px-3 bg-secondary text-white font-bold text-xs rounded-full flex items-center justify-between shadow-2xs"
         }
       >
         <button
@@ -94,7 +94,7 @@ export default function OptimisticAddToCart({
           onClick={handleDecrement}
           className={
             isPink
-              ? "p-1 hover:bg-pink-200 rounded-full transition cursor-pointer flex items-center justify-center text-slate-800"
+              ? "p-1 hover:bg-primary/25 rounded-full transition cursor-pointer flex items-center justify-center text-neutral-800"
               : "p-1 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center text-white"
           }
           aria-label="Decrease quantity"
@@ -107,7 +107,7 @@ export default function OptimisticAddToCart({
           onClick={handleIncrement}
           className={
             isPink
-              ? "p-1 hover:bg-pink-200 rounded-full transition cursor-pointer flex items-center justify-center text-slate-800"
+              ? "p-1 hover:bg-primary/25 rounded-full transition cursor-pointer flex items-center justify-center text-neutral-800"
               : "p-1 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center text-white"
           }
           aria-label="Increase quantity"
@@ -126,8 +126,8 @@ export default function OptimisticAddToCart({
       className={
         className ||
         (isPink
-          ? "w-full py-2.5 px-4 bg-pink-100 hover:bg-pink-200 text-slate-800 font-bold rounded-full text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
-          : "w-full py-2.5 px-4 bg-[#3C2A21] hover:bg-[#251A14] text-white font-extrabold text-xs rounded-full shadow transition flex items-center justify-center gap-1.5 cursor-pointer")
+          ? "w-full py-2.5 px-4 bg-primary/15 hover:bg-primary/25 text-neutral-800 font-bold rounded-full text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+          : "w-full py-2.5 px-4 bg-secondary hover:bg-secondary-hover text-white font-extrabold text-xs rounded-full shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer")
       }
     >
       <span>Add to Cart</span>

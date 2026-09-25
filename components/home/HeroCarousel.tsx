@@ -23,37 +23,37 @@ const heroSlides = [
     content: (
       <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center w-full py-5 md:py-16">
         <div className="w-full md:w-5/12 text-center md:text-left mb-8 md:mb-0">
-          {/* <span className="inline-flex items-center gap-1.5 px-3.5 py-1 mb-3 rounded-full text-xs font-extrabold bg-sky-100 text-sky-900 tracking-wide uppercase border border-sky-200/80 shadow-xs">
+          {/* <span className="inline-flex items-center gap-1.5 px-3.5 py-1 mb-3 rounded-full text-xs font-extrabold bg-info-100 text-info-900 tracking-wide uppercase border border-info-200/80 shadow-2xs">
             <span>🎨 Plaster Craft Kits for Kids</span>
           </span> */}
           <h1
             className="font-extrabold leading-tight mb-4"
             style={{
               fontSize: "clamp(2.15rem, 5.5vw, 3.6rem)",
-              color: "#3C2A21",
+              color: "var(--color-secondary)",
             }}
           >
             Paint Your World
             <br />
             with Kits and Craft!
           </h1>
-          <p className="mb-8 max-w-md mx-auto md:mx-0 text-slate-600 text-base sm:text-lg leading-relaxed font-medium">
+          <p className="mb-8 max-w-md mx-auto md:mx-0 text-neutral-600 text-base sm:text-lg leading-relaxed font-medium">
             Complete ready-to-paint plaster craft kits designed to ignite
             creativity, joy, & proud young artists!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
             <Link
               href="/shop"
-              className="px-7 py-3.5 text-white rounded-full font-bold shadow-lg text-center text-base transition hover:opacity-90 active:scale-95 bg-[#3C2A21]"
+              className="px-7 py-3.5 text-white rounded-full font-bold shadow-lg text-center text-base transition hover:opacity-90 active:scale-95 bg-secondary"
             >
               Shop Painting Kits
             </Link>
             {/* <Link
               href="/shop"
-              className="hidden md:block px-7 py-3.5 rounded-full font-bold text-center text-base transition hover:bg-sky-100/60 active:scale-95"
+              className="hidden md:block px-7 py-3.5 rounded-full font-bold text-center text-base transition hover:bg-info-100/60 active:scale-95"
               style={{
-                border: "2px solid #3C2A21",
-                color: "#3C2A21",
+                border: "2px solid var(--color-secondary)",
+                color: "var(--color-secondary)",
               }}
             >
               Explore Themes
@@ -88,16 +88,16 @@ const heroSlides = [
                 />
               </picture>
             </div>
-            <div className="absolute -top-3 -right-2 bg-sky-600 text-white rounded-full px-3.5 py-1 text-xs font-black shadow-lg">
+            <div className="absolute -top-3 -right-2 bg-info-600 text-white rounded-full px-3.5 py-1 text-xs font-black shadow-lg">
               ✨ Ready-To-Paint Kits
             </div>
-            <div className="absolute -bottom-4 -left-3 bg-white px-4 py-2 rounded-2xl shadow-xl border border-sky-100 flex items-center space-x-2">
+            <div className="absolute -bottom-4 -left-3 bg-white px-4 py-2 rounded-2xl shadow-xl border border-info-100 flex items-center space-x-2">
               <span className="text-xl">🦚</span>
               <div className="text-left">
-                <p className="text-xs font-black text-slate-800">
+                <p className="text-xs font-black text-neutral-800">
                   Peacock & Animal Models
                 </p>
-                <p className="text-[10px] text-slate-500 font-medium">
+                <p className="text-[10px] text-neutral-500 font-medium">
                   Includes paints & brushes
                 </p>
               </div>
@@ -113,7 +113,7 @@ const heroSlides = [
     content: (
       <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center w-full py-5 md:py-16">
         <div className="w-full md:w-5/12 text-center md:text-left mb-8 md:mb-0">
-          {/* <div className="inline-flex items-center gap-2 px-3.5 py-1 mb-3 rounded-full text-xs font-extrabold bg-pink-100 text-pink-800 tracking-wide uppercase">
+          {/* <div className="inline-flex items-center gap-2 px-3.5 py-1 mb-3 rounded-full text-xs font-extrabold bg-primary/15 text-primary tracking-wide uppercase">
             <span>✨ DIY Home Decor Project</span>
           </div> */}
 
@@ -121,21 +121,21 @@ const heroSlides = [
             className="font-black leading-tight mb-3 uppercase tracking-tight"
             style={{
               fontSize: "clamp(2rem, 5vw, 3.15rem)",
-              color: "#3C2A21",
+              color: "var(--color-secondary)",
             }}
           >
             Brighten Up
             <br />
             Your Home!
             <br />
-            {/* <span className="text-pink-600">Décor Project.</span> */}
+            {/* <span className="text-primary">Décor Project.</span> */}
           </h2>
 
-          {/* <div className="inline-block bg-amber-100/90 text-[#3C2A21] px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm mb-5 border border-amber-300/60 shadow-xs">
+          {/* <div className="inline-block bg-warning-100/90 text-secondary px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm mb-5 border border-warning-300/60 shadow-2xs">
             🏡 Kids' Art as Charming Home Décor!
           </div> */}
 
-          <p className="mb-6 max-w-md mx-auto md:mx-0 text-slate-600 text-sm sm:text-base leading-relaxed font-medium">
+          <p className="mb-6 max-w-md mx-auto md:mx-0 text-neutral-600 text-sm sm:text-base leading-relaxed font-medium">
             Turn your kids' hand-painted plaster creations into timeless shelf &
             desk keepsakes to proudly display around the house.
           </p>
@@ -143,7 +143,7 @@ const heroSlides = [
           <div className="flex justify-center md:justify-start">
             <Link
               href="/shop"
-              className="px-7 py-3.5 text-white rounded-full font-black uppercase tracking-wider shadow-xl text-center text-base transition hover:opacity-95 active:scale-95 bg-pink-700 hover:bg-pink-800"
+              className="px-7 py-3.5 text-white rounded-full font-black uppercase tracking-wider shadow-xl text-center text-base transition hover:opacity-95 active:scale-95 bg-primary hover:bg-primary/90"
             >
               Start Your Decor Project!
             </Link>
@@ -152,7 +152,7 @@ const heroSlides = [
 
         <div className="w-full md:w-7/12 flex flex-col sm:flex-row items-center justify-center gap-5 relative">
           <div className="relative max-w-xs sm:max-w-sm w-full flex flex-col items-center">
-            <div className="relative rounded-3xl bg-white/70 backdrop-blur-xs p-3.5 border border-rose-200/70 shadow-lg hover:shadow-xl transition duration-300 w-full flex justify-center">
+            <div className="relative rounded-3xl bg-white/70 backdrop-blur-xs p-3.5 border border-danger-200/70 shadow-lg hover:shadow-xl transition duration-300 w-full flex justify-center">
               <picture>
                 <source
                   type="image/avif"
@@ -177,12 +177,12 @@ const heroSlides = [
                   className="w-full h-auto max-h-52 object-contain filter drop-shadow-md"
                 />
               </picture>
-              <div className="absolute -top-3 -right-2 bg-pink-600 text-white rounded-full px-3 py-0.5 text-[10px] font-black shadow">
+              <div className="absolute -top-3 -right-2 bg-primary text-white rounded-full px-3 py-0.5 text-[10px] font-black shadow-sm">
                 Home Shelf Decor
               </div>
             </div>
 
-            <div className="relative rounded-3xl bg-white/70 backdrop-blur-xs p-3 mt-3 border border-rose-200/70 shadow-md hover:shadow-lg transition duration-300 w-full flex justify-center">
+            <div className="relative rounded-3xl bg-white/70 backdrop-blur-xs p-3 mt-3 border border-danger-200/70 shadow-md hover:shadow-lg transition duration-300 w-full flex justify-center">
               <picture>
                 <source
                   type="image/avif"
@@ -210,14 +210,14 @@ const heroSlides = [
             </div>
           </div>
 
-          {/* <div className="hidden lg:flex flex-col items-center justify-center p-4 bg-white/85 backdrop-blur-md rounded-3xl border border-rose-200 shadow-lg w-40 text-center shrink-0">
+          {/* <div className="hidden lg:flex flex-col items-center justify-center p-4 bg-white/85 backdrop-blur-md rounded-3xl border border-danger-200 shadow-lg w-40 text-center shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element 
             <img
               src="/images/hero/silicone-mold.png"
               alt="Silicone Mold"
-              className="w-20 h-20 object-contain mb-2 drop-shadow"
+              className="w-20 h-20 object-contain mb-2 drop-shadow-sm"
             />
-            <span className="text-xs font-extrabold text-pink-900 leading-tight">
+            <span className="text-xs font-extrabold text-primary leading-tight">
               Includes Mold & Paints
             </span>
           </div> */}
@@ -231,37 +231,37 @@ const heroSlides = [
     content: (
       <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center w-full py-5 md:py-16">
         <div className="w-full md:w-5/12 text-center md:text-left mb-8 md:mb-0">
-          {/* <span className="inline-block px-3.5 py-1 mb-3 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 tracking-wide uppercase">
+          {/* <span className="inline-block px-3.5 py-1 mb-3 rounded-full text-xs font-extrabold bg-warning-100 text-warning-800 tracking-wide uppercase">
             🌟 Screen-Free Family Joy
           </span> */}
           <h2
             className="font-extrabold leading-tight mb-5"
             style={{
               fontSize: "clamp(2.15rem, 5.5vw, 3.6rem)",
-              color: "#3C2A21",
+              color: "var(--color-secondary)",
             }}
           >
             Unleash Their
             <br />
             Creative Wonder!
           </h2>
-          <p className="mb-8 max-w-md mx-auto md:mx-0 text-base sm:text-lg font-medium leading-relaxed text-slate-600">
+          <p className="mb-8 max-w-md mx-auto md:mx-0 text-base sm:text-lg font-medium leading-relaxed text-neutral-600">
             Watch young imaginations blossom! Non-toxic, vibrant plaster
             painting kits that bring hours of proud artistic fun.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
             <Link
               href="/shop"
-              className="px-7 py-3.5 text-white rounded-full font-bold shadow-lg text-center text-base transition hover:opacity-90 active:scale-95 bg-amber-600 hover:bg-amber-700"
+              className="px-7 py-3.5 text-white rounded-full font-bold shadow-lg text-center text-base transition hover:opacity-90 active:scale-95 bg-warning-600 hover:bg-warning-700"
             >
               Shop Kids' Art Kits
             </Link>
             <Link
               href="/offers"
-              className="hidden md:block px-7 py-3.5 rounded-full font-bold text-center text-base transition hover:bg-amber-100/60 active:scale-95"
+              className="hidden md:block px-7 py-3.5 rounded-full font-bold text-center text-base transition hover:bg-warning-100/60 active:scale-95"
               style={{
-                border: "2px solid #3C2A21",
-                color: "#3C2A21",
+                border: "2px solid var(--color-secondary)",
+                color: "var(--color-secondary)",
               }}
             >
               See Offers
@@ -297,13 +297,13 @@ const heroSlides = [
                 />
               </picture>
             </div>
-            <div className="absolute -bottom-4 -left-3 bg-white px-4 py-2 rounded-2xl shadow-xl border border-amber-200 flex items-center space-x-2">
+            <div className="absolute -bottom-4 -left-3 bg-white px-4 py-2 rounded-2xl shadow-xl border border-warning-200 flex items-center space-x-2">
               <span className="text-xl">👩‍🎨</span>
               <div className="text-left">
-                <p className="text-xs font-black text-slate-800">
+                <p className="text-xs font-black text-neutral-800">
                   100% Non-Toxic & Safe
                 </p>
-                <p className="text-[10px] text-slate-500 font-medium">
+                <p className="text-[10px] text-neutral-500 font-medium">
                   Certified child friendly
                 </p>
               </div>
@@ -432,7 +432,7 @@ export default function HeroCarousel() {
       <button
         onClick={prevSlide}
         aria-label="Previous slide"
-        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white/80 hover:bg-white text-[#3C2A21] backdrop-blur-md shadow-lg border border-white/60 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer"
+        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white/80 hover:bg-white text-secondary backdrop-blur-md shadow-lg border border-white/60 transition-all transform hover:scale-110 active:scale-95 focus:outline-hidden cursor-pointer"
       >
         <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
@@ -441,7 +441,7 @@ export default function HeroCarousel() {
       <button
         onClick={nextSlide}
         aria-label="Next slide"
-        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white/80 hover:bg-white text-[#3C2A21] backdrop-blur-md shadow-lg border border-white/60 transition-all transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer"
+        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3 rounded-full bg-white/80 hover:bg-white text-secondary backdrop-blur-md shadow-lg border border-white/60 transition-all transform hover:scale-110 active:scale-95 focus:outline-hidden cursor-pointer"
       >
         <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
@@ -471,10 +471,10 @@ export default function HeroCarousel() {
             key={slide.id}
             onClick={() => handleDotClick(idx)}
             aria-label={`Go to slide ${idx + 1}`}
-            className={`transition-all duration-300 rounded-full focus:outline-none cursor-pointer ${
+            className={`transition-all duration-300 rounded-full focus:outline-hidden cursor-pointer ${
               realIndex === idx
-                ? "w-8 h-3 bg-[#3C2A21] shadow-sm"
-                : "w-3 h-3 bg-[#3C2A21]/30 hover:bg-[#3C2A21]/60"
+                ? "w-8 h-3 bg-secondary shadow-xs"
+                : "w-3 h-3 bg-secondary/30 hover:bg-secondary/60"
             }`}
           />
         ))}
